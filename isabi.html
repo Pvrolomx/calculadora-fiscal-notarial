@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <meta name="theme-color" content="#d4af37">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NotariaSol">
+    <title>ISABI · Calculadora Fiscal Notarial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1E3A5F;
+            --primary-light: #2D5A8B;
+            --accent: #C9A227;
+            --bg: #F5F7FA;
+            --white: #FFFFFF;
+            --text: #333333;
+            --text-light: #666666;
+            --border: #E1E5EB;
+            --success: #22C55E;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .container { position: relative; max-width: 900px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 2rem; }
+        .header h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 0.5rem; }
+        .header p { font-size: 0.85rem; color: var(--text-light); }
+        .card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .card h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        @media (max-width: 600px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+        .field { margin-bottom: 1rem; }
+        .field label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+        .field input, .field select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .field input:focus, .field select:focus {
+            border-color: var(--primary);
+        }
+        .toggle-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .toggle-btn {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: var(--white);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .toggle-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+        .toggle-btn .state-name { font-weight: 600; font-size: 1rem; }
+        .toggle-btn .state-desc { font-size: 0.75rem; opacity: 0.8; margin-top: 4px; }
+        .btn-calcular {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-calcular:hover { background: var(--primary-light); }
+        .resultado {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 16px;
+            padding: 2rem;
+            color: white;
+            text-align: center;
+            display: none;
+        }
+        .resultado.visible { display: block; }
+        .resultado .label { font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.5rem; }
+        .resultado .monto { font-size: 2.5rem; font-weight: 700; }
+        .resultado .metodo { font-size: 0.8rem; opacity: 0.8; margin-top: 1rem; }
+        .desglose {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            text-align: left;
+        }
+        .desglose-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            font-size: 0.85rem;
+        }
+        .desglose-row.total {
+            border-top: 1px solid rgba(255,255,255,0.2);
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+            font-weight: 600;
+        }
+        .tabla-card { display: none; }
+        .tabla-card.visible { display: block; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        th, td {
+            padding: 0.6rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+        }
+        th { background: var(--bg); font-weight: 600; text-align: center; }
+        td:first-child { text-align: left; }
+        tr.active { background: rgba(30, 58, 95, 0.1); }
+        .back-btn {
+            position: absolute;
+            left: 1rem;
+            top: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .back-btn:hover { background: var(--primary-light); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html?panel=calculadoras" class="back-btn">← Regresar</a>
+        
+        <div class="header" style="padding-top: 1.5rem;">
+            <h1>🏛️ Calculadora ISABI / ISTP</h1>
+            <p>Impuesto Sobre Transmisiones Patrimoniales</p>
+        </div>
+
+        <div class="card">
+            <h2>📍 Selecciona el Estado</h2>
+            <div class="toggle-group">
+                <div class="toggle-btn active" id="btn-jalisco" onclick="setEstado('jalisco')">
+                    <div class="state-name">Jalisco</div>
+                    <div class="state-desc">Tabla progresiva ISABI/ISTP 2026</div>
+                </div>
+                <div class="toggle-btn" id="btn-nayarit" onclick="setEstado('nayarit')">
+                    <div class="state-name">Nayarit</div>
+                    <div class="state-desc">2% sobre valor mayor</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>💰 Datos de la Operación</h2>
+            <div class="grid-2">
+                <div class="field">
+                    <label>Valor de Operación (Precio de Venta)</label>
+                    <input type="text" id="valorOperacion" placeholder="$1,500,000.00" onfocus="clearFormat(this)" onblur="formatCurrency(this)">
+                </div>
+                <div class="field">
+                    <label>Valor Fiscal / Catastral</label>
+                    <input type="text" id="valorFiscal" placeholder="$1,200,000.00" onfocus="clearFormat(this)" onblur="formatCurrency(this)">
+                </div>
+            </div>
+            <button class="btn-calcular" onclick="calcular()">Calcular ISABI/ISTP</button>
+        </div>
+
+        <div class="resultado" id="resultado">
+            <div class="label">ISABI / ISTP a Pagar</div>
+            <div class="monto" id="montoISTP">$0.00</div>
+            <div class="metodo" id="metodoCalculo"></div>
+            <div class="desglose">
+                <div class="desglose-row">
+                    <span>Valor de Operación:</span>
+                    <span id="resValorOp">$0.00</span>
+                </div>
+                <div class="desglose-row">
+                    <span>Valor Fiscal:</span>
+                    <span id="resValorFiscal">$0.00</span>
+                </div>
+                <div class="desglose-row">
+                    <span>Base Gravable:</span>
+                    <span id="resBase">$0.00</span>
+                </div>
+                <div class="desglose-row" id="rowCuota" style="display:none">
+                    <span>Cuota Fija:</span>
+                    <span id="resCuota">$0.00</span>
+                </div>
+                <div class="desglose-row" id="rowExcedente" style="display:none">
+                    <span>Sobre Excedente:</span>
+                    <span id="resExcedente">$0.00</span>
+                </div>
+                <div class="desglose-row total">
+                    <span>ISABI / ISTP Total:</span>
+                    <span id="resTotal">$0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card tabla-card" id="tablaCard">
+            <h2>📊 Tabla ISABI Jalisco 2026</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rango</th>
+                        <th>Límite Inferior</th>
+                        <th>Límite Superior</th>
+                        <th>Cuota Fija</th>
+                        <th>% Excedente</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Tabla ISABI Jalisco 2026
+        const TABLA_JALISCO = [
+            { li: 0.01, ls: 584775.00, cuota: 0.00, porc: 2.65 },
+            { li: 584775.01, ls: 988162.00, cuota: 15496.54, porc: 2.75 },
+            { li: 988162.01, ls: 1630274.00, cuota: 26589.68, porc: 2.85 },
+            { li: 1630274.01, ls: 2500184.00, cuota: 44889.87, porc: 2.95 },
+            { li: 2500184.01, ls: 4067064.00, cuota: 70552.22, porc: 3.05 },
+            { li: 4067064.01, ls: 6559136.00, cuota: 118342.06, porc: 3.15 },
+            { li: 6559136.01, ls: 13143342.00, cuota: 196842.32, porc: 3.25 },
+            { li: 13143342.01, ls: 48372251.00, cuota: 410829.02, porc: 3.35 },
+            { li: 48372251.01, ls: 219067566.00, cuota: 1590997.47, porc: 3.45 },
+            { li: 219067566.01, ls: null, cuota: 7479985.84, porc: 3.55 }
+        ];
+
+        let estadoSeleccionado = 'jalisco';
+
+        function setEstado(estado) {
+            estadoSeleccionado = estado;
+            document.getElementById('btn-jalisco').classList.toggle('active', estado === 'jalisco');
+            document.getElementById('btn-nayarit').classList.toggle('active', estado === 'nayarit');
+            document.getElementById('tablaCard').classList.toggle('visible', estado === 'jalisco');
+            document.getElementById('resultado').classList.remove('visible');
+        }
+
+        function clearFormat(input) {
+            // Al hacer focus, quitar formato para editar fácil
+            let value = input.value.replace(/[^0-9.]/g, '');
+            if (value) {
+                input.value = value;
+            }
+        }
+        
+        function formatCurrency(input) {
+            // Al salir del campo, aplicar formato
+            let value = input.value.replace(/[^0-9.]/g, '');
+            if (value) {
+                const num = parseFloat(value);
+                if (!isNaN(num)) {
+                    input.value = '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
+            } else {
+                input.value = '';
+            }
+        }
+
+        function parseCurrency(str) {
+            return parseFloat(str.replace(/[^0-9.]/g, '')) || 0;
+        }
+
+        function formatMoney(num) {
+            return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function calcular() {
+            const valorOp = parseCurrency(document.getElementById('valorOperacion').value);
+            const valorFiscal = parseCurrency(document.getElementById('valorFiscal').value);
+
+            let resultado;
+            if (estadoSeleccionado === 'nayarit') {
+                resultado = calcularNayarit(valorOp, valorFiscal);
+            } else {
+                resultado = calcularJalisco(valorOp, valorFiscal);
+            }
+
+            mostrarResultado(resultado);
+        }
+
+        function calcularNayarit(valorOp, valorFiscal) {
+            const base = Math.max(valorOp, valorFiscal);
+            const istp = base * 0.02;
+            return {
+                estado: 'Nayarit',
+                metodo: '2% sobre el valor mayor (operación vs fiscal)',
+                valorOp,
+                valorFiscal,
+                base,
+                cuota: 0,
+                excedente: 0,
+                istp
+            };
+        }
+
+        function calcularJalisco(valorOp, valorFiscal) {
+            const base = valorFiscal > 0 ? valorFiscal : valorOp;
+            let cuota = 0, excedente = 0, porc = 0, rangoIdx = -1;
+
+            for (let i = 0; i < TABLA_JALISCO.length; i++) {
+                const t = TABLA_JALISCO[i];
+                if (t.ls === null) {
+                    if (base >= t.li) {
+                        cuota = t.cuota;
+                        excedente = (base - t.li) * (t.porc / 100);
+                        porc = t.porc;
+                        rangoIdx = i;
+                    }
+                } else {
+                    if (base >= t.li && base <= t.ls) {
+                        cuota = t.cuota;
+                        excedente = (base - t.li) * (t.porc / 100);
+                        porc = t.porc;
+                        rangoIdx = i;
+                    }
+                }
+            }
+
+            actualizarTabla(rangoIdx);
+
+            return {
+                estado: 'Jalisco',
+                metodo: `Tabla progresiva ISABI/ISTP 2026 (${porc}% sobre excedente)`,
+                valorOp,
+                valorFiscal: base,
+                base,
+                cuota,
+                excedente,
+                istp: cuota + excedente
+            };
+        }
+
+        function mostrarResultado(r) {
+            document.getElementById('montoISTP').textContent = formatMoney(r.istp);
+            document.getElementById('metodoCalculo').textContent = r.metodo;
+            document.getElementById('resValorOp').textContent = formatMoney(r.valorOp);
+            document.getElementById('resValorFiscal').textContent = formatMoney(r.valorFiscal);
+            document.getElementById('resBase').textContent = formatMoney(r.base);
+            document.getElementById('resTotal').textContent = formatMoney(r.istp);
+
+            const rowCuota = document.getElementById('rowCuota');
+            const rowExcedente = document.getElementById('rowExcedente');
+
+            if (r.estado === 'Jalisco') {
+                rowCuota.style.display = 'flex';
+                rowExcedente.style.display = 'flex';
+                document.getElementById('resCuota').textContent = formatMoney(r.cuota);
+                document.getElementById('resExcedente').textContent = formatMoney(r.excedente);
+            } else {
+                rowCuota.style.display = 'none';
+                rowExcedente.style.display = 'none';
+            }
+
+            document.getElementById('resultado').classList.add('visible');
+        }
+
+        function actualizarTabla(activeIdx) {
+            const tbody = document.getElementById('tablaBody');
+            tbody.innerHTML = TABLA_JALISCO.map((t, i) => `
+                <tr class="${i === activeIdx ? 'active' : ''}">
+                    <td>${i + 1}</td>
+                    <td>${formatMoney(t.li)}</td>
+                    <td>${t.ls ? formatMoney(t.ls) : 'En adelante'}</td>
+                    <td>${formatMoney(t.cuota)}</td>
+                    <td>${t.porc}%</td>
+                </tr>
+            `).join('');
+        }
+
+        // Inicializar tabla al cargar
+        actualizarTabla(-1);
+        document.getElementById('tablaCard').classList.add('visible');
+    </script>
+<footer style="text-align:center;padding:1rem;font-size:0.72rem;color:#666;border-top:1px solid #E1E5EB;margin-top:2rem;">Hecho por duendes.app 2026 · Expat Advisor MX</footer>
+</body>
+</html>
