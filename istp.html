@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    <meta name="theme-color" content="#d4af37">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NotariaSol">
+    <title>ISTP · Calculadora Fiscal Notarial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1E3A5F;
+            --primary-light: #2D5A8B;
+            --accent: #C9A227;
+            --bg: #F5F7FA;
+            --white: #FFFFFF;
+            --text: #333333;
+            --text-light: #666666;
+            --border: #E1E5EB;
+            --success: #22C55E;
+        input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } input[type=number] { -moz-appearance: textfield; }
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .container { max-width: 600px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 2rem; }
+        .header h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 0.5rem; }
+        .header p { font-size: 0.85rem; color: var(--text-light); }
+        .card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .card h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .field { margin-bottom: 1rem; }
+        .field label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+        .field input, .field select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .field input:focus, .field select:focus {
+            border-color: var(--primary);
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+        .btn-primary:hover { background: var(--primary-light); }
+        .result-section {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1rem;
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .result-row:last-child { border-bottom: none; }
+        .result-row.total {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary);
+            border-top: 2px solid var(--primary);
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+        }
+        .result-row .label { color: var(--text-light); }
+        .result-row .value { font-weight: 500; }
+        .hidden { display: none; }
+        .info-box {
+            background: #EBF5FF;
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.8rem;
+            margin-top: 1rem;
+        }
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .tab {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            background: var(--bg);
+            border: 1px solid var(--border);
+        }
+        .tab.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+    </style>
+<style>
+        .back-btn { position:fixed; top:1rem; left:1rem; background:#1E3A5F; color:white; border:none;
+        padding:0.5rem 1rem; border-radius:8px; cursor:pointer; font-size:0.85rem; text-decoration:none;
+        display:inline-flex; align-items:center; gap:0.3rem; z-index:999; }
+        .back-btn:hover { background:#2D5A8B; }
+        </style></head>
+<body>
+<a class="back-btn" href="/">← Menú</a>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ Calculadora ISTP / ISABI</h1>
+            <p>Impuesto Sobre Transmisiones Patrimoniales</p>
+        </div>
+
+        <div class="card">
+            <h2>📍 Estado</h2>
+            <div class="tabs">
+                <div class="tab active" onclick="setEstado('nayarit')">Nayarit</div>
+                <div class="tab" onclick="setEstado('jalisco')">Jalisco</div>
+            </div>
+            
+            <div class="field">
+                <label>Valor de Operación (Precio Venta) $</label>
+                <input type="text" id="valorOperacion" placeholder="0" oninput="formatInputMoney(this)">
+            </div>
+            
+            <div class="field" id="fieldValorFiscal">
+                <label>Valor Fiscal / Catastral $</label>
+                <input type="text" id="valorFiscal" placeholder="0" oninput="formatInputMoney(this)">
+            </div>
+            
+            <button class="btn btn-primary" onclick="calcularISTP()">
+                Calcular ISTP
+            </button>
+        </div>
+
+        <div class="card hidden" id="resultados">
+            <h2>📊 Resultado</h2>
+            <div class="result-section">
+                <div class="result-row">
+                    <span class="label">Estado</span>
+                    <span class="value" id="resEstado">-</span>
+                </div>
+                <div class="result-row">
+                    <span class="label">Método</span>
+                    <span class="value" id="resMetodo">-</span>
+                </div>
+                <div class="result-row">
+                    <span class="label">Valor Operación</span>
+                    <span class="value" id="resValorOp">-</span>
+                </div>
+                <div class="result-row">
+                    <span class="label">Valor Fiscal</span>
+                    <span class="value" id="resValorFiscal">-</span>
+                </div>
+                <div class="result-row">
+                    <span class="label">Base Gravable</span>
+                    <span class="value" id="resBase">-</span>
+                </div>
+                <div class="result-row total">
+                    <span class="label">ISTP a Pagar</span>
+                    <span class="value" id="resISTP">-</span>
+                </div>
+            </div>
+            
+            <div class="info-box" id="infoJalisco" style="display:none;">
+                <strong>Jalisco:</strong> El ISABI se calcula sobre el valor fiscal/catastral 
+                con una tabla progresiva del 2.65% al 3.55% según el monto.
+            </div>
+            <div class="info-box" id="infoNayarit">
+                <strong>Nayarit:</strong> El ISTP es 2% sobre el valor mayor 
+                entre operación y fiscal.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tabla ISABI Jalisco 2025
+        const TABLA_JALISCO = [
+            {li: 0.01, ls: 584775.00, cuota: 0.00, porc: 2.65},
+            {li: 584775.01, ls: 988162.00, cuota: 15496.54, porc: 2.75},
+            {li: 988162.01, ls: 1630274.00, cuota: 26589.68, porc: 2.85},
+            {li: 1630274.01, ls: 2500184.00, cuota: 44889.87, porc: 2.95},
+            {li: 2500184.01, ls: 4067064.00, cuota: 70552.22, porc: 3.05},
+            {li: 4067064.01, ls: 6559136.00, cuota: 118342.06, porc: 3.15},
+            {li: 6559136.01, ls: 13143342.00, cuota: 196842.32, porc: 3.25},
+            {li: 13143342.01, ls: 48372251.00, cuota: 410829.02, porc: 3.35},
+            {li: 48372251.01, ls: 219067566.00, cuota: 1590997.47, porc: 3.45},
+            {li: 219067566.01, ls: null, cuota: 7479985.84, porc: 3.55}
+        ];
+        
+        let estado = 'nayarit';
+        
+        function setEstado(nuevoEstado) {
+            estado = nuevoEstado;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // En Jalisco el valor fiscal es obligatorio
+            if (estado === 'jalisco') {
+                document.getElementById('fieldValorFiscal').querySelector('label').textContent = 
+                    'Valor Fiscal / Catastral $ (obligatorio)';
+            } else {
+                document.getElementById('fieldValorFiscal').querySelector('label').textContent = 
+                    'Valor Fiscal / Catastral $ (opcional)';
+            }
+        }
+        
+        function formatMoney(num) {
+            return '$' + num.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+        
+        function calcularISTPJalisco(valorFiscal) {
+            for (const t of TABLA_JALISCO) {
+                if (t.ls === null) {
+                    if (valorFiscal >= t.li) {
+                        return t.cuota + ((valorFiscal - t.li) * t.porc / 100);
+                    }
+                } else {
+                    if (valorFiscal >= t.li && valorFiscal <= t.ls) {
+                        return t.cuota + ((valorFiscal - t.li) * t.porc / 100);
+                    }
+                }
+            }
+            return 0;
+        }
+        
+        function calcularISTP() {
+            const valorOperacion = parseInputMoney(document.getElementById('valorOperacion').value) || 0;
+            const valorFiscal = parseInputMoney(document.getElementById('valorFiscal').value) || 0;
+            
+            let base, istp, metodo;
+            
+            if (estado === 'nayarit') {
+                base = Math.max(valorOperacion, valorFiscal);
+                istp = base * 0.02;
+                metodo = '2% sobre valor mayor';
+                document.getElementById('infoNayarit').style.display = 'block';
+                document.getElementById('infoJalisco').style.display = 'none';
+            } else {
+                base = valorFiscal > 0 ? valorFiscal : valorOperacion;
+                istp = calcularISTPJalisco(base);
+                metodo = 'Tabla progresiva ISABI 2025';
+                document.getElementById('infoNayarit').style.display = 'none';
+                document.getElementById('infoJalisco').style.display = 'block';
+            }
+            
+            // Mostrar resultados
+            document.getElementById('resultados').classList.remove('hidden');
+            document.getElementById('resEstado').textContent = estado.charAt(0).toUpperCase() + estado.slice(1);
+            document.getElementById('resMetodo').textContent = metodo;
+            document.getElementById('resValorOp').textContent = formatMoney(valorOperacion);
+            document.getElementById('resValorFiscal').textContent = formatMoney(valorFiscal);
+            document.getElementById('resBase').textContent = formatMoney(base);
+            document.getElementById('resISTP').textContent = formatMoney(istp);
+        }
+    </script>
+<footer style="text-align:center;padding:1rem;font-size:0.72rem;color:#666;border-top:1px solid #E1E5EB;margin-top:2rem;">Hecho por duendes.app 2026 · Expat Advisor MX</footer>
+</body>
+</html>
