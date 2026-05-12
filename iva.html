@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IVA Notarial · Calculadora Fiscal Notarial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1E3A5F;
+            --primary-light: #2D5A8B;
+            --accent: #C9A227;
+            --bg: #F5F7FA;
+            --white: #FFFFFF;
+            --text: #333333;
+            --text-light: #666666;
+            --border: #E1E5EB;
+            --success: #22C55E;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .back-btn {
+            position: absolute;
+            left: 1rem;
+            top: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .back-btn:hover { background: var(--primary-light); }
+        .container { position: relative; max-width: 600px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 2rem; padding-top: 1.5rem; }
+        .header h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 0.5rem; }
+        .header p { font-size: 0.85rem; color: var(--text-light); }
+        .card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .field { margin-bottom: 1rem; }
+        .field label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+        .field input, .field select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        .btn:hover { background: var(--primary-light); }
+        .result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+            display: none;
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .result-row:last-child { border-bottom: none; }
+        .result-row.total {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html?panel=calculadoras" class="back-btn">← Regresar</a>
+        <div class="header">
+            <h1>🧾 Calculadora IVA</h1>
+            <p>Impuesto al Valor Agregado</p>
+        </div>
+
+        <div class="card">
+            <div class="field">
+                <label>Tipo de Operación</label>
+                <select id="ivaOperacion">
+                    <option value="local">Local Comercial</option>
+                    <option value="terreno">Terreno Comercial</option>
+                    <option value="arrendamiento">Arrendamiento</option>
+                    <option value="construccion">Construcción</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Valor de la Operación $</label>
+                <input type="text" id="ivaValor" placeholder="0" oninput="formatMoney(this)">
+            </div>
+            <div class="field">
+                <label>Tasa</label>
+                <select id="ivaTasa">
+                    <option value="16">16% General</option>
+                    <option value="8">8% Frontera</option>
+                    <option value="0">0% Exento</option>
+                </select>
+            </div>
+            <button class="btn" onclick="calcularIVA()">Calcular IVA</button>
+            
+            <div id="resultado" class="result">
+                <div class="result-row">
+                    <span>Base:</span>
+                    <span id="resBase">$0</span>
+                </div>
+                <div class="result-row">
+                    <span>IVA (<span id="resTasa">16</span>%):</span>
+                    <span id="resIVA">$0</span>
+                </div>
+                <div class="result-row total">
+                    <span>Total:</span>
+                    <span id="resTotal">$0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formatMoney(input) {
+            let value = input.value.replace(/[^0-9]/g, '');
+            if (value) {
+                input.value = parseInt(value).toLocaleString('es-MX');
+            }
+        }
+
+        function parseMoney(str) {
+            return parseFloat(str.replace(/,/g, '')) || 0;
+        }
+
+        function calcularIVA() {
+            const valor = parseMoney(document.getElementById('ivaValor').value);
+            const tasa = parseFloat(document.getElementById('ivaTasa').value);
+            
+            const iva = valor * (tasa / 100);
+            const total = valor + iva;
+            
+            document.getElementById('resBase').textContent = '$' + valor.toLocaleString('es-MX', {minimumFractionDigits: 2});
+            document.getElementById('resTasa').textContent = tasa;
+            document.getElementById('resIVA').textContent = '$' + iva.toLocaleString('es-MX', {minimumFractionDigits: 2});
+            document.getElementById('resTotal').textContent = '$' + total.toLocaleString('es-MX', {minimumFractionDigits: 2});
+            
+            document.getElementById('resultado').style.display = 'block';
+        }
+    </script>
+<footer style="text-align:center;padding:1rem;font-size:0.72rem;color:#666;border-top:1px solid #E1E5EB;margin-top:2rem;">Hecho por duendes.app 2026 · Expat Advisor MX</footer>
+</body>
+</html>
