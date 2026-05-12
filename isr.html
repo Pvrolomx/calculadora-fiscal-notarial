@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ISR Enajenación · Calculadora Fiscal Notarial</title>
+    <title>Calculadora ISR - Notarial Solutions</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -331,11 +331,11 @@
                 <div class="grid-2">
                     <div class="field">
                         <label>% Terreno</label>
-                        <input type="number" id="pctTerreno" value="80" min="0" max="100">
+                        <input type="number" id="pctTerreno" value="20" min="0" max="100">
                     </div>
                     <div class="field">
                         <label>% Construcción</label>
-                        <input type="number" id="pctConstruccion" value="20" min="0" max="100">
+                        <input type="number" id="pctConstruccion" value="80" min="0" max="100">
                     </div>
                 </div>
             </div>
@@ -593,7 +593,11 @@
             // 2025
             '2025-01': 138.343, '2025-02': 138.726, '2025-03': 139.161, '2025-04': 139.62,
             '2025-05': 140.012, '2025-06': 140.405, '2025-07': 140.78, '2025-08': 140.867,
-            '2025-09': 141.197, '2025-10': 141.708, '2025-11': 142.645, '2025-12': 143.042
+            '2025-09': 141.197, '2025-10': 141.708, '2025-11': 142.645, '2025-12': 143.042,
+            // 2026 — INPC publicado por INEGI (fuente: inegi.org.mx)
+            '2026-01': 144.243, '2026-02': 144.628, '2026-03': 145.071, '2026-04': 145.831,
+            '2026-05': 145.831, '2026-06': 145.831, '2026-07': 145.831, '2026-08': 145.831,
+            '2026-09': 145.831, '2026-10': 145.831, '2026-11': 145.831, '2026-12': 145.831
         };
         
                 // TABLAS ISR POR AÑO (Art. 152 LISR - Anexo 8 RMF)
@@ -746,7 +750,11 @@
             // 2025
             '2025-01': 138.343, '2025-02': 138.726, '2025-03': 139.161, '2025-04': 139.62,
             '2025-05': 140.012, '2025-06': 140.405, '2025-07': 140.78, '2025-08': 140.867,
-            '2025-09': 141.197, '2025-10': 141.708, '2025-11': 142.645, '2025-12': 143.042
+            '2025-09': 141.197, '2025-10': 141.708, '2025-11': 142.645, '2025-12': 143.042,
+            // 2026 — INPC publicado por INEGI (fuente: inegi.org.mx)
+            '2026-01': 144.243, '2026-02': 144.628, '2026-03': 145.071, '2026-04': 145.831,
+            '2026-05': 145.831, '2026-06': 145.831, '2026-07': 145.831, '2026-08': 145.831,
+            '2026-09': 145.831, '2026-10': 145.831, '2026-11': 145.831, '2026-12': 145.831
         };
         
         // Obtener UDI por fecha (usa mes de la fecha)
@@ -787,7 +795,7 @@
                 d.setMonth(d.getMonth() - 1);
             }
             const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-            return INPC[key] || INPC['2024-12'];
+            return INPC[key] || INPC['2025-12'];
         }
         // Función para consultar API INPC
         async function fetchINPC(year, month) {
@@ -861,7 +869,7 @@
                 const yr = dt.getFullYear();
                 const mo = dt.getMonth() + 1;
                 const ky = yr + '-' + String(mo).padStart(2, '0');
-                return INPC[ky] || INPC['2024-12'];
+                return INPC[ky] || INPC['2025-12'];
             }
             const d = new Date(fecha + 'T12:00:00');
             if (usarMesAnterior) {
@@ -884,7 +892,7 @@
             }
             
             // Fallback a tabla local
-            const fallback = INPC[key] || INPC['2024-12'];
+            const fallback = INPC[key] || INPC['2025-12'];
             inpcCache[key] = fallback;
             return fallback;
         }
@@ -1158,6 +1166,5 @@
         });
     }
     </script>
-<footer style="text-align:center;padding:1rem;font-size:0.72rem;color:#666;border-top:1px solid #E1E5EB;margin-top:2rem;">Hecho por duendes.app 2026 · Expat Advisor MX</footer>
 </body>
 </html>
