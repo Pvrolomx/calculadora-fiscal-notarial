@@ -5,429 +5,667 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/icon-192.png">
-    <meta name="theme-color" content="#d4af37">
+    <meta name="theme-color" content="#1E3A5F">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NotariaSol">
-    <title>ISABI · Calculadora Fiscal Notarial</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>ISABI / ISTP · Calculadora Fiscal Notarial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary: #1E3A5F;
+            --primary:       #1E3A5F;
             --primary-light: #2D5A8B;
-            --accent: #C9A227;
-            --bg: #F5F7FA;
-            --white: #FFFFFF;
-            --text: #333333;
-            --text-light: #666666;
-            --border: #E1E5EB;
-            --success: #22C55E;
-            --warning: #F59E0B;
-            --danger: #EF4444;
+            --primary-pale:  #E8EFF7;
+            --accent:        #C9A227;
+            --accent-light:  #F5E6B3;
+            --accent-dark:   #A07D10;
+            --bg:            #F0F3F8;
+            --surface:       #FFFFFF;
+            --surface2:      #F7F9FC;
+            --text:          #1A2535;
+            --text-mid:      #4A5568;
+            --text-light:    #7A8799;
+            --border:        #D8E0EB;
+            --success:       #1A8C5B;
+            --radius-sm:     8px;
+            --radius:        14px;
+            --radius-lg:     20px;
+            --shadow:        0 4px 18px rgba(30,58,95,.10);
+            --shadow-lg:     0 8px 32px rgba(30,58,95,.14);
         }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
-            padding: 1rem;
+            padding-bottom: 4rem;
         }
-        .container { position: relative; max-width: 900px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 2rem; }
-        .header h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 0.5rem; }
-        .header p { font-size: 0.85rem; color: var(--text-light); }
-        .card {
-            background: var(--white);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .card h2 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 1.25rem;
+
+        /* ── PAGE HEADER ── */
+        .page-header {
+            background: var(--primary);
+            color: #fff;
+            padding: 1.25rem 1.5rem 1.1rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-        }
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
         }
-        @media (max-width: 600px) {
-            .grid-2 { grid-template-columns: 1fr; }
-        }
-        .field { margin-bottom: 1rem; }
-        .field label {
-            display: block;
-            font-size: 0.75rem;
-            color: var(--text-light);
-            margin-bottom: 0.4rem;
-            font-weight: 500;
-        }
-        .field input, .field select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            font-size: 0.9rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .field input:focus, .field select:focus {
-            border-color: var(--primary);
-        }
-        .toggle-group {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .toggle-btn {
-            flex: 1;
-            padding: 1rem;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            background: var(--white);
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
-        }
-        .toggle-btn.active {
-            border-color: var(--primary);
-            background: var(--primary);
-            color: white;
-        }
-        .toggle-btn .state-name { font-weight: 600; font-size: 1rem; }
-        .toggle-btn .state-desc { font-size: 0.75rem; opacity: 0.8; margin-top: 4px; }
-        .btn-calcular {
-            width: 100%;
-            padding: 1rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .btn-calcular:hover { background: var(--primary-light); }
-        .resultado {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            border-radius: 16px;
-            padding: 2rem;
-            color: white;
-            text-align: center;
-            display: none;
-        }
-        .resultado.visible { display: block; }
-        .resultado .label { font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.5rem; }
-        .resultado .monto { font-size: 2.5rem; font-weight: 700; }
-        .resultado .metodo { font-size: 0.8rem; opacity: 0.8; margin-top: 1rem; }
-        .desglose {
-            background: rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-top: 1.5rem;
-            text-align: left;
-        }
-        .desglose-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            font-size: 0.85rem;
-        }
-        .desglose-row.total {
-            border-top: 1px solid rgba(255,255,255,0.2);
-            margin-top: 0.5rem;
-            padding-top: 1rem;
-            font-weight: 600;
-        }
-        .tabla-card { display: none; }
-        .tabla-card.visible { display: block; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8rem;
-        }
-        th, td {
-            padding: 0.6rem;
-            text-align: right;
-            border-bottom: 1px solid var(--border);
-        }
-        th { background: var(--bg); font-weight: 600; text-align: center; }
-        td:first-child { text-align: left; }
-        tr.active { background: rgba(30, 58, 95, 0.1); }
         .back-btn {
-            position: absolute;
-            left: 1rem;
-            top: 1rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
+            background: rgba(255,255,255,.12);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,.2);
+            padding: .45rem .9rem;
+            border-radius: var(--radius-sm);
+            font-size: .82rem;
+            font-weight: 500;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: .3rem;
+            transition: background .18s;
+            white-space: nowrap;
         }
-        .back-btn:hover { background: var(--primary-light); }
+        .back-btn:hover { background: rgba(255,255,255,.22); }
+        .page-header-content { flex: 1; }
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .page-header p { font-size: .75rem; opacity: .7; margin-top: .15rem; }
+
+        /* ── MAIN TAB SWITCHER (ISABI / ISTP) ── */
+        .container { max-width: 820px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+        .main-tab-bar {
+            display: flex;
+            gap: 0;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: .35rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.25rem;
+            border: 1px solid var(--border);
+        }
+        .main-tab {
+            flex: 1;
+            padding: .8rem 1rem;
+            border-radius: 12px;
+            font-size: .9rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-mid);
+            transition: background .18s, color .18s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .2rem;
+        }
+        .main-tab span.tab-label { font-size: .9rem; }
+        .main-tab span.tab-sub { font-size: .68rem; font-weight: 400; opacity: .75; }
+        .main-tab.active {
+            background: var(--primary);
+            color: #fff;
+        }
+        .main-tab.active span.tab-sub { opacity: .8; }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ── CARDS ── */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 1.4rem 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(30,58,95,.07);
+            border: 1px solid var(--border);
+        }
+        .card-title {
+            font-size: .72rem;
+            font-weight: 700;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+
+        /* ── STATE TOGGLE ── */
+        .state-toggle { display: flex; gap: .5rem; margin-bottom: 1rem; }
+        .state-btn {
+            flex: 1;
+            padding: .85rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            cursor: pointer;
+            text-align: center;
+            transition: all .18s;
+        }
+        .state-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #fff;
+        }
+        .state-btn .sn { font-weight: 600; font-size: .95rem; }
+        .state-btn .sd { font-size: .72rem; opacity: .8; margin-top: 3px; }
+
+        /* ── FIELDS ── */
+        .field { margin-bottom: .85rem; }
+        .field label {
+            display: block;
+            font-size: .72rem;
+            font-weight: 600;
+            color: var(--text-mid);
+            margin-bottom: .35rem;
+        }
+        .field input, .field select {
+            width: 100%;
+            padding: .72rem 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .9rem;
+            color: var(--text);
+            background: var(--surface);
+            outline: none;
+            transition: border-color .18s, box-shadow .18s;
+        }
+        .field input:focus, .field select:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(45,90,139,.12);
+        }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; }
+        @media (max-width: 560px) { .grid-2 { grid-template-columns: 1fr; } }
+
+        /* ── CALC BUTTON ── */
+        .calc-btn {
+            width: 100%;
+            margin-top: .5rem;
+            padding: .9rem 2rem;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .18s, box-shadow .18s;
+            box-shadow: 0 3px 12px rgba(30,58,95,.22);
+        }
+        .calc-btn:hover { background: var(--primary-light); }
+
+        /* ── RESULT CARD ── */
+        .result-card {
+            background: var(--primary);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 1rem;
+            display: none;
+            animation: fadeUp .25s ease;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .result-card.visible { display: block; }
+        .result-header { padding: 1.4rem 1.4rem 1rem; color: #fff; text-align: center; }
+        .result-header .rl { font-size: .82rem; opacity: .8; margin-bottom: .3rem; }
+        .result-header .rm {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .result-header .rmt { font-size: .78rem; opacity: .65; margin-top: .4rem; }
+        .result-body { background: rgba(255,255,255,.08); padding: 1rem 1.4rem; }
+        .drow {
+            display: flex;
+            justify-content: space-between;
+            padding: .5rem 0;
+            font-size: .83rem;
+            border-bottom: 1px solid rgba(255,255,255,.1);
+            color: rgba(255,255,255,.85);
+        }
+        .drow:last-child { border-bottom: none; }
+        .drow.dtotal {
+            font-weight: 700;
+            font-size: .95rem;
+            color: #fff;
+            border-top: 1px solid rgba(255,255,255,.25);
+            margin-top: .25rem;
+            padding-top: .75rem;
+        }
+
+        /* ── TABLA JALISCO ── */
+        .tabla-card { display: none; }
+        .tabla-card.visible { display: block; }
+        table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+        th, td { padding: .55rem .6rem; text-align: right; border-bottom: 1px solid var(--border); }
+        th { background: var(--surface2); font-weight: 600; text-align: center; color: var(--text-mid); }
+        td:first-child { text-align: left; }
+        tr.active-row { background: var(--primary-pale); }
+        tr.active-row td { color: var(--primary); font-weight: 600; }
+
+        /* ── INFO BOXES ── */
+        .info-box {
+            background: var(--primary-pale);
+            border-left: 4px solid var(--primary);
+            padding: .85rem 1rem;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-size: .8rem;
+            color: var(--primary);
+            margin-top: .75rem;
+        }
+
+        .hidden { display: none !important; }
+
+        footer {
+            text-align: center;
+            padding: 1.25rem;
+            font-size: .72rem;
+            color: var(--text-light);
+            border-top: 1px solid var(--border);
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body>
+
+    <header class="page-header">
+        <a href="index.html" class="back-btn">← Regresar</a>
+        <div class="page-header-content">
+            <h1>ISABI / ISTP</h1>
+            <p>Adquisición de Bienes Inmuebles · Transmisión Patrimonial</p>
+        </div>
+    </header>
+
     <div class="container">
-        <a href="index.html?panel=calculadoras" class="back-btn">← Regresar</a>
-        
-        <div class="header" style="padding-top: 1.5rem;">
-            <h1>🏛️ Calculadora ISABI / ISTP</h1>
-            <p>Impuesto Sobre Transmisiones Patrimoniales</p>
+
+        <!-- ── MAIN TAB BAR ── -->
+        <div class="main-tab-bar">
+            <button class="main-tab active" onclick="switchMainTab('isabi')">
+                <span class="tab-label">🏛️ ISABI</span>
+                <span class="tab-sub">Jalisco / Nayarit</span>
+            </button>
+            <button class="main-tab" onclick="switchMainTab('istp')">
+                <span class="tab-label">📋 ISTP</span>
+                <span class="tab-sub">Cesión fideicomisaria · Nayarit</span>
+            </button>
         </div>
 
-        <div class="card">
-            <h2>📍 Selecciona el Estado</h2>
-            <div class="toggle-group">
-                <div class="toggle-btn active" id="btn-jalisco" onclick="setEstado('jalisco')">
-                    <div class="state-name">Jalisco</div>
-                    <div class="state-desc">Tabla progresiva ISABI/ISTP 2026</div>
-                </div>
-                <div class="toggle-btn" id="btn-nayarit" onclick="setEstado('nayarit')">
-                    <div class="state-name">Nayarit</div>
-                    <div class="state-desc">2% sobre valor mayor</div>
+        <!-- ════════════════════════════════════════
+             PANEL ISABI
+        ════════════════════════════════════════ -->
+        <div class="tab-panel active" id="panel-isabi">
+
+            <div class="card">
+                <div class="card-title">Estado</div>
+                <div class="state-toggle">
+                    <div class="state-btn active" id="isabi_btn-jalisco" onclick="isabi_setEstado('jalisco')">
+                        <div class="sn">Jalisco</div>
+                        <div class="sd">Tabla progresiva ISABI 2026</div>
+                    </div>
+                    <div class="state-btn" id="isabi_btn-nayarit" onclick="isabi_setEstado('nayarit')">
+                        <div class="sn">Nayarit</div>
+                        <div class="sd">2% sobre valor mayor</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card">
-            <h2>💰 Datos de la Operación</h2>
-            <div class="grid-2">
+            <div class="card">
+                <div class="card-title">Datos de la Operación</div>
+                <div class="grid-2">
+                    <div class="field">
+                        <label>Valor de Operación (Precio de Venta)</label>
+                        <input type="text" id="isabi_valorOperacion" placeholder="$1,500,000.00"
+                            onfocus="isabi_clearFormat(this)" onblur="isabi_formatCurrency(this)">
+                    </div>
+                    <div class="field">
+                        <label>Valor Fiscal / Catastral</label>
+                        <input type="text" id="isabi_valorFiscal" placeholder="$1,200,000.00"
+                            onfocus="isabi_clearFormat(this)" onblur="isabi_formatCurrency(this)">
+                    </div>
+                </div>
+                <button class="calc-btn" onclick="calcularISABI()">Calcular ISABI / ISTP</button>
+            </div>
+
+            <!-- Resultado ISABI -->
+            <div class="result-card" id="isabi_resultado">
+                <div class="result-header">
+                    <div class="rl">ISABI / ISTP a Pagar</div>
+                    <div class="rm" id="isabi_montoISTP">$0.00</div>
+                    <div class="rmt" id="isabi_metodoCalculo"></div>
+                </div>
+                <div class="result-body">
+                    <div class="drow"><span>Valor de Operación</span><span id="isabi_resValorOp">$0.00</span></div>
+                    <div class="drow"><span>Valor Fiscal</span><span id="isabi_resValorFiscal">$0.00</span></div>
+                    <div class="drow"><span>Base Gravable</span><span id="isabi_resBase">$0.00</span></div>
+                    <div class="drow" id="isabi_rowCuota" style="display:none"><span>Cuota Fija</span><span id="isabi_resCuota">$0.00</span></div>
+                    <div class="drow" id="isabi_rowExcedente" style="display:none"><span>Sobre Excedente</span><span id="isabi_resExcedente">$0.00</span></div>
+                    <div class="drow dtotal"><span>ISABI / ISTP Total</span><span id="isabi_resTotal">$0.00</span></div>
+                </div>
+            </div>
+
+            <!-- Tabla Jalisco ISABI -->
+            <div class="card tabla-card" id="isabi_tablaCard">
+                <div class="card-title">Tabla ISABI Jalisco 2026</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Límite Inferior</th>
+                            <th>Límite Superior</th>
+                            <th>Cuota Fija</th>
+                            <th>% Excedente</th>
+                        </tr>
+                    </thead>
+                    <tbody id="isabi_tablaBody"></tbody>
+                </table>
+            </div>
+
+        </div><!-- /panel-isabi -->
+
+
+        <!-- ════════════════════════════════════════
+             PANEL ISTP
+        ════════════════════════════════════════ -->
+        <div class="tab-panel" id="panel-istp">
+
+            <div class="card">
+                <div class="card-title">Estado</div>
+                <div class="state-toggle">
+                    <div class="state-btn active" id="istp_btn-nayarit" onclick="istp_setEstado('nayarit')">
+                        <div class="sn">Nayarit</div>
+                        <div class="sd">2% sobre valor mayor</div>
+                    </div>
+                    <div class="state-btn" id="istp_btn-jalisco" onclick="istp_setEstado('jalisco')">
+                        <div class="sn">Jalisco</div>
+                        <div class="sd">Tabla progresiva ISABI 2026</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Datos de la Operación</div>
                 <div class="field">
-                    <label>Valor de Operación (Precio de Venta)</label>
-                    <input type="text" id="valorOperacion" placeholder="$1,500,000.00" onfocus="clearFormat(this)" onblur="formatCurrency(this)">
+                    <label>Valor de Operación (Precio Venta) $</label>
+                    <input type="text" id="istp_valorOperacion" placeholder="0" oninput="formatInputMoneyISTP(this)">
                 </div>
-                <div class="field">
-                    <label>Valor Fiscal / Catastral</label>
-                    <input type="text" id="valorFiscal" placeholder="$1,200,000.00" onfocus="clearFormat(this)" onblur="formatCurrency(this)">
+                <div class="field" id="istp_fieldValorFiscal">
+                    <label id="istp_lblValorFiscal">Valor Fiscal / Catastral $ (opcional)</label>
+                    <input type="text" id="istp_valorFiscal" placeholder="0" oninput="formatInputMoneyISTP(this)">
+                </div>
+                <button class="calc-btn" onclick="calcularISTP()">Calcular ISTP</button>
+            </div>
+
+            <!-- Resultado ISTP -->
+            <div class="card hidden" id="istp_resultados">
+                <div class="card-title">Resultado</div>
+                <div style="display:flex;flex-direction:column;gap:.1rem;">
+                    <div class="drow" style="color:var(--text-mid);border-bottom:1px solid var(--border);padding:.5rem 0;">
+                        <span style="font-size:.82rem;">Estado</span>
+                        <span style="font-weight:600;font-size:.87rem;color:var(--text);" id="istp_resEstado">-</span>
+                    </div>
+                    <div class="drow" style="color:var(--text-mid);border-bottom:1px solid var(--border);padding:.5rem 0;">
+                        <span style="font-size:.82rem;">Método</span>
+                        <span style="font-weight:500;font-size:.82rem;color:var(--text);" id="istp_resMetodo">-</span>
+                    </div>
+                    <div class="drow" style="color:var(--text-mid);border-bottom:1px solid var(--border);padding:.5rem 0;">
+                        <span style="font-size:.82rem;">Valor Operación</span>
+                        <span style="font-weight:500;font-size:.87rem;" id="istp_resValorOp">-</span>
+                    </div>
+                    <div class="drow" style="color:var(--text-mid);border-bottom:1px solid var(--border);padding:.5rem 0;">
+                        <span style="font-size:.82rem;">Valor Fiscal</span>
+                        <span style="font-weight:500;font-size:.87rem;" id="istp_resValorFiscal">-</span>
+                    </div>
+                    <div class="drow" style="color:var(--text-mid);border-bottom:1px solid var(--border);padding:.5rem 0;">
+                        <span style="font-size:.82rem;">Base Gravable</span>
+                        <span style="font-weight:500;font-size:.87rem;" id="istp_resBase">-</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:1rem 0 .5rem;border-top:2px solid var(--primary);margin-top:.25rem;">
+                        <span style="font-size:.95rem;font-weight:700;color:var(--primary);">ISTP a Pagar</span>
+                        <span style="font-size:1.1rem;font-weight:700;color:var(--primary);" id="istp_resISTP">-</span>
+                    </div>
+                </div>
+                <div class="info-box" id="istp_infoJalisco" style="display:none;">
+                    <strong>Jalisco:</strong> El ISABI se calcula sobre el valor fiscal/catastral con una tabla progresiva del 2.65% al 3.55% según el monto.
+                </div>
+                <div class="info-box" id="istp_infoNayarit">
+                    <strong>Nayarit:</strong> El ISTP es 2% sobre el valor mayor entre operación y fiscal.
                 </div>
             </div>
-            <button class="btn-calcular" onclick="calcular()">Calcular ISABI/ISTP</button>
-        </div>
 
-        <div class="resultado" id="resultado">
-            <div class="label">ISABI / ISTP a Pagar</div>
-            <div class="monto" id="montoISTP">$0.00</div>
-            <div class="metodo" id="metodoCalculo"></div>
-            <div class="desglose">
-                <div class="desglose-row">
-                    <span>Valor de Operación:</span>
-                    <span id="resValorOp">$0.00</span>
-                </div>
-                <div class="desglose-row">
-                    <span>Valor Fiscal:</span>
-                    <span id="resValorFiscal">$0.00</span>
-                </div>
-                <div class="desglose-row">
-                    <span>Base Gravable:</span>
-                    <span id="resBase">$0.00</span>
-                </div>
-                <div class="desglose-row" id="rowCuota" style="display:none">
-                    <span>Cuota Fija:</span>
-                    <span id="resCuota">$0.00</span>
-                </div>
-                <div class="desglose-row" id="rowExcedente" style="display:none">
-                    <span>Sobre Excedente:</span>
-                    <span id="resExcedente">$0.00</span>
-                </div>
-                <div class="desglose-row total">
-                    <span>ISABI / ISTP Total:</span>
-                    <span id="resTotal">$0.00</span>
-                </div>
-            </div>
-        </div>
+        </div><!-- /panel-istp -->
 
-        <div class="card tabla-card" id="tablaCard">
-            <h2>📊 Tabla ISABI Jalisco 2026</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Rango</th>
-                        <th>Límite Inferior</th>
-                        <th>Límite Superior</th>
-                        <th>Cuota Fija</th>
-                        <th>% Excedente</th>
-                    </tr>
-                </thead>
-                <tbody id="tablaBody"></tbody>
-            </table>
-        </div>
-    </div>
+    </div><!-- /container -->
+
+    <footer>Hecho por duendes.app 2026 · Expat Advisor MX</footer>
 
     <script>
-        // Tabla ISABI Jalisco 2026
-        const TABLA_JALISCO = [
-            { li: 0.01, ls: 584775.00, cuota: 0.00, porc: 2.65 },
-            { li: 584775.01, ls: 988162.00, cuota: 15496.54, porc: 2.75 },
-            { li: 988162.01, ls: 1630274.00, cuota: 26589.68, porc: 2.85 },
-            { li: 1630274.01, ls: 2500184.00, cuota: 44889.87, porc: 2.95 },
-            { li: 2500184.01, ls: 4067064.00, cuota: 70552.22, porc: 3.05 },
-            { li: 4067064.01, ls: 6559136.00, cuota: 118342.06, porc: 3.15 },
-            { li: 6559136.01, ls: 13143342.00, cuota: 196842.32, porc: 3.25 },
-            { li: 13143342.01, ls: 48372251.00, cuota: 410829.02, porc: 3.35 },
-            { li: 48372251.01, ls: 219067566.00, cuota: 1590997.47, porc: 3.45 },
-            { li: 219067566.01, ls: null, cuota: 7479985.84, porc: 3.55 }
-        ];
+    /* ════════════════════════════════
+       MAIN TAB SWITCHER
+    ════════════════════════════════ */
+    function switchMainTab(tab) {
+        document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelector(`[onclick="switchMainTab('${tab}')"]`).classList.add('active');
+        document.getElementById('panel-' + tab).classList.add('active');
+    }
 
-        let estadoSeleccionado = 'jalisco';
+    /* ════════════════════════════════
+       ISABI — LÓGICA
+    ════════════════════════════════ */
+    const TABLA_JALISCO_ISABI = [
+        { li: 0.01,          ls: 584775.00,    cuota: 0.00,        porc: 2.65 },
+        { li: 584775.01,     ls: 988162.00,    cuota: 15496.54,    porc: 2.75 },
+        { li: 988162.01,     ls: 1630274.00,   cuota: 26589.68,    porc: 2.85 },
+        { li: 1630274.01,    ls: 2500184.00,   cuota: 44889.87,    porc: 2.95 },
+        { li: 2500184.01,    ls: 4067064.00,   cuota: 70552.22,    porc: 3.05 },
+        { li: 4067064.01,    ls: 6559136.00,   cuota: 118342.06,   porc: 3.15 },
+        { li: 6559136.01,    ls: 13143342.00,  cuota: 196842.32,   porc: 3.25 },
+        { li: 13143342.01,   ls: 48372251.00,  cuota: 410829.02,   porc: 3.35 },
+        { li: 48372251.01,   ls: 219067566.00, cuota: 1590997.47,  porc: 3.45 },
+        { li: 219067566.01,  ls: null,          cuota: 7479985.84,  porc: 3.55 }
+    ];
 
-        function setEstado(estado) {
-            estadoSeleccionado = estado;
-            document.getElementById('btn-jalisco').classList.toggle('active', estado === 'jalisco');
-            document.getElementById('btn-nayarit').classList.toggle('active', estado === 'nayarit');
-            document.getElementById('tablaCard').classList.toggle('visible', estado === 'jalisco');
-            document.getElementById('resultado').classList.remove('visible');
-        }
+    let isabi_estado = 'jalisco';
 
-        function clearFormat(input) {
-            // Al hacer focus, quitar formato para editar fácil
-            let value = input.value.replace(/[^0-9.]/g, '');
-            if (value) {
-                input.value = value;
-            }
-        }
-        
-        function formatCurrency(input) {
-            // Al salir del campo, aplicar formato
-            let value = input.value.replace(/[^0-9.]/g, '');
-            if (value) {
-                const num = parseFloat(value);
-                if (!isNaN(num)) {
-                    input.value = '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                }
+    function isabi_setEstado(estado) {
+        isabi_estado = estado;
+        document.getElementById('isabi_btn-jalisco').classList.toggle('active', estado === 'jalisco');
+        document.getElementById('isabi_btn-nayarit').classList.toggle('active', estado === 'nayarit');
+        document.getElementById('isabi_tablaCard').classList.toggle('visible', estado === 'jalisco');
+        document.getElementById('isabi_resultado').classList.remove('visible');
+    }
+
+    function isabi_clearFormat(input) {
+        const v = input.value.replace(/[^0-9.]/g, '');
+        if (v) input.value = v;
+    }
+
+    function isabi_formatCurrency(input) {
+        const v = input.value.replace(/[^0-9.]/g, '');
+        if (v) {
+            const n = parseFloat(v);
+            if (!isNaN(n)) input.value = '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        } else { input.value = ''; }
+    }
+
+    function isabi_parseCurrency(str) {
+        return parseFloat(str.replace(/[^0-9.]/g, '')) || 0;
+    }
+
+    function isabi_formatMoney(num) {
+        return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function calcularISABI() {
+        const valorOp    = isabi_parseCurrency(document.getElementById('isabi_valorOperacion').value);
+        const valorFiscal = isabi_parseCurrency(document.getElementById('isabi_valorFiscal').value);
+        const r = isabi_estado === 'nayarit'
+            ? isabi_calcularNayarit(valorOp, valorFiscal)
+            : isabi_calcularJalisco(valorOp, valorFiscal);
+        isabi_mostrarResultado(r);
+    }
+
+    function isabi_calcularNayarit(valorOp, valorFiscal) {
+        const base = Math.max(valorOp, valorFiscal);
+        return { estado: 'Nayarit', metodo: '2% sobre el valor mayor (operación vs fiscal)',
+                 valorOp, valorFiscal, base, cuota: 0, excedente: 0, istp: base * 0.02 };
+    }
+
+    function isabi_calcularJalisco(valorOp, valorFiscal) {
+        const base = valorFiscal > 0 ? valorFiscal : valorOp;
+        let cuota = 0, excedente = 0, porc = 0, rangoIdx = -1;
+        for (let i = 0; i < TABLA_JALISCO_ISABI.length; i++) {
+            const t = TABLA_JALISCO_ISABI[i];
+            if (t.ls === null) {
+                if (base >= t.li) { cuota = t.cuota; excedente = (base - t.li) * (t.porc / 100); porc = t.porc; rangoIdx = i; }
             } else {
-                input.value = '';
+                if (base >= t.li && base <= t.ls) { cuota = t.cuota; excedente = (base - t.li) * (t.porc / 100); porc = t.porc; rangoIdx = i; }
             }
         }
+        isabi_actualizarTabla(rangoIdx);
+        return { estado: 'Jalisco', metodo: `Tabla progresiva ISABI 2026 (${porc}% sobre excedente)`,
+                 valorOp, valorFiscal: base, base, cuota, excedente, istp: cuota + excedente };
+    }
 
-        function parseCurrency(str) {
-            return parseFloat(str.replace(/[^0-9.]/g, '')) || 0;
-        }
+    function isabi_mostrarResultado(r) {
+        document.getElementById('isabi_montoISTP').textContent    = isabi_formatMoney(r.istp);
+        document.getElementById('isabi_metodoCalculo').textContent = r.metodo;
+        document.getElementById('isabi_resValorOp').textContent   = isabi_formatMoney(r.valorOp);
+        document.getElementById('isabi_resValorFiscal').textContent = isabi_formatMoney(r.valorFiscal);
+        document.getElementById('isabi_resBase').textContent      = isabi_formatMoney(r.base);
+        document.getElementById('isabi_resTotal').textContent     = isabi_formatMoney(r.istp);
+        const rc = document.getElementById('isabi_rowCuota');
+        const re = document.getElementById('isabi_rowExcedente');
+        if (r.estado === 'Jalisco') {
+            rc.style.display = 'flex'; re.style.display = 'flex';
+            document.getElementById('isabi_resCuota').textContent    = isabi_formatMoney(r.cuota);
+            document.getElementById('isabi_resExcedente').textContent = isabi_formatMoney(r.excedente);
+        } else { rc.style.display = 'none'; re.style.display = 'none'; }
+        document.getElementById('isabi_resultado').classList.add('visible');
+    }
 
-        function formatMoney(num) {
-            return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
+    function isabi_actualizarTabla(activeIdx) {
+        const tbody = document.getElementById('isabi_tablaBody');
+        tbody.innerHTML = TABLA_JALISCO_ISABI.map((t, i) => `
+            <tr class="${i === activeIdx ? 'active-row' : ''}">
+                <td>${i + 1}</td>
+                <td>${isabi_formatMoney(t.li)}</td>
+                <td>${t.ls ? isabi_formatMoney(t.ls) : 'En adelante'}</td>
+                <td>${isabi_formatMoney(t.cuota)}</td>
+                <td>${t.porc}%</td>
+            </tr>
+        `).join('');
+    }
 
-        function calcular() {
-            const valorOp = parseCurrency(document.getElementById('valorOperacion').value);
-            const valorFiscal = parseCurrency(document.getElementById('valorFiscal').value);
+    // Inicializar ISABI
+    isabi_actualizarTabla(-1);
+    document.getElementById('isabi_tablaCard').classList.add('visible');
 
-            let resultado;
-            if (estadoSeleccionado === 'nayarit') {
-                resultado = calcularNayarit(valorOp, valorFiscal);
+
+    /* ════════════════════════════════
+       ISTP — LÓGICA
+    ════════════════════════════════ */
+    const TABLA_JALISCO_ISTP = [
+        {li: 0.01,         ls: 584775.00,    cuota: 0.00,       porc: 2.65},
+        {li: 584775.01,    ls: 988162.00,    cuota: 15496.54,   porc: 2.75},
+        {li: 988162.01,    ls: 1630274.00,   cuota: 26589.68,   porc: 2.85},
+        {li: 1630274.01,   ls: 2500184.00,   cuota: 44889.87,   porc: 2.95},
+        {li: 2500184.01,   ls: 4067064.00,   cuota: 70552.22,   porc: 3.05},
+        {li: 4067064.01,   ls: 6559136.00,   cuota: 118342.06,  porc: 3.15},
+        {li: 6559136.01,   ls: 13143342.00,  cuota: 196842.32,  porc: 3.25},
+        {li: 13143342.01,  ls: 48372251.00,  cuota: 410829.02,  porc: 3.35},
+        {li: 48372251.01,  ls: 219067566.00, cuota: 1590997.47, porc: 3.45},
+        {li: 219067566.01, ls: null,          cuota: 7479985.84, porc: 3.55}
+    ];
+
+    let istp_estado = 'nayarit';
+
+    function istp_setEstado(nuevoEstado) {
+        istp_estado = nuevoEstado;
+        document.getElementById('istp_btn-nayarit').classList.toggle('active', nuevoEstado === 'nayarit');
+        document.getElementById('istp_btn-jalisco').classList.toggle('active', nuevoEstado === 'jalisco');
+        document.getElementById('istp_lblValorFiscal').textContent =
+            nuevoEstado === 'jalisco'
+                ? 'Valor Fiscal / Catastral $ (obligatorio)'
+                : 'Valor Fiscal / Catastral $ (opcional)';
+    }
+
+    function formatInputMoneyISTP(input) {
+        let v = input.value.replace(/[^0-9.]/g, '');
+        const parts = v.split('.');
+        if (parts.length > 2) v = parts[0] + '.' + parts.slice(1).join('');
+        const num = parseFloat(v);
+        if (!isNaN(num) && v !== '') {
+            const [int, dec] = v.split('.');
+            const formatted = parseInt(int || '0').toLocaleString('en-US');
+            input.value = dec !== undefined ? formatted + '.' + dec : formatted;
+        } else if (v === '') { input.value = ''; }
+    }
+
+    function parseInputMoneyISTP(str) {
+        return parseFloat((str || '').replace(/[^0-9.]/g, '')) || 0;
+    }
+
+    function istp_formatMoney(num) {
+        return '$' + num.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    function istp_calcularJalisco(valorFiscal) {
+        for (const t of TABLA_JALISCO_ISTP) {
+            if (t.ls === null) {
+                if (valorFiscal >= t.li) return t.cuota + ((valorFiscal - t.li) * t.porc / 100);
             } else {
-                resultado = calcularJalisco(valorOp, valorFiscal);
+                if (valorFiscal >= t.li && valorFiscal <= t.ls) return t.cuota + ((valorFiscal - t.li) * t.porc / 100);
             }
-
-            mostrarResultado(resultado);
         }
+        return 0;
+    }
 
-        function calcularNayarit(valorOp, valorFiscal) {
-            const base = Math.max(valorOp, valorFiscal);
-            const istp = base * 0.02;
-            return {
-                estado: 'Nayarit',
-                metodo: '2% sobre el valor mayor (operación vs fiscal)',
-                valorOp,
-                valorFiscal,
-                base,
-                cuota: 0,
-                excedente: 0,
-                istp
-            };
+    function calcularISTP() {
+        const valorOperacion = parseInputMoneyISTP(document.getElementById('istp_valorOperacion').value);
+        const valorFiscal    = parseInputMoneyISTP(document.getElementById('istp_valorFiscal').value);
+        let base, istp, metodo;
+        if (istp_estado === 'nayarit') {
+            base = Math.max(valorOperacion, valorFiscal);
+            istp = base * 0.02;
+            metodo = '2% sobre valor mayor';
+            document.getElementById('istp_infoNayarit').style.display = 'block';
+            document.getElementById('istp_infoJalisco').style.display = 'none';
+        } else {
+            base = valorFiscal > 0 ? valorFiscal : valorOperacion;
+            istp = istp_calcularJalisco(base);
+            metodo = 'Tabla progresiva ISABI 2026';
+            document.getElementById('istp_infoNayarit').style.display = 'none';
+            document.getElementById('istp_infoJalisco').style.display = 'block';
         }
+        document.getElementById('istp_resultados').classList.remove('hidden');
+        document.getElementById('istp_resEstado').textContent   = istp_estado.charAt(0).toUpperCase() + istp_estado.slice(1);
+        document.getElementById('istp_resMetodo').textContent   = metodo;
+        document.getElementById('istp_resValorOp').textContent  = istp_formatMoney(valorOperacion);
+        document.getElementById('istp_resValorFiscal').textContent = istp_formatMoney(valorFiscal);
+        document.getElementById('istp_resBase').textContent    = istp_formatMoney(base);
+        document.getElementById('istp_resISTP').textContent    = istp_formatMoney(istp);
+    }
 
-        function calcularJalisco(valorOp, valorFiscal) {
-            const base = valorFiscal > 0 ? valorFiscal : valorOp;
-            let cuota = 0, excedente = 0, porc = 0, rangoIdx = -1;
-
-            for (let i = 0; i < TABLA_JALISCO.length; i++) {
-                const t = TABLA_JALISCO[i];
-                if (t.ls === null) {
-                    if (base >= t.li) {
-                        cuota = t.cuota;
-                        excedente = (base - t.li) * (t.porc / 100);
-                        porc = t.porc;
-                        rangoIdx = i;
-                    }
-                } else {
-                    if (base >= t.li && base <= t.ls) {
-                        cuota = t.cuota;
-                        excedente = (base - t.li) * (t.porc / 100);
-                        porc = t.porc;
-                        rangoIdx = i;
-                    }
-                }
-            }
-
-            actualizarTabla(rangoIdx);
-
-            return {
-                estado: 'Jalisco',
-                metodo: `Tabla progresiva ISABI/ISTP 2026 (${porc}% sobre excedente)`,
-                valorOp,
-                valorFiscal: base,
-                base,
-                cuota,
-                excedente,
-                istp: cuota + excedente
-            };
-        }
-
-        function mostrarResultado(r) {
-            document.getElementById('montoISTP').textContent = formatMoney(r.istp);
-            document.getElementById('metodoCalculo').textContent = r.metodo;
-            document.getElementById('resValorOp').textContent = formatMoney(r.valorOp);
-            document.getElementById('resValorFiscal').textContent = formatMoney(r.valorFiscal);
-            document.getElementById('resBase').textContent = formatMoney(r.base);
-            document.getElementById('resTotal').textContent = formatMoney(r.istp);
-
-            const rowCuota = document.getElementById('rowCuota');
-            const rowExcedente = document.getElementById('rowExcedente');
-
-            if (r.estado === 'Jalisco') {
-                rowCuota.style.display = 'flex';
-                rowExcedente.style.display = 'flex';
-                document.getElementById('resCuota').textContent = formatMoney(r.cuota);
-                document.getElementById('resExcedente').textContent = formatMoney(r.excedente);
-            } else {
-                rowCuota.style.display = 'none';
-                rowExcedente.style.display = 'none';
-            }
-
-            document.getElementById('resultado').classList.add('visible');
-        }
-
-        function actualizarTabla(activeIdx) {
-            const tbody = document.getElementById('tablaBody');
-            tbody.innerHTML = TABLA_JALISCO.map((t, i) => `
-                <tr class="${i === activeIdx ? 'active' : ''}">
-                    <td>${i + 1}</td>
-                    <td>${formatMoney(t.li)}</td>
-                    <td>${t.ls ? formatMoney(t.ls) : 'En adelante'}</td>
-                    <td>${formatMoney(t.cuota)}</td>
-                    <td>${t.porc}%</td>
-                </tr>
-            `).join('');
-        }
-
-        // Inicializar tabla al cargar
-        actualizarTabla(-1);
-        document.getElementById('tablaCard').classList.add('visible');
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+    }
     </script>
-<footer style="text-align:center;padding:1rem;font-size:0.72rem;color:#666;border-top:1px solid #E1E5EB;margin-top:2rem;">Hecho por duendes.app 2026 · Expat Advisor MX</footer>
+
 </body>
 </html>
