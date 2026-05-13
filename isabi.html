@@ -272,18 +272,17 @@
              PANEL ISABI
         ════════════════════════════════════════ -->
         <div class="tab-panel" id="panel-isabi">
-            <div class="tab-section-title">🏛️ ISABI · Impuesto sobre Adquisición de Bienes Inmuebles</div>
 
             <div class="card">
                 <div class="card-title">Estado</div>
                 <div class="state-toggle">
                     <div class="state-btn active" id="isabi_btn-jalisco" onclick="isabi_setEstado('jalisco')">
                         <div class="sn">Jalisco</div>
-                        <div class="sd">Tabla progresiva ISABI 2026</div>
+                        <div class="sd">Impuesto sobre Transmisiones Patrimoniales</div>
                     </div>
                     <div class="state-btn" id="isabi_btn-nayarit" onclick="isabi_setEstado('nayarit')">
                         <div class="sn">Nayarit</div>
-                        <div class="sd">2% sobre valor mayor</div>
+                        <div class="sd">Impuesto sobre Adquisición de Bienes Inmuebles</div>
                     </div>
                 </div>
             </div>
@@ -338,81 +337,6 @@
                     <tbody id="isabi_tablaBody"></tbody>
                 </table>
             </div>
-
-        </div><!-- /panel-isabi -->
-
-
-        <!-- ════════════════════════════════════════
-             PANEL ISTP
-        ════════════════════════════════════════ -->
-        <div class="tab-panel" id="panel-istp">
-            <div class="tab-section-title" style="margin-top:1.5rem;">📋 ISTP · Impuesto sobre Transmisión Patrimonial</div>
-
-            <div class="card">
-                <div class="card-title">Estado</div>
-                <div class="state-toggle">
-                    <div class="state-btn active" id="istp_btn-nayarit" onclick="istp_setEstado('nayarit')">
-                        <div class="sn">Nayarit</div>
-                        <div class="sd">2% sobre valor mayor</div>
-                    </div>
-                    <div class="state-btn" id="istp_btn-jalisco" onclick="istp_setEstado('jalisco')">
-                        <div class="sn">Jalisco</div>
-                        <div class="sd">Tabla progresiva ISABI 2026</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">Datos de la Operación</div>
-                <div class="field">
-                    <label>Valor de Operación (Precio Venta) $</label>
-                    <input type="text" id="istp_valorOperacion" placeholder="0" oninput="formatInputMoneyISTP(this)">
-                </div>
-                <div class="field" id="istp_fieldValorFiscal">
-                    <label id="istp_lblValorFiscal">Valor Fiscal / Catastral $ (opcional)</label>
-                    <input type="text" id="istp_valorFiscal" placeholder="0" oninput="formatInputMoneyISTP(this)">
-                </div>
-                <button class="calc-btn" onclick="calcularISTP()">Calcular ISTP</button>
-            </div>
-
-            <!-- Resultado ISTP -->
-            <div class="card hidden" id="istp_resultados">
-                <div class="card-title">Resultado</div>
-                <div style="display:flex;flex-direction:column;gap:.1rem;">
-                    <div class="drow" style="color:var(--text-mid);border-bottom:1px solid var(--border);padding:.5rem 0;">
-                        <span style="font-size:.82rem;">Estado</span>
-                        <span style="font-weight:600;font-size:.87rem;color:var(--text);" id="istp_resEstado">-</span>
-                    </div>
-                    <div class="drow" style="color:var(--text-mid);border-bottom:1px solid var(--border);padding:.5rem 0;">
-                        <span style="font-size:.82rem;">Método</span>
-                        <span style="font-weight:500;font-size:.82rem;color:var(--text);" id="istp_resMetodo">-</span>
-                    </div>
-                    <div class="drow" style="color:var(--text-mid);border-bottom:1px solid var(--border);padding:.5rem 0;">
-                        <span style="font-size:.82rem;">Valor Operación</span>
-                        <span style="font-weight:500;font-size:.87rem;" id="istp_resValorOp">-</span>
-                    </div>
-                    <div class="drow" style="color:var(--text-mid);border-bottom:1px solid var(--border);padding:.5rem 0;">
-                        <span style="font-size:.82rem;">Valor Fiscal</span>
-                        <span style="font-weight:500;font-size:.87rem;" id="istp_resValorFiscal">-</span>
-                    </div>
-                    <div class="drow" style="color:var(--text-mid);border-bottom:1px solid var(--border);padding:.5rem 0;">
-                        <span style="font-size:.82rem;">Base Gravable</span>
-                        <span style="font-weight:500;font-size:.87rem;" id="istp_resBase">-</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;padding:1rem 0 .5rem;border-top:2px solid var(--primary);margin-top:.25rem;">
-                        <span style="font-size:.95rem;font-weight:700;color:var(--primary);">ISTP a Pagar</span>
-                        <span style="font-size:1.1rem;font-weight:700;color:var(--primary);" id="istp_resISTP">-</span>
-                    </div>
-                </div>
-                <div class="info-box" id="istp_infoJalisco" style="display:none;">
-                    <strong>Jalisco:</strong> El ISABI se calcula sobre el valor fiscal/catastral con una tabla progresiva del 2.65% al 3.55% según el monto.
-                </div>
-                <div class="info-box" id="istp_infoNayarit">
-                    <strong>Nayarit:</strong> El ISTP es 2% sobre el valor mayor entre operación y fiscal.
-                </div>
-            </div>
-
-        </div><!-- /panel-istp -->
 
     </div><!-- /container -->
 
