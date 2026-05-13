@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CalcPro · Calculadora Fiscal</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg:          #0f1117;
+            --surface:     #1a1d27;
+            --surface2:    #22263a;
+            --surface3:    #2a2f45;
+            --primary:     #1E3A5F;
+            --primary-btn: #1e4a80;
+            --accent:      #C9A227;
+            --accent-dark: #a07d10;
+            --green:       #1db954;
+            --green-dark:  #158a3e;
+            --red:         #e05252;
+            --text:        #e8eaf0;
+            --text-mid:    #9aa0b8;
+            --text-dim:    #5a6080;
+            --border:      #2e3450;
+            --radius:      12px;
+            --radius-sm:   8px;
+        }
+        html, body { height: 100%; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* ── HEADER ── */
+        .app-header {
+            display: flex;
+            align-items: center;
+            padding: .65rem 1rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            gap: .75rem;
+            flex-shrink: 0;
+        }
+        .back-link {
+            color: var(--text-mid);
+            text-decoration: none;
+            font-size: .82rem;
+            display: flex;
+            align-items: center;
+            gap: .25rem;
+            padding: .35rem .65rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            transition: background .15s, color .15s;
+        }
+        .back-link:hover { background: var(--surface2); color: var(--text); }
+        .app-title { font-weight: 700; font-size: .95rem; color: var(--text); flex: 1; }
+        .mem-indicator {
+            font-size: .72rem;
+            font-weight: 600;
+            color: var(--accent);
+            background: rgba(201,162,39,.15);
+            border: 1px solid rgba(201,162,39,.3);
+            padding: .25rem .65rem;
+            border-radius: 999px;
+            display: none;
+        }
+        .mem-indicator.visible { display: inline-block; }
+        #install-btn-cp {
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--text-mid);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: .35rem .75rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: none;
+            transition: background .15s;
+        }
+        #install-btn-cp.visible { display: inline-block; }
+        #install-btn-cp:hover { background: var(--surface3); }
+
+        /* ── MAIN LAYOUT ── */
+        .app-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* ── CALCULATOR PANEL ── */
+        .calc-panel {
+            display: flex;
+            flex-direction: column;
+            width: 360px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        /* ── DISPLAY ── */
+        .display {
+            padding: 1rem 1.25rem .75rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+        .display-expr {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .8rem;
+            color: var(--text-dim);
+            min-height: 1.4em;
+            text-align: right;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .display-main {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.2rem;
+            font-weight: 700;
+            text-align: right;
+            color: var(--text);
+            line-height: 1.15;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .display-main.has-value { color: var(--accent); }
+
+        /* ── FISCAL SHORTCUTS ── */
+        .fiscal-row {
+            display: flex;
+            gap: .3rem;
+            padding: .6rem .75rem;
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .fiscal-btn {
+            flex: 1;
+            min-width: 0;
+            padding: .5rem .3rem;
+            border-radius: var(--radius-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .72rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            background: var(--primary-btn);
+            color: #fff;
+            transition: background .14s, transform .1s;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .fiscal-btn:hover { background: #2a5fa0; }
+        .fiscal-btn:active { transform: scale(.93); }
+        .fiscal-btn.iva { background: rgba(29,185,84,.18); color: var(--green); border-color: rgba(29,185,84,.3); }
+        .fiscal-btn.iva:hover { background: rgba(29,185,84,.28); }
+        .fiscal-btn.pct { background: rgba(201,162,39,.15); color: var(--accent); border-color: rgba(201,162,39,.3); }
+        .fiscal-btn.pct:hover { background: rgba(201,162,39,.25); }
+
+        /* ── KEYPAD ── */
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: .35rem;
+            padding: .6rem .75rem .75rem;
+            flex: 1;
+        }
+        .key {
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .12s, transform .1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 58px;
+            user-select: none;
+        }
+        .key:active { transform: scale(.91); }
+
+        /* Number keys */
+        .key-num  { background: var(--surface2); color: var(--text); }
+        .key-num:hover { background: var(--surface3); }
+
+        /* Operator keys */
+        .key-op   { background: rgba(201,162,39,.18); color: var(--accent); font-size: 1.3rem; }
+        .key-op:hover { background: rgba(201,162,39,.28); }
+
+        /* Equals */
+        .key-eq   { background: var(--green); color: #fff; font-size: 1.4rem; }
+        .key-eq:hover { background: var(--green-dark); }
+
+        /* Utility */
+        .key-util { background: var(--surface3); color: var(--text-mid); font-size: .9rem; }
+        .key-util:hover { background: #32384f; }
+        .key-clear { background: rgba(224,82,82,.18); color: var(--red); }
+        .key-clear:hover { background: rgba(224,82,82,.28); }
+
+        /* Memory */
+        .key-mem  { background: rgba(201,162,39,.10); color: var(--accent); font-size: .88rem; }
+        .key-mem:hover { background: rgba(201,162,39,.2); }
+        .key-mem.active { background: rgba(201,162,39,.25); border: 1px solid var(--accent); }
+
+        /* ── HISTORY PANEL ── */
+        .history-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg);
+        }
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .75rem 1rem .6rem;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .history-title { font-size: .75rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--text-dim); }
+        .clear-hist-btn {
+            font-size: .72rem;
+            color: var(--text-dim);
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: .25rem .6rem;
+            cursor: pointer;
+            transition: color .15s, border-color .15s;
+        }
+        .clear-hist-btn:hover { color: var(--red); border-color: var(--red); }
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: .5rem .75rem;
+        }
+        .history-list::-webkit-scrollbar { width: 4px; }
+        .history-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        .hist-item {
+            padding: .65rem .75rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: .35rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: background .14s, border-color .14s;
+        }
+        .hist-item:hover { background: var(--surface2); border-color: var(--border); }
+        .hist-expr {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .74rem;
+            color: var(--text-dim);
+            margin-bottom: .2rem;
+        }
+        .hist-result {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .9rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .hist-empty {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: .8rem;
+            padding: 2.5rem 1rem;
+        }
+
+        /* ── MOBILE ── */
+        @media (max-width: 640px) {
+            .app-body { flex-direction: column; }
+            .calc-panel { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+            .history-panel { min-height: 180px; flex: 0 0 auto; }
+            .display-main { font-size: 1.75rem; }
+            .key { min-height: 52px; font-size: 1.05rem; }
+            .fiscal-btn { font-size: .68rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <a href="/index.html" class="back-link">← Menú</a>
+        <span class="app-title">🧮 CalcPro</span>
+        <span class="mem-indicator" id="mem-indicator">M: <span id="mem-value-display">0</span></span>
+        <button id="install-btn-cp" onclick="cpInstall()">⬇️ Instalar</button>
+    </header>
+
+    <div class="app-body">
+
+        <!-- ── CALCULATOR ── -->
+        <div class="calc-panel">
+
+            <!-- Display -->
+            <div class="display">
+                <div class="display-expr" id="cp-expr"></div>
+                <div class="display-main" id="cp-display">0</div>
+            </div>
+
+            <!-- Fiscal shortcuts -->
+            <div class="fiscal-row">
+                <button class="fiscal-btn iva" onclick="cpFiscal('iva16')">16% IVA</button>
+                <button class="fiscal-btn iva" onclick="cpFiscal('masiva')">+IVA</button>
+                <button class="fiscal-btn iva" onclick="cpFiscal('menosiva')">−IVA</button>
+                <button class="fiscal-btn pct" onclick="cpFiscal('p35')">35%</button>
+                <button class="fiscal-btn pct" onclick="cpFiscal('p30')">30%</button>
+                <button class="fiscal-btn pct" onclick="cpFiscal('p25')">25%</button>
+                <button class="fiscal-btn pct" onclick="cpFiscal('p20')">20%</button>
+                <button class="fiscal-btn pct" onclick="cpFiscal('p10')">10%</button>
+            </div>
+
+            <!-- Keypad -->
+            <div class="keypad">
+                <!-- Row 1 -->
+                <button class="key key-util key-clear" onclick="cpClear()">C</button>
+                <button class="key key-util" onclick="cpBackspace()">⌫</button>
+                <button class="key key-util" onclick="cpToggleSign()">±</button>
+                <button class="key key-op"   onclick="cpOp('÷')">÷</button>
+                <!-- Row 2 -->
+                <button class="key key-num"  onclick="cpDigit('7')">7</button>
+                <button class="key key-num"  onclick="cpDigit('8')">8</button>
+                <button class="key key-num"  onclick="cpDigit('9')">9</button>
+                <button class="key key-op"   onclick="cpOp('×')">×</button>
+                <!-- Row 3 -->
+                <button class="key key-num"  onclick="cpDigit('4')">4</button>
+                <button class="key key-num"  onclick="cpDigit('5')">5</button>
+                <button class="key key-num"  onclick="cpDigit('6')">6</button>
+                <button class="key key-op"   onclick="cpOp('−')">−</button>
+                <!-- Row 4 -->
+                <button class="key key-num"  onclick="cpDigit('1')">1</button>
+                <button class="key key-num"  onclick="cpDigit('2')">2</button>
+                <button class="key key-num"  onclick="cpDigit('3')">3</button>
+                <button class="key key-op"   onclick="cpOp('+')">+</button>
+                <!-- Row 5 -->
+                <button class="key key-num"  onclick="cpDigit('0')" style="grid-column:span 2;">0</button>
+                <button class="key key-num"  onclick="cpDot()">.</button>
+                <button class="key key-eq"   onclick="cpEquals()">=</button>
+                <!-- Row 6 — Memory -->
+                <button class="key key-mem"  id="key-mplus"  onclick="cpMem('M+')">M+</button>
+                <button class="key key-mem"  id="key-mr"     onclick="cpMem('MR')">MR</button>
+                <button class="key key-mem"  id="key-mc"     onclick="cpMem('MC')">MC</button>
+                <button class="key key-util" onclick="cpPercent()">%</button>
+            </div>
+        </div>
+
+        <!-- ── HISTORY ── -->
+        <div class="history-panel">
+            <div class="history-header">
+                <span class="history-title">Historial</span>
+                <button class="clear-hist-btn" onclick="cpClearHistory()">Limpiar</button>
+            </div>
+            <div class="history-list" id="cp-history">
+                <div class="hist-empty">Las operaciones aparecerán aquí</div>
+            </div>
+        </div>
+
+    </div><!-- /app-body -->
+
+    <script>
+    /* ══════════════════════════════════════════
+       CALCPRO — ENGINE
+    ══════════════════════════════════════════ */
+
+    let cpState = {
+        display: '0',
+        operand: null,
+        operator: null,
+        justEvaled: false,
+        memory: null,
+        history: []
+    };
+
+    /* Format for display */
+    function cpFmt(num) {
+        if (isNaN(num) || !isFinite(num)) return 'Error';
+        const abs = Math.abs(num);
+        const sign = num < 0 ? '-' : '';
+        // Show up to 10 significant digits
+        let str;
+        if (abs === 0) return '$0.00';
+        if (abs >= 1e12 || (abs < 1e-6 && abs > 0)) {
+            str = num.toExponential(4);
+            return sign + str;
+        }
+        // Use locale formatting
+        const decimals = Number.isInteger(num) ? 2 : Math.min(10, (num.toString().split('.')[1] || '').length);
+        str = Math.abs(num).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: Math.min(decimals, 8)
+        });
+        return sign + '$' + str;
+    }
+
+    /* Raw number string → number */
+    function cpParse(str) {
+        return parseFloat(str.replace(/[$,]/g, '')) || 0;
+    }
+
+    function cpUpdateDisplay() {
+        const disp = document.getElementById('cp-display');
+        const expr = document.getElementById('cp-expr');
+
+        // Display value
+        let raw = cpState.display;
+        const num = parseFloat(raw);
+        if (!isNaN(num) && raw !== '' && raw !== '-') {
+            // Format if not mid-entry decimal
+            if (!raw.endsWith('.') && !raw.endsWith('.0') && !/\.\d*0$/.test(raw.replace(/[^.0-9]/,''))) {
+                disp.textContent = cpFmt(num);
+            } else {
+                disp.textContent = raw.startsWith('-') ? '-$' + raw.slice(1) : '$' + raw;
+            }
+        } else {
+            disp.textContent = raw || '0';
+        }
+
+        // Expression line
+        if (cpState.operator && cpState.operand !== null) {
+            expr.textContent = cpFmt(cpState.operand) + ' ' + cpState.operator;
+        } else {
+            expr.textContent = '';
+        }
+
+        // Memory indicator
+        const memInd = document.getElementById('mem-indicator');
+        if (cpState.memory !== null) {
+            memInd.classList.add('visible');
+            document.getElementById('mem-value-display').textContent = cpFmt(cpState.memory);
+        } else {
+            memInd.classList.remove('visible');
+        }
+    }
+
+    function cpDigit(d) {
+        if (cpState.justEvaled) {
+            cpState.display = d;
+            cpState.justEvaled = false;
+        } else {
+            if (cpState.display === '0' && d !== '.') cpState.display = d;
+            else if (cpState.display.replace(/[$,.-]/g,'').length < 14) cpState.display += d;
+        }
+        cpUpdateDisplay();
+    }
+
+    function cpDot() {
+        if (cpState.justEvaled) { cpState.display = '0.'; cpState.justEvaled = false; cpUpdateDisplay(); return; }
+        if (!cpState.display.includes('.')) cpState.display += '.';
+        cpUpdateDisplay();
+    }
+
+    function cpOp(op) {
+        const cur = parseFloat(cpState.display) || 0;
+        if (cpState.operator && !cpState.justEvaled) {
+            // Chain operation
+            const result = cpApply(cpState.operand, cpState.operator, cur);
+            cpState.operand = result;
+            cpState.display = String(result);
+        } else {
+            cpState.operand = cur;
+        }
+        cpState.operator = op;
+        cpState.justEvaled = true;
+        cpUpdateDisplay();
+    }
+
+    function cpApply(a, op, b) {
+        switch(op) {
+            case '+': return a + b;
+            case '−': return a - b;
+            case '×': return a * b;
+            case '÷': return b !== 0 ? a / b : NaN;
+            default: return b;
+        }
+    }
+
+    function cpEquals() {
+        if (cpState.operator === null || cpState.operand === null) return;
+        const cur = parseFloat(cpState.display) || 0;
+        const result = cpApply(cpState.operand, cpState.operator, cur);
+        const exprStr = cpFmt(cpState.operand) + ' ' + cpState.operator + ' ' + cpFmt(cur);
+        cpAddHistory(exprStr, result);
+        cpState.display = String(result);
+        cpState.operand = null;
+        cpState.operator = null;
+        cpState.justEvaled = true;
+        cpUpdateDisplay();
+    }
+
+    function cpClear() {
+        cpState.display = '0';
+        cpState.operand = null;
+        cpState.operator = null;
+        cpState.justEvaled = false;
+        cpUpdateDisplay();
+    }
+
+    function cpBackspace() {
+        if (cpState.justEvaled) { cpState.display = '0'; cpState.justEvaled = false; cpUpdateDisplay(); return; }
+        if (cpState.display.length > 1) cpState.display = cpState.display.slice(0, -1);
+        else cpState.display = '0';
+        cpUpdateDisplay();
+    }
+
+    function cpToggleSign() {
+        const n = parseFloat(cpState.display) || 0;
+        cpState.display = String(-n);
+        cpUpdateDisplay();
+    }
+
+    function cpPercent() {
+        const n = parseFloat(cpState.display) || 0;
+        if (cpState.operand !== null && cpState.operator) {
+            // % of operand (e.g. 200 + 10% = 200 + 20)
+            cpState.display = String(cpState.operand * n / 100);
+        } else {
+            cpState.display = String(n / 100);
+        }
+        cpState.justEvaled = false;
+        cpUpdateDisplay();
+    }
+
+    /* ── FISCAL SHORTCUTS ── */
+    function cpFiscal(type) {
+        const cur = parseFloat(cpState.display) || 0;
+        let result, exprStr;
+        switch(type) {
+            case 'iva16':
+                result = cur * 0.16;
+                exprStr = cpFmt(cur) + ' × 16% IVA';
+                break;
+            case 'masiva':
+                result = cur * 1.16;
+                exprStr = cpFmt(cur) + ' + IVA (×1.16)';
+                break;
+            case 'menosiva':
+                result = cur / 1.16;
+                exprStr = cpFmt(cur) + ' ÷ 1.16 (−IVA)';
+                break;
+            case 'p35': result = cur * 0.35; exprStr = cpFmt(cur) + ' × 35%'; break;
+            case 'p30': result = cur * 0.30; exprStr = cpFmt(cur) + ' × 30%'; break;
+            case 'p25': result = cur * 0.25; exprStr = cpFmt(cur) + ' × 25%'; break;
+            case 'p20': result = cur * 0.20; exprStr = cpFmt(cur) + ' × 20%'; break;
+            case 'p10': result = cur * 0.10; exprStr = cpFmt(cur) + ' × 10%'; break;
+            default: return;
+        }
+        cpAddHistory(exprStr, result);
+        cpState.display = String(result);
+        cpState.operand = null;
+        cpState.operator = null;
+        cpState.justEvaled = true;
+        cpUpdateDisplay();
+    }
+
+    /* ── MEMORY ── */
+    function cpMem(action) {
+        const cur = parseFloat(cpState.display) || 0;
+        if (action === 'M+') {
+            cpState.memory = (cpState.memory || 0) + cur;
+        } else if (action === 'MR') {
+            if (cpState.memory !== null) {
+                cpState.display = String(cpState.memory);
+                cpState.justEvaled = true;
+            }
+        } else if (action === 'MC') {
+            cpState.memory = null;
+        }
+        cpUpdateDisplay();
+    }
+
+    /* ── HISTORY ── */
+    function cpAddHistory(expr, result) {
+        cpState.history.unshift({ expr, result });
+        if (cpState.history.length > 15) cpState.history.pop();
+        cpRenderHistory();
+    }
+
+    function cpRenderHistory() {
+        const el = document.getElementById('cp-history');
+        if (cpState.history.length === 0) {
+            el.innerHTML = '<div class="hist-empty">Las operaciones aparecerán aquí</div>';
+            return;
+        }
+        el.innerHTML = cpState.history.map((h, i) => `
+            <div class="hist-item" onclick="cpFromHistory(${i})">
+                <div class="hist-expr">${h.expr}</div>
+                <div class="hist-result">= ${cpFmt(h.result)}</div>
+            </div>
+        `).join('');
+    }
+
+    function cpFromHistory(idx) {
+        const h = cpState.history[idx];
+        if (!h) return;
+        cpState.display = String(h.result);
+        cpState.justEvaled = true;
+        cpUpdateDisplay();
+    }
+
+    function cpClearHistory() {
+        cpState.history = [];
+        cpRenderHistory();
+    }
+
+    /* ── KEYBOARD ── */
+    document.addEventListener('keydown', (e) => {
+        if (e.key >= '0' && e.key <= '9') { cpDigit(e.key); }
+        else if (e.key === '.') { cpDot(); }
+        else if (e.key === '+') { cpOp('+'); }
+        else if (e.key === '-') { cpOp('−'); }
+        else if (e.key === '*') { cpOp('×'); }
+        else if (e.key === '/') { e.preventDefault(); cpOp('÷'); }
+        else if (e.key === 'Enter' || e.key === '=') { cpEquals(); }
+        else if (e.key === 'Escape') { cpClear(); }
+        else if (e.key === 'Backspace') { cpBackspace(); }
+        else if (e.key === '%') { cpPercent(); }
+    });
+
+    /* ── PWA INSTALL ── */
+    let cpDeferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        cpDeferredPrompt = e;
+        document.getElementById('install-btn-cp').classList.add('visible');
+    });
+    function cpInstall() {
+        if (!cpDeferredPrompt) return;
+        cpDeferredPrompt.prompt();
+        cpDeferredPrompt.userChoice.then(r => {
+            if (r.outcome === 'accepted') document.getElementById('install-btn-cp').classList.remove('visible');
+            cpDeferredPrompt = null;
+        });
+    }
+    window.addEventListener('appinstalled', () => {
+        document.getElementById('install-btn-cp').classList.remove('visible');
+    });
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+    }
+
+    // Init
+    cpUpdateDisplay();
+    </script>
+
+</body>
+</html>
