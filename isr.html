@@ -352,6 +352,10 @@
                 <label>Comisión Inmobiliaria (opcional) $</label>
                 <input type="text" id="comision" placeholder="$0.00" oninput="formatInputMoney(this)" onblur="formatInputMoneyFull(this)">
             </div>
+            <div class="field">
+                <label>Fecha de Comisión <small style="font-weight:400;opacity:.7">(default: fecha enajenación)</small></label>
+                <input type="date" id="fechaComision">
+            </div>
         </div>
 
         <!-- BOTÓN CALCULAR -->
@@ -942,6 +946,9 @@
             const gastosMejoras = parseInputMoney(document.getElementById('gastosMejoras').value);
             const fechaMejoras = document.getElementById('fechaMejoras').value;
             const comision = parseInputMoney(document.getElementById('comision').value);
+            // Fecha comisión — default: fecha enajenación
+            const fechaComisionInput = document.getElementById('fechaComision').value;
+            const fechaComision = fechaComisionInput || fechaVenta;
             const esExtranjero = document.getElementById('esExtranjero').checked;
             const esCasaHabitacion = document.getElementById('esCasaHabitacion').checked;
             const aplicaExencion = document.getElementById('aplicaExencion').checked;
@@ -962,6 +969,15 @@
             const inpcCompra = await getINPCAsync(fechaCompra);
             const factorINPC = inpcVenta / inpcCompra;
             
+            // Comisión actualizada con INPC desde fecha de pago hasta mes enajenación (Art.121)
+            let comisionActualizada = comision;
+            if (comision > 0) {
+                const inpcEnajDirecto = await getINPCAsync(fechaVenta, false);
+                const inpcComision = await getINPCAsync(fechaComision, false);
+                const factorComision = inpcEnajDirecto / inpcComision;
+                comisionActualizada = comision * factorComision;
+            }
+
             // Calcular valores actualizados
             const precioTerrenoCompra = precioCompra * pctTerreno;
             const precioConstruccionCompra = precioCompra * pctConstruccion;
