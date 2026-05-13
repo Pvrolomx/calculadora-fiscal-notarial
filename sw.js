@@ -1,5 +1,10 @@
-const CACHE_NAME = 'calcfiscal-v1';
-const STATIC = ['/','index.html','isr.html','isabi.html','istp.html','iva.html','manifest.json'];
+const CACHE_NAME = 'calcfiscal-v2';
+const STATIC = [
+    '/', 'index.html',
+    'isr.html', 'isabi.html', 'iva.html',
+    'calcpro.html',
+    'manifest.json'
+];
 
 self.addEventListener('install', e => {
     e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(STATIC)));
@@ -17,6 +22,8 @@ self.addEventListener('fetch', e => {
             return r;
         }).catch(() => caches.match(e.request)));
     } else {
-        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+        e.respondWith(
+            caches.match(e.request).then(cached => cached || fetch(e.request))
+        );
     }
 });
