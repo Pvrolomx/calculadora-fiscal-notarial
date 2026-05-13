@@ -145,15 +145,20 @@ def calcular_isr_tablas(utilidad_anual: float, fecha_venta: str) -> float:
             return cuota + (utilidad_anual - li) * (tasa / 100)
     return 0.0
 
-def calcular_anios(fecha_venta: str, fecha_compra: str) -> int:
-    """Replica lógica JS: diferencia por aniversario, min 1, max 20"""
+def calcular_anios_reales(fecha_venta: str, fecha_compra: str) -> int:
+    """Años reales transcurridos por aniversario — SIN forzar mínimo 1.
+    Usado para depreciación: si < 1 año real = 0% depreciación."""
     dv = datetime.strptime(fecha_venta, '%Y-%m-%d')
     dc = datetime.strptime(fecha_compra, '%Y-%m-%d')
     anios = dv.year - dc.year
     aniversario = datetime(dv.year, dc.month, dc.day)
     if dv < aniversario:
         anios -= 1
-    return max(1, min(anios, 20))
+    return max(0, min(anios, 20))
+
+def calcular_anios(fecha_venta: str, fecha_compra: str) -> int:
+    """Años para dividir utilidad Art.124 — mínimo 1, máximo 20."""
+    return max(1, calcular_anios_reales(fecha_venta, fecha_compra))
 
 # ============================================================
 # FUNCIÓN PRINCIPAL DE CÁLCULO
@@ -175,7 +180,8 @@ def calcular(caso: dict) -> dict:
     num_exentan   = caso.get('num_exentan', 0)
     local_com     = caso.get('local_comercial', False)
 
-    anios = calcular_anios(fv, fc)
+    anios        = calcular_anios(fv, fc)         # para dividir utilidad (min 1)
+    anios_dep    = calcular_anios_reales(fv, fc)  # para depreciación (puede ser 0)
 
     # INPC — Art.124: mes ANTERIOR a la venta
     inpc_venta  = get_inpc(fv, mes_anterior=True)
@@ -190,7 +196,8 @@ def calcular(caso: dict) -> dict:
     terreno_act = terreno_compra * factor_inpc
 
     # Construcción: depreciación 3%/año máx 80% + actualización
-    pct_dep = min(anios * 3, 80) / 100
+    # Usa años REALES (sin forzar mínimo 1) — si < 1 año = 0% depreciación
+    pct_dep = min(anios_dep * 3, 80) / 100
     constr_dep = constr_compra * (1 - pct_dep)
     constr_act = constr_dep * factor_inpc
 
@@ -272,6 +279,7 @@ def calcular(caso: dict) -> dict:
 
     return {
         'anios': anios,
+        'anios_dep': anios_dep,
         'inpc_venta':  inpc_venta,
         'inpc_compra': inpc_compra,
         'factor_inpc': factor_inpc,
