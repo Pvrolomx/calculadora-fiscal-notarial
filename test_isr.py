@@ -172,8 +172,9 @@ def calcular(caso: dict) -> dict:
     pct_constr    = 1 - pct_terreno
     mejoras       = caso.get('mejoras', 0)
     fecha_mejoras = caso.get('fecha_mejoras', '')
-    comision      = caso.get('comision', 0)
-    extranjero    = caso.get('extranjero', False)
+    comision       = caso.get('comision', 0)
+    fecha_comision = caso.get('fecha_comision', fv)  # default = fecha enajenación
+    extranjero     = caso.get('extranjero', False)
     casa_hab      = caso.get('casa_habitacion', False)
     aplica_ex     = caso.get('aplica_exencion', False)
     num_enaj      = caso.get('num_enajenantes', 1)
@@ -208,14 +209,23 @@ def calcular(caso: dict) -> dict:
         factor_mej = inpc_venta / inpc_mej
         mejoras_act = mejoras * factor_mej
 
+    # Comisión actualizada con INPC desde su fecha de pago hasta mes enajenación
+    # Usa INPC del mes de enajenación (no mes anterior) — Art.121 LISR
+    inpc_enaj_directo = get_inpc(fv, mes_anterior=False)
+    comision_act = comision
+    if comision > 0:
+        inpc_com = get_inpc(fecha_comision, mes_anterior=False)
+        factor_com = inpc_enaj_directo / inpc_com
+        comision_act = comision * factor_com
+
     # Total deducciones
-    total_ded = terreno_act + constr_act + mejoras_act + comision
+    total_ded = terreno_act + constr_act + mejoras_act + comision_act
 
     # Costo mínimo 10% Art.121 LISR
     costo_min = precio_venta * 0.10
     usa_costo_min = (terreno_act + constr_act) < costo_min
     if usa_costo_min:
-        total_ded = costo_min + mejoras_act + comision
+        total_ded = costo_min + mejoras_act + comision_act
 
     # Exención casa habitación — Metodología Nuvigant
     exencion_total = 0
@@ -286,6 +296,7 @@ def calcular(caso: dict) -> dict:
         'terreno_act': terreno_act,
         'constr_act':  constr_act,
         'mejoras_act': mejoras_act,
+        'comision_act': comision_act,
         'total_ded':   total_ded,
         'usa_costo_min': usa_costo_min,
         'exencion':    exencion_total,
