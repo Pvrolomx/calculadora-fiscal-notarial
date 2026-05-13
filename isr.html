@@ -3,503 +3,976 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora ISR - Notarial Solutions</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Calculadora ISR Notarial — Expat Advisor MX</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1E3A5F">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NotariaSol">
+    <link rel="apple-touch-icon" href="/icon-192.png">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* ─── RESET & ROOT ─── */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary: #1E3A5F;
+            --primary:       #1E3A5F;
             --primary-light: #2D5A8B;
-            --accent: #C9A227;
-            --bg: #F5F7FA;
-            --white: #FFFFFF;
-            --text: #333333;
-            --text-light: #666666;
-            --border: #E1E5EB;
-            --success: #22C55E;
-            --warning: #F59E0B;
-            --danger: #EF4444;
+            --primary-pale:  #E8EFF7;
+            --accent:        #C9A227;
+            --accent-light:  #F5E6B3;
+            --accent-dark:   #A07D10;
+            --bg:            #F0F3F8;
+            --surface:       #FFFFFF;
+            --surface2:      #F7F9FC;
+            --text:          #1A2535;
+            --text-mid:      #4A5568;
+            --text-light:    #7A8799;
+            --border:        #D8E0EB;
+            --border-focus:  #2D5A8B;
+            --success:       #1A8C5B;
+            --success-bg:    #E6F7F0;
+            --warning:       #B45309;
+            --warning-bg:    #FEF3C7;
+            --danger:        #C0392B;
+            --radius-sm:     8px;
+            --radius:        14px;
+            --radius-lg:     20px;
+            --shadow-sm:     0 1px 4px rgba(30,58,95,.07);
+            --shadow:        0 4px 18px rgba(30,58,95,.10);
+            --shadow-lg:     0 8px 32px rgba(30,58,95,.14);
+            --transition:    .18s cubic-bezier(.4,0,.2,1);
         }
-        .back-btn {
-            position: absolute;
-            left: 1rem;
-            top: 1rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        .back-btn:hover {
-            background: var(--primary-light);
-        }
+
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
-            padding: 1rem;
+            padding-bottom: 4rem;
         }
-        .container {
-            position: relative;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-        .header h1 {
-            font-size: 1.5rem;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-        .header p {
-            font-size: 0.85rem;
-            color: var(--text-light);
-        }
-        .card {
-            background: var(--white);
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .card h2 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 1.25rem;
+
+        /* ─── PAGE HEADER ─── */
+        .page-header {
+            background: var(--primary);
+            color: #fff;
+            padding: 1.25rem 1.5rem 1.1rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        .page-header .back-btn {
+            background: rgba(255,255,255,.12);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,.2);
+            padding: .45rem .9rem;
+            border-radius: var(--radius-sm);
+            font-size: .82rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            transition: background var(--transition);
+            white-space: nowrap;
+        }
+        .page-header .back-btn:hover { background: rgba(255,255,255,.22); }
+        .page-header-content { flex: 1; }
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: -.01em;
+            line-height: 1.2;
+        }
+        .page-header p {
+            font-size: .75rem;
+            opacity: .7;
+            margin-top: .15rem;
+        }
+        .header-badge {
+            background: var(--accent);
+            color: var(--primary);
+            font-size: .7rem;
+            font-weight: 700;
+            padding: .25rem .6rem;
+            border-radius: 999px;
+            letter-spacing: .03em;
+            white-space: nowrap;
+        }
+
+        /* ─── CONTAINER ─── */
+        .container {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+        }
+
+        /* ─── HERO CARD — 4 main fields ─── */
+        .hero-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem 1.5rem 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+        .hero-card-title {
+            font-size: .72rem;
+            font-weight: 600;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 1.1rem;
         }
         .grid-2 {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
+            grid-template-columns: 1fr 1fr;
+            gap: .85rem;
         }
-        .grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
+        @media (max-width: 560px) {
+            .grid-2 { grid-template-columns: 1fr; }
         }
-        @media (max-width: 600px) {
-            .grid-2, .grid-3 { grid-template-columns: 1fr; }
-        }
-        .field {
-            margin-bottom: 1rem;
-        }
+
+        /* ─── FIELD ─── */
+        .field { display: flex; flex-direction: column; gap: .35rem; }
         .field label {
-            display: block;
-            font-size: 0.75rem;
-            color: var(--text-light);
-            margin-bottom: 0.4rem;
-            font-weight: 500;
+            font-size: .72rem;
+            font-weight: 600;
+            color: var(--text-mid);
+            letter-spacing: .02em;
         }
-        .field input, .field select {
+        .field input[type="text"],
+        .field input[type="date"],
+        .field input[type="number"],
+        .field select {
             width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            font-size: 0.9rem;
+            padding: .72rem 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .9rem;
+            color: var(--text);
+            background: var(--surface);
+            transition: border-color var(--transition), box-shadow var(--transition);
             outline: none;
-            transition: border-color 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
         }
-        .field input:focus, .field select:focus {
-            border-color: var(--primary);
+        .field input:focus,
+        .field select:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(45,90,139,.12);
         }
-        .checkbox-group {
+        .field input[type="date"] { color-scheme: light; }
+        .field select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234A5568' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right .9rem center;
+            padding-right: 2.5rem;
+        }
+
+        /* ─── CALC BUTTON ─── */
+        .calc-btn {
+            width: 100%;
+            margin-top: 1.1rem;
+            padding: .95rem 2rem;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .95rem;
+            font-weight: 600;
+            letter-spacing: .02em;
+            cursor: pointer;
             display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-        }
-        .checkbox-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--primary);
-        }
-        .btn {
-            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
-            border-radius: 10px;
-            font-size: 0.9rem;
+            gap: .6rem;
+            transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+            box-shadow: 0 3px 12px rgba(30,58,95,.22);
+        }
+        .calc-btn:hover {
+            background: var(--primary-light);
+            box-shadow: 0 5px 18px rgba(30,58,95,.3);
+        }
+        .calc-btn:active { transform: scale(.985); }
+        .calc-btn-icon { font-size: 1.1rem; }
+
+        /* ─── COLLAPSIBLE SECTIONS ─── */
+        .sections-list { display: flex; flex-direction: column; gap: .6rem; }
+
+        .collapsible {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: box-shadow var(--transition);
+        }
+        .collapsible:has(.coll-body:not([hidden])) {
+            box-shadow: var(--shadow);
+            border-color: var(--border-focus);
+        }
+
+        .coll-header {
+            display: flex;
+            align-items: center;
+            padding: .85rem 1.1rem;
+            cursor: pointer;
+            user-select: none;
+            gap: .75rem;
+            transition: background var(--transition);
+        }
+        .coll-header:hover { background: var(--primary-pale); }
+
+        .coll-icon {
+            font-size: 1rem;
+            width: 1.6rem;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .coll-title {
+            flex: 1;
+            font-size: .875rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .coll-summary {
+            font-size: .78rem;
+            color: var(--text-light);
+            font-weight: 400;
+            margin-right: .5rem;
+            text-align: right;
+        }
+        .coll-chevron {
+            color: var(--text-light);
+            transition: transform var(--transition);
+            flex-shrink: 0;
+        }
+        .coll-header.open .coll-chevron { transform: rotate(180deg); }
+        .coll-header.open .coll-title { color: var(--primary); }
+
+        .coll-body {
+            padding: 1rem 1.1rem 1.2rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: .85rem;
+        }
+        .coll-body[hidden] { display: none; }
+
+        /* ─── CHECKBOX TOGGLE ─── */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .55rem .9rem;
+            background: var(--surface2);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: background var(--transition);
+            gap: .75rem;
+        }
+        .toggle-row:hover { background: var(--primary-pale); }
+        .toggle-label {
+            font-size: .84rem;
+            font-weight: 500;
+            color: var(--text);
+            flex: 1;
+        }
+        .toggle-label small {
+            display: block;
+            font-size: .72rem;
+            font-weight: 400;
+            color: var(--text-light);
+            margin-top: .1rem;
+        }
+        /* Custom toggle switch */
+        .toggle-switch {
+            position: relative;
+            width: 42px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+        .toggle-track {
+            position: absolute;
+            inset: 0;
+            background: var(--border);
+            border-radius: 999px;
+            transition: background var(--transition);
+        }
+        .toggle-thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 1px 4px rgba(0,0,0,.2);
+            transition: left var(--transition);
+        }
+        .toggle-switch input:checked ~ .toggle-track { background: var(--primary); }
+        .toggle-switch input:checked ~ .toggle-thumb { left: 21px; }
+
+        /* Invisible real checkbox for mutual-exclusion — keep it functional */
+        .hidden-check { display: none; }
+
+        /* ─── INLINE FIELD PAIR ─── */
+        .field-row {
+            display: flex;
+            gap: .85rem;
+        }
+        .field-row .field { flex: 1; }
+
+        /* ─── TAB STRIP ─── */
+        .tab-strip {
+            display: flex;
+            gap: .4rem;
+            background: var(--surface2);
+            padding: .3rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+        }
+        .tab-strip .tab {
+            flex: 1;
+            padding: .5rem .6rem;
+            border-radius: 6px;
+            font-size: .78rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-mid);
+            transition: background var(--transition), color var(--transition);
+            text-align: center;
+        }
+        .tab-strip .tab.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        /* ─── RESULTS ─── */
+        .results-card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 1.5px solid var(--border-focus);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            margin-top: 1.25rem;
+            animation: slideUp .3s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .results-header {
+            background: var(--primary);
+            color: #fff;
+            padding: 1.1rem 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .results-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+        .new-query-btn {
+            background: rgba(255,255,255,.15);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,.3);
+            padding: .4rem .9rem;
+            border-radius: var(--radius-sm);
+            font-size: .78rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
-            border: none;
+            transition: background var(--transition);
         }
-        .btn-primary {
-            background: var(--primary);
-            color: var(--white);
-            width: 100%;
-        }
-        .btn-primary:hover {
-            background: var(--primary-light);
-        }
-        .result-section {
-            background: var(--bg);
-            border-radius: 12px;
-            padding: 1.25rem;
-            margin-top: 1rem;
-        }
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.6rem 0;
-            font-size: 0.85rem;
+        .new-query-btn:hover { background: rgba(255,255,255,.25); }
+
+        .res-group {
+            padding: 1rem 1.4rem;
             border-bottom: 1px solid var(--border);
         }
-        .result-row:last-child {
-            border-bottom: none;
+        .res-group:last-child { border-bottom: none; }
+        .res-group-title {
+            font-size: .68rem;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--accent-dark);
+            margin-bottom: .75rem;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
         }
-        .result-row.total {
-            font-weight: 600;
-            font-size: 1rem;
-            color: var(--primary);
-            border-top: 2px solid var(--primary);
-            margin-top: 0.5rem;
-            padding-top: 1rem;
+        .res-group-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--accent-light);
         }
-        .result-row.highlight {
-            background: #FEF3C7;
-            margin: 0.5rem -1rem;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
+
+        .result-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            padding: .45rem 0;
+            border-bottom: 1px solid var(--border);
+            gap: .5rem;
         }
+        .result-row:last-child { border-bottom: none; }
         .result-row .label {
-            color: var(--text-light);
+            font-size: .82rem;
+            color: var(--text-mid);
+            flex: 1;
         }
         .result-row .value {
-            font-weight: 500;
+            font-size: .87rem;
+            font-weight: 600;
+            color: var(--text);
+            text-align: right;
+            font-variant-numeric: tabular-nums;
         }
-        .result-row .value.negative {
-            color: var(--danger);
-        }
-        .result-row .value.positive {
-            color: var(--success);
-        }
-        .info-box {
-            background: #EBF5FF;
-            border-left: 4px solid var(--primary);
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-            font-size: 0.8rem;
-            margin-top: 1rem;
-        }
-        .warning-box {
-            background: #FEF3C7;
-            border-left: 4px solid var(--warning);
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-            font-size: 0.8rem;
-            margin-top: 1rem;
-        }
-        .tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-        .tab {
-            padding: 0.6rem 1rem;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            transition: all 0.2s;
-        }
-        .tab.active {
+        .result-row .value.negative { color: var(--danger); }
+        .result-row .value.positive { color: var(--success); }
+        .result-row.subtotal .label { font-weight: 600; color: var(--text); }
+        .result-row.subtotal .value { color: var(--primary); }
+
+        .total-banner {
             background: var(--primary);
-            color: white;
-            border-color: var(--primary);
+            color: #fff;
+            margin: .75rem -1.4rem -1rem;
+            padding: 1rem 1.4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .hidden { display: none; }
+        .total-banner .total-label {
+            font-size: .88rem;
+            font-weight: 600;
+            opacity: .85;
+        }
+        .total-banner .total-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .total-banner .pct-badge {
+            font-size: .72rem;
+            opacity: .65;
+            margin-top: .1rem;
+        }
+        .total-banner-right { text-align: right; }
+
+        .highlight-row {
+            background: var(--accent-light);
+            border-radius: var(--radius-sm);
+            padding: .7rem .9rem;
+            margin: .4rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: .5rem;
+        }
+        .highlight-row .label { font-size: .82rem; font-weight: 600; color: var(--accent-dark); }
+        .highlight-row .value { font-size: .88rem; font-weight: 700; color: var(--accent-dark); }
+
+        .warning-box {
+            background: var(--warning-bg);
+            border-left: 4px solid var(--warning);
+            padding: .85rem 1rem;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-size: .8rem;
+            color: var(--warning);
+            margin-top: .75rem;
+        }
+
+        /* ─── UTILITY ─── */
+        .hidden { display: none !important; }
+        .mt-sm { margin-top: .5rem; }
+        .conditional-field { transition: opacity .2s; }
+        .conditional-field.dimmed { opacity: .4; pointer-events: none; }
     </style>
-    <!-- PWA Meta Tags -->
-    <link rel=" manifest href=/manifest.json>
- <meta name=	heme-color content=#d4af37>
- <meta name=pple-mobile-web-app-capable content=yes>
- <meta name=pple-mobile-web-app-status-bar-style content=black-translucent>
- <meta name=pple-mobile-web-app-title content=NotariaSol>
- <link rel=pple-touch-icon href=/icon-192.png>
 </head>
 <body>
-    <div class="container">
-        <a href="index.html?panel=calculadoras" class="back-btn">← Regresar</a>
-        <div class="header" style="padding-top: 1.5rem;">
-            <h1>🧮 Calculadora ISR por Enajenación</h1>
-            <p>Cálculo de Impuesto Sobre la Renta en venta de inmuebles</p>
-        </div>
 
-        <!-- DATOS GENERALES -->
-        <div class="card">
-            <h2>📋 Datos Generales</h2>
+    <!-- ─── PAGE HEADER ─── -->
+    <header class="page-header">
+        <a href="index.html?panel=calculadoras" class="back-btn">← Regresar</a>
+        <div class="page-header-content">
+            <h1>Calculadora ISR · Enajenación</h1>
+            <p>Impuesto Sobre la Renta en venta de inmuebles</p>
+        </div>
+        <span class="header-badge">Art. 126 LISR</span>
+    </header>
+
+    <div class="container">
+
+        <!-- ─── HERO CARD: 4 campos principales ─── -->
+        <div class="hero-card">
+            <div class="hero-card-title">Datos de la Operación</div>
             <div class="grid-2">
                 <div class="field">
-                    <label>Fecha de Adquisición (Compra)</label>
-                    <input type="date" id="fechaCompra" value="">
+                    <label>📅 Fecha de Adquisición</label>
+                    <input type="date" id="fechaCompra">
                 </div>
                 <div class="field">
-                    <label>Precio de Adquisición $</label>
+                    <label>💰 Precio de Adquisición $</label>
                     <input type="text" id="precioCompra" placeholder="$0.00" oninput="formatInputMoney(this)" onblur="formatInputMoneyFull(this)">
                 </div>
-            </div>
-            <div class="grid-2">
                 <div class="field">
-                    <label>Fecha de Enajenación (Venta)</label>
-                    <input type="date" id="fechaVenta" value="">
+                    <label>📅 Fecha de Enajenación</label>
+                    <input type="date" id="fechaVenta">
                 </div>
                 <div class="field">
-                    <label>Precio de Enajenación $</label>
+                    <label>💰 Precio de Enajenación $</label>
                     <input type="text" id="precioVenta" placeholder="$0.00" oninput="formatInputMoney(this)" onblur="formatInputMoneyFull(this)">
                 </div>
             </div>
-            <div class="checkbox-group">
-                <label class="checkbox-item">
-                    <input type="checkbox" id="esExtranjero">
-                    <span>Enajenante Extranjero (sin RFC)</span>
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" id="esCasaHabitacion" onchange="if(this.checked) document.getElementById('esLocalComercial').checked=false">
-                    <span>Tipo: Casa Habitación</span>
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" id="aplicaExencion">
-                    <span>Aplica Exención Art.93 LISR</span>
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" id="esLocalComercial" onchange="if(this.checked) document.getElementById('esCasaHabitacion').checked=false">
-                    <span>Local Comercial (genera IVA)</span>
-                </label>
-                <label class="checkbox-item">
-                    <input type="checkbox" id="usarTablaLocal" checked>
-                    <span>Usar tabla INPC local (ejercicio)</span>
-                </label>
-            </div>
-            <div class="grid-2" id="enajenantesSection">
-                <div class="field">
-                    <label>Número de Enajenantes</label>
-                    <input type="number" id="numEnajenantes" value="1" min="1" max="10">
-                </div>
-                <div class="field">
-                    <label>¿Cuántos aplican exención?</label>
-                    <input type="number" id="numExentan" value="1" min="0" max="10">
-                </div>
-            </div>
-            <div class="field" style="margin-top: 1rem;">
-                <label>Entidad Federativa (ubicacion del inmueble)</label>
-                <select id="entidadFederativa" style="width:100%;padding:0.75rem 1rem;border:1px solid var(--border);border-radius:10px;font-size:0.9rem;">
-                    <option value="sin_cedular">Sin Impuesto Cedular (CDMX, Edo. Mex, etc.)</option>
-                    <option value="jalisco" selected>Jalisco (5% cedular)</option>
-                    <option value="guanajuato">Guanajuato (5% cedular)</option>
-                    <option value="chihuahua">Chihuahua (5% cedular)</option>
-                    <option value="quintana_roo">Quintana Roo (5% cedular)</option>
-                    <option value="yucatan">Yucatan (5% cedular)</option>
-                </select>
-            </div>
 
+            <button class="calc-btn" onclick="calcularISR()">
+                <span class="calc-btn-icon">🧮</span>
+                Calcular ISR
+            </button>
         </div>
 
-        <!-- VALORES -->
-        <div class="card">
-            <h2>💰 Valores de la Operación</h2>
-            
-            
-            <div class="tabs">
-                <div class="tab active" onclick="setTipoInmueble(this, 'mixto')">Terreno + Construcción</div>
-                <div class="tab" onclick="setTipoInmueble(this, 'terreno')">Solo Terreno</div>
-                <div class="tab" onclick="setTipoInmueble(this, 'construccion')">Solo Construcción</div>
-            </div>
-            
-            <div id="splitSection">
-                <div class="grid-2">
-                    <div class="field">
-                        <label>% Terreno</label>
-                        <input type="number" id="pctTerreno" value="20" min="0" max="100">
+        <!-- ─── SECCIONES COLAPSABLES ─── -->
+        <div class="sections-list">
+
+            <!-- 1. Distribución Terreno/Construcción -->
+            <div class="collapsible" id="sec-distribucion">
+                <div class="coll-header" onclick="toggleSection('distribucion')" id="hdr-distribucion">
+                    <span class="coll-icon">🏗️</span>
+                    <span class="coll-title">Distribución Terreno / Construcción</span>
+                    <span class="coll-summary" id="sum-distribucion">20% / 80%</span>
+                    <svg class="coll-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 5.5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </div>
+                <div class="coll-body" id="body-distribucion" hidden>
+                    <div class="tab-strip">
+                        <button class="tab active" onclick="setTipoInmueble(this,'mixto')">Terreno + Construcción</button>
+                        <button class="tab" onclick="setTipoInmueble(this,'terreno')">Solo Terreno</button>
+                        <button class="tab" onclick="setTipoInmueble(this,'construccion')">Solo Construcción</button>
                     </div>
-                    <div class="field">
-                        <label>% Construcción</label>
-                        <input type="number" id="pctConstruccion" value="80" min="0" max="100">
+                    <div id="splitSection">
+                        <div class="field-row">
+                            <div class="field">
+                                <label>% Terreno</label>
+                                <input type="number" id="pctTerreno" value="20" min="0" max="100" oninput="updateDistribucionSummary()">
+                            </div>
+                            <div class="field">
+                                <label>% Construcción</label>
+                                <input type="number" id="pctConstruccion" value="80" min="0" max="100" oninput="updateDistribucionSummary()">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="field">
-                <label>Gastos/Mejoras Deducibles (opcional) $</label>
-                <input type="text" id="gastosMejoras" placeholder="$0.00" oninput="formatInputMoney(this)" onblur="formatInputMoneyFull(this)">
-            </div>
-            <div class="field">
-                <label>Fecha de Mejoras (si aplica)</label>
-                <input type="date" id="fechaMejoras">
-            </div>
-            <div class="field">
-                <label>Comisión Inmobiliaria (opcional) $</label>
-                <input type="text" id="comision" placeholder="$0.00" oninput="formatInputMoney(this)" onblur="formatInputMoneyFull(this)">
-            </div>
-        </div>
 
-        <!-- BOTÓN CALCULAR -->
-        <button class="btn btn-primary" onclick="calcularISR()">
-            🧮 Calcular ISR
-        </button>
+            <!-- 2. Tipo de Enajenante -->
+            <div class="collapsible" id="sec-enajenante">
+                <div class="coll-header" onclick="toggleSection('enajenante')" id="hdr-enajenante">
+                    <span class="coll-icon">👤</span>
+                    <span class="coll-title">Tipo de Enajenante</span>
+                    <span class="coll-summary" id="sum-enajenante">Residente</span>
+                    <svg class="coll-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 5.5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </div>
+                <div class="coll-body" id="body-enajenante" hidden>
+                    <label class="toggle-row" onclick="">
+                        <div class="toggle-label">
+                            Enajenante Extranjero (sin RFC)
+                            <small>Aplica Art. 160 LISR — tres opciones de retención</small>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="esExtranjero" onchange="updateEnajenanteSummary()">
+                            <span class="toggle-track"></span>
+                            <span class="toggle-thumb"></span>
+                        </label>
+                    </label>
+                </div>
+            </div>
 
-        <!-- RESULTADOS -->
-        <div id="resultados" class="card hidden">
-            <h2>📊 Resultados del Cálculo</h2>
-            
-            <div class="result-section">
-                <h3 style="font-size:0.85rem;margin-bottom:1rem;color:var(--primary);">Actualización por Inflación</h3>
+            <!-- 3. Casa Habitación y Exención -->
+            <div class="collapsible" id="sec-casahabitacion">
+                <div class="coll-header" onclick="toggleSection('casahabitacion')" id="hdr-casahabitacion">
+                    <span class="coll-icon">🏠</span>
+                    <span class="coll-title">Casa Habitación y Exención</span>
+                    <span class="coll-summary" id="sum-casahabitacion">No aplica</span>
+                    <svg class="coll-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 5.5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </div>
+                <div class="coll-body" id="body-casahabitacion" hidden>
+                    <label class="toggle-row">
+                        <div class="toggle-label">
+                            Tipo: Casa Habitación
+                            <small>Habilita exención Art. 93 LISR hasta 700,000 UDIs</small>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="esCasaHabitacion"
+                                onchange="if(this.checked) document.getElementById('esLocalComercial').checked=false; updateCasaHabitacionSummary();">
+                            <span class="toggle-track"></span>
+                            <span class="toggle-thumb"></span>
+                        </label>
+                    </label>
+                    <label class="toggle-row" id="rowAplicaExencion">
+                        <div class="toggle-label">
+                            Aplica Exención Art. 93 LISR
+                            <small>Requiere no haber enajenado otra casa habitación en 5 años</small>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="aplicaExencion" onchange="updateCasaHabitacionSummary()">
+                            <span class="toggle-track"></span>
+                            <span class="toggle-thumb"></span>
+                        </label>
+                    </label>
+                    <label class="toggle-row">
+                        <div class="toggle-label">
+                            Local Comercial (genera IVA 16%)
+                            <small>Mutuamente excluyente con casa habitación</small>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="esLocalComercial"
+                                onchange="if(this.checked) document.getElementById('esCasaHabitacion').checked=false; updateCasaHabitacionSummary();">
+                            <span class="toggle-track"></span>
+                            <span class="toggle-thumb"></span>
+                        </label>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 4. Deducciones adicionales -->
+            <div class="collapsible" id="sec-deducciones">
+                <div class="coll-header" onclick="toggleSection('deducciones')" id="hdr-deducciones">
+                    <span class="coll-icon">📉</span>
+                    <span class="coll-title">Deducciones Adicionales</span>
+                    <span class="coll-summary" id="sum-deducciones">$0.00</span>
+                    <svg class="coll-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 5.5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </div>
+                <div class="coll-body" id="body-deducciones" hidden>
+                    <div class="field">
+                        <label>Gastos / Mejoras Deducibles $</label>
+                        <input type="text" id="gastosMejoras" placeholder="$0.00" oninput="formatInputMoney(this); updateDeduccSummary()" onblur="formatInputMoneyFull(this); updateDeduccSummary()">
+                    </div>
+                    <div class="field">
+                        <label>Fecha de Mejoras (si aplica)</label>
+                        <input type="date" id="fechaMejoras">
+                    </div>
+                    <div class="field">
+                        <label>Comisión Inmobiliaria $</label>
+                        <input type="text" id="comision" placeholder="$0.00" oninput="formatInputMoney(this); updateDeduccSummary()" onblur="formatInputMoneyFull(this); updateDeduccSummary()">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Entidad Federativa -->
+            <div class="collapsible" id="sec-entidad">
+                <div class="coll-header" onclick="toggleSection('entidad')" id="hdr-entidad">
+                    <span class="coll-icon">🗺️</span>
+                    <span class="coll-title">Entidad Federativa</span>
+                    <span class="coll-summary" id="sum-entidad">Jalisco</span>
+                    <svg class="coll-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 5.5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </div>
+                <div class="coll-body" id="body-entidad" hidden>
+                    <div class="field">
+                        <label>Ubicación del Inmueble</label>
+                        <select id="entidadFederativa" onchange="updateEntidadSummary()">
+                            <option value="sin_cedular">Sin Impuesto Cedular (CDMX, Edo. Mex, etc.)</option>
+                            <option value="jalisco" selected>Jalisco (5% cedular)</option>
+                            <option value="guanajuato">Guanajuato (5% cedular)</option>
+                            <option value="chihuahua">Chihuahua (5% cedular)</option>
+                            <option value="quintana_roo">Quintana Roo (5% cedular)</option>
+                            <option value="yucatan">Yucatán (5% cedular)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. Enajenantes múltiples -->
+            <div class="collapsible" id="sec-enajenantes">
+                <div class="coll-header" onclick="toggleSection('enajenantes')" id="hdr-enajenantes">
+                    <span class="coll-icon">👥</span>
+                    <span class="coll-title">Enajenantes Múltiples</span>
+                    <span class="coll-summary" id="sum-enajenantes">1 enajenante</span>
+                    <svg class="coll-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 5.5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </div>
+                <div class="coll-body" id="body-enajenantes" hidden>
+                    <div class="field-row">
+                        <div class="field">
+                            <label>Número de Enajenantes</label>
+                            <input type="number" id="numEnajenantes" value="1" min="1" max="10" oninput="updateEnajeantesMul()">
+                        </div>
+                        <div class="field">
+                            <label>¿Cuántos aplican exención?</label>
+                            <input type="number" id="numExentan" value="1" min="0" max="10">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Opciones avanzadas -->
+            <div class="collapsible" id="sec-avanzado">
+                <div class="coll-header" onclick="toggleSection('avanzado')" id="hdr-avanzado">
+                    <span class="coll-icon">⚙️</span>
+                    <span class="coll-title">Opciones Avanzadas</span>
+                    <span class="coll-summary" id="sum-avanzado">Tabla INPC local</span>
+                    <svg class="coll-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 5.5l5 5 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </div>
+                <div class="coll-body" id="body-avanzado" hidden>
+                    <label class="toggle-row">
+                        <div class="toggle-label">
+                            Usar tabla INPC local (ejercicio)
+                            <small>Recomendado para valores de ejercicio fiscal corriente</small>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="usarTablaLocal" checked onchange="updateAvanzadoSummary()">
+                            <span class="toggle-track"></span>
+                            <span class="toggle-thumb"></span>
+                        </label>
+                    </label>
+                </div>
+            </div>
+
+        </div><!-- /sections-list -->
+
+        <!-- ─── RESULTADOS ─── -->
+        <div id="resultados" class="results-card hidden">
+            <div class="results-header">
+                <h2>📊 Resultados del Cálculo</h2>
+                <button class="new-query-btn" onclick="nuevaConsulta()">↺ Nueva Consulta</button>
+            </div>
+
+            <!-- Actualización por Inflación -->
+            <div class="res-group">
+                <div class="res-group-title">Actualización por Inflación</div>
                 <div class="result-row">
-                    <span class="label">INPC Venta</span>
-                    <span class="value" id="resInpcVenta">-</span>
+                    <span class="label">INPC mes de venta</span>
+                    <span class="value" id="resInpcVenta">—</span>
                 </div>
                 <div class="result-row">
-                    <span class="label">INPC Compra</span>
-                    <span class="value" id="resInpcCompra">-</span>
+                    <span class="label">INPC mes de compra</span>
+                    <span class="value" id="resInpcCompra">—</span>
                 </div>
-                <div class="result-row">
+                <div class="result-row subtotal">
                     <span class="label">Factor de Actualización</span>
-                    <span class="value" id="resFactor">-</span>
+                    <span class="value" id="resFactor">—</span>
                 </div>
                 <div class="result-row">
-                    <span class="label">Años Transcurridos</span>
-                    <span class="value" id="resAnios">-</span>
+                    <span class="label">Años transcurridos</span>
+                    <span class="value" id="resAnios">—</span>
                 </div>
             </div>
-            
-            <div class="result-section">
-                <h3 style="font-size:0.85rem;margin-bottom:1rem;color:var(--primary);">Deducciones</h3>
+
+            <!-- Deducciones -->
+            <div class="res-group">
+                <div class="res-group-title">Deducciones</div>
                 <div class="result-row">
-                    <span class="label">Terreno Actualizado</span>
-                    <span class="value" id="resTerrenoAct">-</span>
+                    <span class="label">Terreno actualizado</span>
+                    <span class="value" id="resTerrenoAct">—</span>
                 </div>
                 <div class="result-row">
                     <span class="label">Construcción (depreciada y actualizada)</span>
-                    <span class="value" id="resConstruccionAct">-</span>
+                    <span class="value" id="resConstruccionAct">—</span>
                 </div>
                 <div class="result-row">
-                    <span class="label">Gastos/Mejoras</span>
-                    <span class="value" id="resGastos">-</span>
+                    <span class="label">Gastos / Mejoras</span>
+                    <span class="value" id="resGastos">—</span>
                 </div>
                 <div class="result-row">
-                    <span class="label">Comisión</span>
-                    <span class="value" id="resComision">-</span>
+                    <span class="label">Comisión inmobiliaria</span>
+                    <span class="value" id="resComision">—</span>
                 </div>
-                <div class="result-row" style="font-weight:600;">
-                    <span class="label">TOTAL DEDUCCIONES</span>
-                    <span class="value" id="resTotalDeduc">-</span>
+                <div class="result-row subtotal">
+                    <span class="label">Total Deducciones</span>
+                    <span class="value" id="resTotalDeduc">—</span>
                 </div>
             </div>
-            
-            <div class="result-section">
-                <h3 style="font-size:0.85rem;margin-bottom:1rem;color:var(--primary);">Utilidad Gravable</h3>
+
+            <!-- Utilidad Gravable -->
+            <div class="res-group">
+                <div class="res-group-title">Utilidad Gravable</div>
                 <div class="result-row">
-                    <span class="label">Precio Enajenación</span>
-                    <span class="value" id="resPrecioVenta">-</span>
+                    <span class="label">Precio de Enajenación</span>
+                    <span class="value" id="resPrecioVenta">—</span>
                 </div>
                 <div class="result-row">
-                    <span class="label">(-) Total Deducciones</span>
-                    <span class="value" id="resMenosDeduc">-</span>
+                    <span class="label">(−) Total Deducciones</span>
+                    <span class="value negative" id="resMenosDeduc">—</span>
                 </div>
                 <div id="rowExencion" class="result-row hidden">
-                    <span class="label">(-) Exención Casa Habitación</span>
-                    <span class="value" id="resExencion">-</span>
+                    <span class="label">(−) Exención Casa Habitación</span>
+                    <span class="value negative" id="resExencion">—</span>
                 </div>
                 <div id="rowPctGravable" class="result-row hidden">
                     <span class="label">% Gravable (después exención)</span>
-                    <span class="value" id="resPctGravable">-</span>
+                    <span class="value" id="resPctGravable">—</span>
                 </div>
-                <div class="result-row" style="font-weight:600;">
-                    <span class="label">UTILIDAD GRAVABLE</span>
-                    <span class="value" id="resUtilidad">-</span>
-                </div>
-            </div>
-            
-            <div id="seccionExtranjero" class="result-section hidden">
-                <h3 style="font-size:0.85rem;margin-bottom:1rem;color:var(--primary);">ISR Extranjero (2 opciones)</h3>
-                <div class="result-row">
-                    <span class="label">Opción 1: 25% s/Ingreso (sin deduc)</span>
-                    <span class="value" id="resIsr25">-</span>
-                </div>
-                <div class="result-row">
-                    <span class="label">Opción 2: 35% s/Ganancia (con deduc)</span>
-                    <span class="value" id="resIsr35">-</span>
-                </div>
-                <div class="result-row">
-                    <span class="label">Opción 3: Tablas Art.152</span>
-                    <span class="value" id="resIsrTablas">-</span>
-                </div>
-                <div class="result-row highlight">
-                    <span class="label">✅ MEJOR OPCIÓN</span>
-                    <span class="value" id="resMejorOpcion">-</span>
+                <div class="result-row subtotal">
+                    <span class="label">Utilidad Gravable</span>
+                    <span class="value" id="resUtilidad">—</span>
                 </div>
             </div>
-            
-            <div id="seccionResidente" class="result-section">
-                <h3 style="font-size:0.85rem;margin-bottom:1rem;color:var(--primary);">Cálculo ISR</h3>
+
+            <!-- ISR Extranjero -->
+            <div id="seccionExtranjero" class="res-group hidden">
+                <div class="res-group-title">ISR Extranjero — Art. 160 LISR</div>
+                <div class="result-row">
+                    <span class="label">Opción 1 · 25% s/Ingreso (sin deduc)</span>
+                    <span class="value" id="resIsr25">—</span>
+                </div>
+                <div class="result-row">
+                    <span class="label">Opción 2 · 35% s/Ganancia (con deduc)</span>
+                    <span class="value" id="resIsr35">—</span>
+                </div>
+                <div class="result-row">
+                    <span class="label">Opción 3 · Tablas Art. 152</span>
+                    <span class="value" id="resIsrTablas">—</span>
+                </div>
+                <div class="highlight-row">
+                    <span class="label">✅ Mejor Opción</span>
+                    <span class="value" id="resMejorOpcion">—</span>
+                </div>
+            </div>
+
+            <!-- ISR Residente -->
+            <div id="seccionResidente" class="res-group">
+                <div class="res-group-title">Cálculo ISR — Art. 126 LISR</div>
                 <div class="result-row">
                     <span class="label">Utilidad Anual (Utilidad ÷ Años)</span>
-                    <span class="value" id="resUtilidadAnual">-</span>
+                    <span class="value" id="resUtilidadAnual">—</span>
                 </div>
                 <div class="result-row">
                     <span class="label">ISR Anual (tablas Art. 152)</span>
-                    <span class="value" id="resIsrAnual">-</span>
+                    <span class="value" id="resIsrAnual">—</span>
                 </div>
-                <div class="result-row">
+                <div class="result-row subtotal">
                     <span class="label">ISR Total (ISR Anual × Años)</span>
-                    <span class="value" id="resIsrTotal">-</span>
+                    <span class="value" id="resIsrTotal">—</span>
                 </div>
             </div>
-            
-            <div class="result-section">
-                <h3 style="font-size:0.85rem;margin-bottom:1rem;color:var(--primary);">Distribución del ISR</h3>
+
+            <!-- Distribución -->
+            <div class="res-group">
+                <div class="res-group-title">Distribución del ISR</div>
                 <div class="result-row">
                     <span class="label">ISR Entidad Federativa (máx 5%)</span>
-                    <span class="value" id="resIsrEstado">-</span>
+                    <span class="value" id="resIsrEstado">—</span>
                 </div>
                 <div class="result-row">
                     <span class="label">ISR Federación</span>
-                    <span class="value" id="resIsrFed">-</span>
+                    <span class="value" id="resIsrFed">—</span>
                 </div>
                 <div id="rowIva" class="result-row hidden">
                     <span class="label">IVA Local Comercial (16%)</span>
-                    <span class="value" id="resIva">-</span>
+                    <span class="value" id="resIva">—</span>
                 </div>
                 <div id="rowCedular" class="result-row hidden">
-                <span class="label">ISR Cedular Estatal (5% s/ganancia)</span>
-                <span class="value" id="resIsrCedular">-</span>
-            </div>
-            <div class="result-row total">
-                    <span class="label">💰 TOTAL ISR A PAGAR</span>
-                    <span class="value" id="resIsrFinal">-</span>
+                    <span class="label">ISR Cedular Estatal (5% s/ganancia)</span>
+                    <span class="value" id="resIsrCedular">—</span>
                 </div>
-                <div class="result-row">
-                    <span class="label">% sobre Precio Venta</span>
-                    <span class="value" id="resPorcentaje">-</span>
+
+                <div class="total-banner">
+                    <div>
+                        <div class="total-label">💰 TOTAL ISR A PAGAR</div>
+                    </div>
+                    <div class="total-banner-right">
+                        <div class="total-value" id="resIsrFinal">—</div>
+                        <div class="pct-badge" id="resPorcentaje">— % s/precio venta</div>
+                    </div>
+                </div>
+
+                <div id="infoPerdida" class="warning-box hidden" style="margin-top:1rem;">
+                    ⚠️ <strong>Pérdida Fiscal:</strong> Las deducciones superan el precio de enajenación. No hay ISR a pagar.
                 </div>
             </div>
-            
-            <div id="infoPerdida" class="warning-box hidden">
-                ⚠️ <strong>Pérdida:</strong> El cálculo arroja una pérdida (deducciones mayores al precio de venta). No hay ISR a pagar.
-            </div>
-        </div>
-    </div>
+
+        </div><!-- /resultados -->
+
+    </div><!-- /container -->
+
+    <script>
+    /* ─── UI HELPERS — collapsibles & summaries ─── */
+    function toggleSection(id) {
+        const body = document.getElementById('body-' + id);
+        const hdr  = document.getElementById('hdr-' + id);
+        const isOpen = !body.hidden;
+        body.hidden = isOpen;
+        hdr.classList.toggle('open', !isOpen);
+    }
+
+    function updateDistribucionSummary() {
+        const t = document.getElementById('pctTerreno').value || 0;
+        const c = document.getElementById('pctConstruccion').value || 0;
+        document.getElementById('sum-distribucion').textContent = t + '% / ' + c + '%';
+    }
+    function updateEnajenanteSummary() {
+        const ext = document.getElementById('esExtranjero').checked;
+        document.getElementById('sum-enajenante').textContent = ext ? 'Extranjero' : 'Residente';
+    }
+    function updateCasaHabitacionSummary() {
+        const casa  = document.getElementById('esCasaHabitacion').checked;
+        const exen  = document.getElementById('aplicaExencion').checked;
+        const local = document.getElementById('esLocalComercial').checked;
+        let txt = 'No aplica';
+        if (local) txt = 'Local comercial + IVA';
+        else if (casa && exen) txt = 'Casa hab. + Exención Art.93';
+        else if (casa) txt = 'Casa habitación';
+        document.getElementById('sum-casahabitacion').textContent = txt;
+    }
+    function updateDeduccSummary() {
+        const gm = document.getElementById('gastosMejoras').value || '$0';
+        const co = document.getElementById('comision').value || '$0';
+        const hasG = gm !== '$0' && gm !== '' && gm !== '$0.00';
+        const hasC = co !== '$0' && co !== '' && co !== '$0.00';
+        let txt = '$0.00';
+        if (hasG && hasC) txt = 'Mejoras + Comisión';
+        else if (hasG) txt = gm;
+        else if (hasC) txt = co;
+        document.getElementById('sum-deducciones').textContent = txt;
+    }
+    function updateEntidadSummary() {
+        const sel = document.getElementById('entidadFederativa');
+        const opt = sel.options[sel.selectedIndex].text;
+        document.getElementById('sum-entidad').textContent = opt.split('(')[0].trim();
+    }
+    function updateEnajeantesMul() {
+        const n = document.getElementById('numEnajenantes').value || 1;
+        document.getElementById('sum-enajenantes').textContent = n + (n == 1 ? ' enajenante' : ' enajenantes');
+    }
+    function updateAvanzadoSummary() {
+        const local = document.getElementById('usarTablaLocal').checked;
+        document.getElementById('sum-avanzado').textContent = local ? 'Tabla INPC local' : 'INPC en línea (SAT)';
+    }
+
+    /* setTipoInmueble — keep same logic, just update tab UI */
+    function setTipoInmueble(el, tipo) {
+        document.querySelectorAll('.tab-strip .tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        const split = document.getElementById('splitSection');
+        const pt = document.getElementById('pctTerreno');
+        const pc = document.getElementById('pctConstruccion');
+        if (tipo === 'terreno')      { pt.value = 100; pc.value = 0; split.style.opacity = '.5'; }
+        else if (tipo === 'construccion') { pt.value = 0; pc.value = 100; split.style.opacity = '.5'; }
+        else                         { split.style.opacity = '1'; }
+        updateDistribucionSummary();
+    }
+
+    /* Nueva consulta */
+    function nuevaConsulta() {
+        document.getElementById('resultados').classList.add('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    </script>
+
 
     <script>
         // TABLAS INPC (Base 2da quincena julio 2018 = 100)
