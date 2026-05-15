@@ -210,6 +210,53 @@
             font-size: 0.8rem;
             margin-top: 1rem;
         }
+        .sinrfc-warning {
+            background: #FEF3C7;
+            border-left: 4px solid var(--warning);
+            padding: .75rem 1rem;
+            border-radius: 0 8px 8px 0;
+            font-size: .8rem;
+            margin-top: .5rem;
+        }
+        .enaj-row {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: .6rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: .6rem .85rem;
+            font-size: .83rem;
+        }
+        .enaj-row label { color: var(--text-light); white-space: nowrap; }
+        .enaj-row input[type="text"] {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: .35rem .6rem;
+            font-size: .83rem;
+            width: 100%;
+            font-family: inherit;
+        }
+        .enaj-row .enaj-rfc-wrap { display: flex; align-items: center; gap: .4rem; }
+        .enaj-row .badge-sinrfc {
+            font-size: .68rem;
+            font-weight: 700;
+            background: #FEF3C7;
+            color: #92400E;
+            padding: .15rem .45rem;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .enaj-row .badge-conrfc {
+            font-size: .68rem;
+            font-weight: 700;
+            background: #D1FAE5;
+            color: #065F46;
+            padding: .15rem .45rem;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
         .tabs {
             display: flex;
             gap: 0.5rem;
@@ -272,8 +319,12 @@
             </div>
             <div class="checkbox-group">
                 <label class="checkbox-item">
-                    <input type="checkbox" id="esExtranjero">
-                    <span>Enajenante Extranjero (sin RFC)</span>
+                    <input type="checkbox" id="esExtranjero" onchange="onExtranjeroChange()">
+                    <span>Enajenante Extranjero</span>
+                </label>
+                <label class="checkbox-item" id="rowSinRfc" style="display:none;">
+                    <input type="checkbox" id="sinRfc" onchange="onSinRfcChange()">
+                    <span>Sin RFC / Turista</span>
                 </label>
                 <label class="checkbox-item">
                     <input type="checkbox" id="esCasaHabitacion" onchange="if(this.checked) document.getElementById('esLocalComercial').checked=false">
@@ -295,11 +346,24 @@
             <div class="grid-2" id="enajenantesSection">
                 <div class="field">
                     <label>Número de Enajenantes</label>
-                    <input type="number" id="numEnajenantes" value="1" min="1" max="10">
+                    <input type="number" id="numEnajenantes" value="1" min="1" max="10" oninput="onNumEnajenantesChange()">
                 </div>
                 <div class="field">
                     <label>¿Cuántos aplican exención?</label>
                     <input type="number" id="numExentan" value="1" min="0" max="10">
+                </div>
+            </div>
+
+            <!-- Tabla enajenantes mixtos (aparece cuando hay >1) -->
+            <div id="tablaEnajenantesWrap" style="display:none; margin-top:.75rem;">
+                <div style="font-size:.75rem;font-weight:600;color:var(--text-light);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem;">
+                    Detalle por enajenante
+                </div>
+                <div id="tablaEnajenantes" style="display:flex;flex-direction:column;gap:.5rem;"></div>
+                <div class="info-box" style="margin-top:.75rem;">
+                    <strong>Enajenantes mixtos:</strong> Cuando algunos tienen RFC y otros no (turistas), 
+                    el cálculo se hace por separado. Los <em>sin RFC</em> solo pueden optar por 25% o 35% Art.160; 
+                    los <em>con RFC</em> pueden usar también las tablas Art.152.
                 </div>
             </div>
             <div class="field" style="margin-top: 1rem;">
@@ -436,16 +500,20 @@
             </div>
             
             <div id="seccionExtranjero" class="result-section hidden">
-                <h3 style="font-size:0.85rem;margin-bottom:1rem;color:var(--primary);">ISR Extranjero (2 opciones)</h3>
+                <h3 style="font-size:0.85rem;margin-bottom:1rem;color:var(--primary);">ISR Extranjero (Art. 160 LISR)</h3>
+                <div id="avisoSinRfc" class="sinrfc-warning hidden">
+                    ⚠️ <strong>Sin RFC / Turista:</strong> Solo aplican las opciones 25% y 35% del Art. 160 LISR. 
+                    Las tablas del Art. 152 no están disponibles para enajenantes sin RFC.
+                </div>
                 <div class="result-row">
-                    <span class="label">Opción 1: 25% s/Ingreso (sin deduc)</span>
+                    <span class="label">Opción 1: 25% s/Ingreso bruto (sin deduc)</span>
                     <span class="value" id="resIsr25">-</span>
                 </div>
                 <div class="result-row">
                     <span class="label">Opción 2: 35% s/Ganancia (con deduc)</span>
                     <span class="value" id="resIsr35">-</span>
                 </div>
-                <div class="result-row">
+                <div id="rowIsrTablas" class="result-row">
                     <span class="label">Opción 3: Tablas Art.152</span>
                     <span class="value" id="resIsrTablas">-</span>
                 </div>
@@ -1072,11 +1140,12 @@
                     const isrAnualExt = calcularISRTablas(utilidadAnualExt, fechaVenta);
                     isrTablas = isrAnualExt * anios;
                     
-                    // Elegir la menor de las TRES opciones
+                    // Elegir la menor — si sinRfc solo 25% y 35%
+                    const esSinRfc = typeof hayEnajSinRfc === 'function' && hayEnajSinRfc();
                     const opciones = [
-                        { valor: isr25, nombre: '25% s/Ingreso (sin deduc)' },
-                        { valor: isr35, nombre: '35% s/Ganancia (con deduc)' },
-                        { valor: isrTablas, nombre: 'Tablas Art.152' }
+                        { valor: isr25,     nombre: '25% s/Ingreso (sin deduc)' },
+                        { valor: isr35,     nombre: '35% s/Ganancia (con deduc)' },
+                        ...(!esSinRfc ? [{ valor: isrTablas, nombre: 'Tablas Art.152' }] : [])
                     ];
                     const mejor = opciones.reduce((a, b) => a.valor < b.valor ? a : b);
                     isrTotal = mejor.valor;
@@ -1137,12 +1206,18 @@
             document.getElementById('resUtilidad').textContent = formatMoney(utilidadGravable);
             
             if (esExtranjero) {
+                const esSinRfc = typeof hayEnajSinRfc === 'function' && hayEnajSinRfc();
                 document.getElementById('seccionExtranjero').classList.remove('hidden');
                 document.getElementById('seccionResidente').classList.add('hidden');
                 document.getElementById('resIsr25').textContent = formatMoney(isr25);
                 document.getElementById('resIsr35').textContent = formatMoney(isr35);
                 document.getElementById('resIsrTablas').textContent = formatMoney(isrTablas);
                 document.getElementById('resMejorOpcion').textContent = mejorOpcion + ' - ' + formatMoney(isrTotal);
+                // Aviso sinRfc
+                const avisoSinRfc = document.getElementById('avisoSinRfc');
+                const rowTablas   = document.getElementById('rowIsrTablas');
+                if (avisoSinRfc) avisoSinRfc.classList.toggle('hidden', !esSinRfc);
+                if (rowTablas)   rowTablas.classList.toggle('hidden', esSinRfc);
             } else {
                 document.getElementById('seccionExtranjero').classList.add('hidden');
                 document.getElementById('seccionResidente').classList.remove('hidden');
@@ -1173,7 +1248,90 @@
             }
         }
     </script>
-    <!-- PWA Service Worker -->
+    <!-- MEJORAS: Sin RFC / Enajenantes Mixtos -->
+    <script>
+        /* ── MEJORA 1: Toggle Sin RFC / Turista ───────────────── */
+        function onExtranjeroChange() {
+            const esExt = document.getElementById('esExtranjero').checked;
+            document.getElementById('rowSinRfc').style.display = esExt ? 'flex' : 'none';
+            if (!esExt) {
+                document.getElementById('sinRfc').checked = false;
+                onSinRfcChange();
+            }
+            // También disparar la visibilidad de la tabla de enajenantes
+            onNumEnajenantesChange();
+        }
+
+        function onSinRfcChange() {
+            const sinRfc = document.getElementById('sinRfc').checked;
+            const rowTablas   = document.getElementById('rowIsrTablas');
+            const avisoSinRfc = document.getElementById('avisoSinRfc');
+            if (rowTablas)    rowTablas.classList.toggle('hidden', sinRfc);
+            if (avisoSinRfc)  avisoSinRfc.classList.toggle('hidden', !sinRfc);
+        }
+
+        /* ── MEJORA 2: Tabla enajenantes mixtos ────────────────── */
+        function onNumEnajenantesChange() {
+            const n     = parseInt(document.getElementById('numEnajenantes').value) || 1;
+            const esExt = document.getElementById('esExtranjero').checked;
+            const wrap  = document.getElementById('tablaEnajenantesWrap');
+            const tabla = document.getElementById('tablaEnajenantes');
+
+            if (n > 1 && esExt) {
+                // Regenerar solo si cambió el número
+                const filas = tabla.querySelectorAll('.enaj-row').length;
+                if (filas !== n) {
+                    tabla.innerHTML = '';
+                    for (let i = 1; i <= n; i++) {
+                        const pct = (100 / n).toFixed(2);
+                        const div = document.createElement('div');
+                        div.className = 'enaj-row';
+                        div.innerHTML = `
+                            <label>Enaj. ${i}</label>
+                            <div class="enaj-rfc-wrap">
+                                <input type="text" id="enajRfc${i}" placeholder="RFC o N/A"
+                                    oninput="onEnajRfcChange(${i})" style="width:150px;">
+                                <span class="badge-sinrfc hidden" id="badgeSinRfc${i}">Sin RFC</span>
+                                <span class="badge-conrfc hidden" id="badgeConRfc${i}">Con RFC</span>
+                            </div>
+                            <div style="font-size:.78rem;color:var(--text-light);min-width:70px;text-align:right;">
+                                ${pct}%
+                            </div>`;
+                        tabla.appendChild(div);
+                    }
+                }
+                wrap.style.display = 'block';
+            } else {
+                wrap.style.display = 'none';
+            }
+        }
+
+        function onEnajRfcChange(idx) {
+            const val = (document.getElementById(`enajRfc${idx}`).value || '').trim().toUpperCase();
+            const sinRfcValues = ['N/A', 'NA', 'TURISTA', 'SIN RFC', ''];
+            const esSinRfc = sinRfcValues.includes(val) || (val.length > 0 && val.length < 4);
+            const badgeSin = document.getElementById(`badgeSinRfc${idx}`);
+            const badgeCon = document.getElementById(`badgeConRfc${idx}`);
+            if (!val) { badgeSin.classList.add('hidden'); badgeCon.classList.add('hidden'); return; }
+            badgeSin.classList.toggle('hidden', !esSinRfc);
+            badgeCon.classList.toggle('hidden',  esSinRfc);
+        }
+
+        /* Util: ¿hay al menos un enajenante sin RFC? */
+        function hayEnajSinRfc() {
+            const esExt = document.getElementById('esExtranjero').checked;
+            if (!esExt) return false;
+            if (document.getElementById('sinRfc').checked) return true;
+            const n = parseInt(document.getElementById('numEnajenantes').value) || 1;
+            if (n > 1) {
+                for (let i = 1; i <= n; i++) {
+                    const b = document.getElementById(`badgeSinRfc${i}`);
+                    if (b && !b.classList.contains('hidden')) return true;
+                }
+            }
+            return false;
+        }
+    </script>
     <!-- PWA Service Worker -->
     <script>
     if ("serviceWorker" in navigator) {
