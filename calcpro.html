@@ -442,25 +442,41 @@
 
     function cpDigit(d) {
         if (cpState.justEvaled) {
-            cpState.display = d;
+            cpState.display = d === '.' ? '0.' : d;
             cpState.justEvaled = false;
         } else {
-            if (cpState.display === '0' && d !== '.') cpState.display = d;
-            else if (cpState.display.replace(/[$,.-]/g,'').length < 14) cpState.display += d;
+            if (cpState.display === '0' && d !== '.') {
+                cpState.display = d;
+            } else {
+                // Limpiar solo caracteres de formato para contar longitud real
+                const clean = cpState.display.replace(/[$,]/g, '');
+                if (clean.replace(/[.-]/g, '').length < 14) {
+                    cpState.display = clean + d;
+                }
+            }
         }
         cpUpdateDisplay();
     }
 
     function cpDot() {
-        if (cpState.justEvaled) { cpState.display = '0.'; cpState.justEvaled = false; cpUpdateDisplay(); return; }
-        if (!cpState.display.includes('.')) cpState.display += '.';
+        if (cpState.justEvaled) {
+            // Después de operador: empezar número nuevo con punto
+            cpState.display = '0.';
+            cpState.justEvaled = false;
+            cpUpdateDisplay();
+            return;
+        }
+        // Limpiar formato antes de verificar si ya tiene punto
+        const clean = cpState.display.replace(/[$,]/g, '');
+        if (!clean.includes('.')) {
+            cpState.display = clean + '.';
+        }
         cpUpdateDisplay();
     }
 
     function cpOp(op) {
-        const cur = parseFloat(cpState.display) || 0;
+        const cur = parseFloat(cpState.display.replace(/[$,]/g, '')) || 0;
         if (cpState.operator && !cpState.justEvaled) {
-            // Chain operation
             const result = cpApply(cpState.operand, cpState.operator, cur);
             cpState.operand = result;
             cpState.display = String(result);
@@ -484,7 +500,7 @@
 
     function cpEquals() {
         if (cpState.operator === null || cpState.operand === null) return;
-        const cur = parseFloat(cpState.display) || 0;
+        const cur = parseFloat(cpState.display.replace(/[$,]/g, '')) || 0;
         const result = cpApply(cpState.operand, cpState.operator, cur);
         const exprStr = cpFmt(cpState.operand) + ' ' + cpState.operator + ' ' + cpFmt(cur);
         cpAddHistory(exprStr, result);
