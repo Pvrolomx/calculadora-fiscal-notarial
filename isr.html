@@ -276,6 +276,62 @@
             color: white;
             border-color: var(--primary);
         }
+        /* ── USD CONVERTER ── */
+        .usd-toggle-row {
+            display: flex;
+            align-items: center;
+            gap: .35rem;
+            margin-top: .4rem;
+            cursor: pointer;
+            width: fit-content;
+            padding: .2rem 0;
+            user-select: none;
+        }
+        .usd-toggle-row:hover span { color: var(--primary) !important; opacity: 1 !important; }
+        #usdPanel {
+            background: var(--primary-pale);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: .85rem;
+            margin-top: .4rem;
+        }
+        .usd-row {
+            display: flex;
+            align-items: flex-end;
+            gap: .5rem;
+            flex-wrap: wrap;
+        }
+        .usd-field { display: flex; flex-direction: column; gap: .25rem; flex: 1; min-width: 90px; }
+        .usd-field label { font-size: .68rem; font-weight: 600; color: var(--text-mid); }
+        .usd-field input {
+            padding: .6rem .75rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .88rem;
+            background: var(--surface);
+            color: var(--text);
+            outline: none;
+            width: 100%;
+        }
+        .usd-field input:focus { border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(45,90,139,.1); }
+        .usd-sep { font-size: 1.1rem; font-weight: 700; color: var(--text-light); padding-bottom: .55rem; flex-shrink: 0; }
+        .usd-result-field { min-width: 120px; }
+        .usd-result {
+            font-size: .95rem; font-weight: 700; color: var(--primary);
+            padding: .6rem .75rem; background: var(--surface);
+            border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+            min-height: 38px;
+        }
+        .usd-apply-btn {
+            width: 100%; margin-top: .65rem; padding: .6rem 1rem;
+            background: var(--primary); color: #fff; border: none;
+            border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif;
+            font-size: .8rem; font-weight: 600; cursor: pointer; transition: background .15s;
+        }
+        .usd-apply-btn:hover:not(:disabled) { background: var(--primary-light); }
+        .usd-apply-btn:disabled { opacity: .45; cursor: not-allowed; }
+
         .hidden { display: none; }
     </style>
     <!-- PWA Meta Tags -->
@@ -313,8 +369,34 @@
                     <input type="date" id="fechaVenta" value="">
                 </div>
                 <div class="field">
-                    <label>Precio de Enajenación $</label>
+                    <label>💰 Precio de Enajenación $</label>
                     <input type="text" id="precioVenta" placeholder="$0.00" oninput="formatInputMoney(this)" onblur="formatInputMoneyFull(this)">
+                    <!-- Convertidor USD -->
+                    <div class="usd-toggle-row" onclick="toggleUSD()">
+                        <span id="usdToggleIcon">▶</span>
+                        <span style="font-size:.72rem;font-weight:600;color:var(--text-light);"> Capturar en USD</span>
+                    </div>
+                    <div id="usdPanel" style="display:none;">
+                        <div class="usd-row">
+                            <div class="usd-field">
+                                <label>USD $</label>
+                                <input type="text" id="usdAmount" placeholder="275,000" oninput="calcUSD()">
+                            </div>
+                            <div class="usd-sep">×</div>
+                            <div class="usd-field">
+                                <label>Tipo de Cambio <span id="tcFuenteLabel" style="font-weight:400;opacity:.6;">(cargando…)</span></label>
+                                <input type="text" id="tcValue" placeholder="18.50" oninput="calcUSD()">
+                            </div>
+                            <div class="usd-sep">=</div>
+                            <div class="usd-field usd-result-field">
+                                <label>MXN</label>
+                                <div class="usd-result" id="usdResult">—</div>
+                            </div>
+                        </div>
+                        <button class="usd-apply-btn" id="usdApplyBtn" onclick="applyUSD()" disabled>
+                            ↑ Usar este monto como Precio de Enajenación
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="checkbox-group">
@@ -1249,6 +1331,76 @@
                 document.getElementById('infoPerdida').classList.add('hidden');
             }
         }
+    </script>
+    <!-- CONVERTIDOR USD → MXN -->
+    <script>
+    let usdOpen = false;
+
+    function toggleUSD() {
+        usdOpen = !usdOpen;
+        document.getElementById('usdPanel').style.display = usdOpen ? 'block' : 'none';
+        document.getElementById('usdToggleIcon').textContent = usdOpen ? '▼' : '▶';
+        if (usdOpen) cargarTCBanxico();
+    }
+
+    async function cargarTCBanxico() {
+        const label = document.getElementById('tcFuenteLabel');
+        label.textContent = '(cargando FIX…)';
+        try {
+            // API pública de Banxico — serie SF43718 = FIX USD/MXN
+            const url = 'https://www.banxico.org.mx/SieAPIRest/service/v1/series/SF43718/datos/oportuno';
+            const res = await fetch(url, {
+                headers: { 'Bmx-Token': 'adca30408e2b27272b3752ca9f885d28c25c22e4b2e24d6765e0c2eae55c247c' }
+            });
+            if (!res.ok) throw new Error('status ' + res.status);
+            const data = await res.json();
+            const dato = data.bmx.series[0].datos[0];
+            const tc   = parseFloat(dato.dato);
+            const fecha = dato.fecha;
+            if (!isNaN(tc)) {
+                document.getElementById('tcValue').value = tc.toFixed(4);
+                label.textContent = `(Banxico FIX ${fecha})`;
+                calcUSD();
+                return;
+            }
+        } catch(e) { /* silencioso — usuario captura manualmente */ }
+        label.textContent = '(captura manual)';
+    }
+
+    function calcUSD() {
+        const usd = parseFloat((document.getElementById('usdAmount').value || '').replace(/,/g,'')) || 0;
+        const tc  = parseFloat((document.getElementById('tcValue').value  || '').replace(/,/g,'')) || 0;
+        const mxn = usd * tc;
+        const resultEl = document.getElementById('usdResult');
+        const applyBtn = document.getElementById('usdApplyBtn');
+        if (mxn > 0) {
+            resultEl.textContent = '$' + mxn.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+            resultEl.style.color = '#1A8C5B';
+            applyBtn.disabled = false;
+            applyBtn.textContent = '↑ Usar $' + mxn.toLocaleString('en-US', {minimumFractionDigits:2}) + ' MXN como Precio de Enajenación';
+        } else {
+            resultEl.textContent = '—';
+            resultEl.style.color = '';
+            applyBtn.disabled = true;
+            applyBtn.textContent = '↑ Usar este monto como Precio de Enajenación';
+        }
+    }
+
+    function applyUSD() {
+        const usd = parseFloat((document.getElementById('usdAmount').value || '').replace(/,/g,'')) || 0;
+        const tc  = parseFloat((document.getElementById('tcValue').value  || '').replace(/,/g,'')) || 0;
+        const mxn = usd * tc;
+        if (mxn <= 0) return;
+        const input = document.getElementById('precioVenta');
+        input.value = '$' + mxn.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+        // Cerrar panel
+        usdOpen = false;
+        document.getElementById('usdPanel').style.display = 'none';
+        document.getElementById('usdToggleIcon').textContent = '▶';
+        // Flash verde en el campo
+        input.style.borderColor = '#1A8C5B';
+        setTimeout(() => { input.style.borderColor = ''; }, 1500);
+    }
     </script>
     <!-- MEJORAS: Sin RFC / Enajenantes Mixtos -->
     <script>
