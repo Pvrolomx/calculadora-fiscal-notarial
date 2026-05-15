@@ -1037,13 +1037,17 @@
             const inpcCompra = await getINPCAsync(fechaCompra);
             const factorINPC = inpcVenta / inpcCompra;
             
+            const numEnajenantes = parseInt(document.getElementById('numEnajenantes').value) || 1;
+            const numExentan = parseInt(document.getElementById('numExentan').value) || 0;
+
             // Comisión actualizada con INPC desde fecha de pago hasta mes enajenación (Art.121)
-            let comisionActualizada = comision;
+            // Se divide entre número de enajenantes — cada quien deduce su proporción
+            let comisionActualizada = comision / numEnajenantes;
             if (comision > 0) {
                 const inpcEnajDirecto = await getINPCAsync(fechaVenta, false);
                 const inpcComision = await getINPCAsync(fechaComision, false);
                 const factorComision = inpcEnajDirecto / inpcComision;
-                comisionActualizada = comision * factorComision;
+                comisionActualizada = (comision / numEnajenantes) * factorComision;
             }
 
             // Calcular valores actualizados
@@ -1067,19 +1071,17 @@
                 mejorasActualizadas = gastosMejoras * factorMejoras;
             }
             
-            // Total deducciones
-            let totalDeducciones = terrenoActualizado + construccionActualizada + mejorasActualizadas + comision;
+            // Total deducciones — comisionActualizada ya está dividida por numEnajenantes
+            let totalDeducciones = terrenoActualizado + construccionActualizada + mejorasActualizadas + comisionActualizada;
             
             // COSTO MINIMO 10% (Art.121 LISR)
             const costoMinimo = precioVenta * 0.10;
             const usaCostoMinimo = (terrenoActualizado + construccionActualizada) < costoMinimo;
             if (usaCostoMinimo) {
-                totalDeducciones = costoMinimo + mejorasActualizadas + comision;
+                totalDeducciones = costoMinimo + mejorasActualizadas + comisionActualizada;
             }
             
             // Exención casa habitación - METODOLOGIA NUVIGANT
-            const numEnajenantes = parseInt(document.getElementById('numEnajenantes').value) || 1;
-            const numExentan = parseInt(document.getElementById('numExentan').value) || 0;
             
             let exencionTotal = 0;
             let pctGravable = 1; // 100% gravable por defecto
@@ -1184,7 +1186,7 @@
             document.getElementById('resTerrenoAct').textContent = formatMoney(terrenoActualizado);
             document.getElementById('resConstruccionAct').textContent = formatMoney(construccionActualizada);
             document.getElementById('resGastos').textContent = formatMoney(mejorasActualizadas);
-            document.getElementById('resComision').textContent = formatMoney(comision);
+            document.getElementById('resComision').textContent = formatMoney(comisionActualizada);
             document.getElementById('resTotalDeduc').textContent = formatMoney(totalDeducciones);
             
             document.getElementById('resPrecioVenta').textContent = formatMoney(precioVenta);
