@@ -678,6 +678,16 @@
             <div id="infoPerdida" class="warning-box hidden">
                 ⚠️ <strong>Pérdida:</strong> El cálculo arroja una pérdida (deducciones mayores al precio de venta). No hay ISR a pagar.
             </div>
+
+            <div style="margin-top:1.5rem;text-align:center;">
+                <button onclick="generarPDF()" style="
+                    background:var(--primary);color:#fff;
+                    border:none;border-radius:8px;
+                    padding:0.75rem 2rem;font-size:1rem;
+                    cursor:pointer;font-weight:600;
+                    display:inline-flex;align-items:center;gap:0.5rem;
+                ">📄 Descargar PDF</button>
+            </div>
         </div>
     </div>
 
@@ -1536,6 +1546,211 @@
                 .then(reg => console.log("SW registrado", reg.scope))
                 .catch(err => console.log("SW error", err));
         });
+    }
+    </script>
+
+    <!-- jsPDF CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+    function generarPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: 'letter' });
+
+        const VERDE  = [26, 140, 91];
+        const GRIS   = [100, 100, 100];
+        const NEGRO  = [30, 30, 30];
+        const FONDO  = [245, 248, 245];
+        const BLANCO = [255, 255, 255];
+
+        const pageW = 215.9;
+        const margen = 18;
+        const colVal = 140;
+        let y = 0;
+
+        // ── Helpers ──────────────────────────────────────────────
+        function txt(label, value, bold = false) {
+            doc.setFontSize(9);
+            doc.setTextColor(...GRIS);
+            doc.setFont('helvetica', 'normal');
+            doc.text(label, margen, y);
+            doc.setTextColor(...NEGRO);
+            doc.setFont('helvetica', bold ? 'bold' : 'normal');
+            doc.text(value, colVal, y, { align: 'right' });
+            y += 6;
+        }
+
+        function seccion(titulo) {
+            y += 3;
+            doc.setFillColor(...FONDO);
+            doc.roundedRect(margen - 2, y - 4, pageW - (margen * 2) + 4, 8, 1, 1, 'F');
+            doc.setFontSize(8.5);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...VERDE);
+            doc.text(titulo.toUpperCase(), margen, y);
+            y += 7;
+            doc.setTextColor(...NEGRO);
+        }
+
+        function linea() {
+            doc.setDrawColor(220, 220, 220);
+            doc.line(margen, y, pageW - margen, y);
+            y += 4;
+        }
+
+        function totalRow(label, value) {
+            doc.setFillColor(...VERDE);
+            doc.roundedRect(margen - 2, y - 4, pageW - (margen * 2) + 4, 9, 1, 1, 'F');
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...BLANCO);
+            doc.text(label, margen, y);
+            doc.text(value, colVal, y, { align: 'right' });
+            y += 10;
+        }
+
+        function g(id) {
+            const el = document.getElementById(id);
+            return el ? el.textContent.trim() : '—';
+        }
+
+        function isVisible(id) {
+            const el = document.getElementById(id);
+            return el && !el.classList.contains('hidden');
+        }
+
+        // ── ENCABEZADO ─────────────────────────────────────────
+        doc.setFillColor(...VERDE);
+        doc.rect(0, 0, pageW, 32, 'F');
+
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(...BLANCO);
+        doc.text('Expat Advisor MX', margen, 13);
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Cálculo ISR Enajenación de Inmuebles · Art. 126 LISR', margen, 20);
+
+        const hoy = new Date().toLocaleDateString('es-MX', { day:'2-digit', month:'long', year:'numeric' });
+        doc.text(hoy, pageW - margen, 20, { align: 'right' });
+
+        doc.setFontSize(8);
+        doc.setTextColor(200, 235, 215);
+        doc.text('expatadvisormx.com', margen, 27);
+        doc.text('Lic. Rolando Romero García · Céd. Prof. 5255863', pageW - margen, 27, { align: 'right' });
+
+        y = 42;
+
+        // ── DATOS DE LA OPERACIÓN ─────────────────────────────
+        seccion('Datos de la Operación');
+
+        const fechaCompra = document.getElementById('fechaCompra')?.value || '—';
+        const precioCompra = document.getElementById('precioCompra')?.value || '—';
+        const fechaVenta = document.getElementById('fechaVenta')?.value || '—';
+        const precioVenta = document.getElementById('precioVenta')?.value || '—';
+        const numEnajenantes = document.getElementById('numEnajenantes')?.value || '1';
+        const pctTerreno = document.getElementById('pctTerreno')?.value || '—';
+        const pctConstruccion = document.getElementById('pctConstruccion')?.value || '—';
+        const comision = document.getElementById('comision')?.value || '—';
+
+        txt('Fecha de adquisición', fechaCompra);
+        txt('Precio de adquisición', precioCompra);
+        txt('Fecha de enajenación', fechaVenta);
+        txt('Precio de enajenación', precioVenta);
+        txt('Número de enajenantes', numEnajenantes);
+        txt('% Terreno / Construcción', pctTerreno + '% / ' + pctConstruccion + '%');
+        if (comision && comision !== '$0.00') txt('Comisión', comision);
+
+        // ── TC USD (solo si se usó) ─────────────────────────────
+        const usdAmount = document.getElementById('usdAmount')?.value;
+        const tcValue   = document.getElementById('tcValue')?.value;
+        const usdResult = document.getElementById('usdResult')?.textContent;
+
+        if (usdAmount && parseFloat(usdAmount.replace(/,/g,'')) > 0 && tcValue) {
+            linea();
+            doc.setFontSize(8.5);
+            doc.setFont('helvetica', 'bolditalic');
+            doc.setTextColor(...VERDE);
+            doc.text('Conversión USD aplicada', margen, y);
+            y += 6;
+            doc.setFont('helvetica', 'normal');
+            txt('Monto en dólares (USD)', '$ ' + usdAmount);
+            txt('Tipo de cambio aplicado', '$ ' + tcValue + ' MXN/USD');
+            txt('Equivalente MXN', usdResult || '—');
+        }
+
+        linea();
+
+        // ── INFLACIÓN / INPC ──────────────────────────────────
+        seccion('Actualización por Inflación');
+        txt('INPC mes de venta (mes anterior)', g('resInpcVenta'));
+        txt('INPC mes de compra', g('resInpcCompra'));
+        txt('Factor de actualización', g('resFactor'));
+        txt('Años transcurridos', g('resAnios'));
+        linea();
+
+        // ── DEDUCCIONES ───────────────────────────────────────
+        seccion('Deducciones Autorizadas');
+        txt('Terreno actualizado', g('resTerrenoAct'));
+        txt('Construcción (depreciada y actualizada)', g('resConstruccionAct'));
+        txt('Gastos / Mejoras', g('resGastos'));
+        txt('Comisión (por enajenante)', g('resComision'));
+        txt('TOTAL DEDUCCIONES', g('resTotalDeduc'), true);
+        linea();
+
+        // ── UTILIDAD GRAVABLE ─────────────────────────────────
+        seccion('Utilidad Gravable');
+        txt('Precio de enajenación', g('resPrecioVenta'));
+        txt('(−) Total deducciones', g('resMenosDeduc'));
+        if (isVisible('rowExencion'))  txt('(−) Exención casa habitación', g('resExencion'));
+        if (isVisible('rowPctGravable')) txt('% Gravable (después exención)', g('resPctGravable'));
+        txt('UTILIDAD GRAVABLE', g('resUtilidad'), true);
+        linea();
+
+        // ── ISR ───────────────────────────────────────────────
+        const esExtranjero = document.getElementById('esExtranjero')?.checked;
+        if (esExtranjero && isVisible('seccionExtranjero')) {
+            seccion('ISR Extranjero — Art. 160 LISR');
+            txt('Opción 1: 25% s/Ingreso bruto', g('resIsr25'));
+            txt('Opción 2: 35% s/Ganancia', g('resIsr35'));
+            if (isVisible('rowIsrTablas')) txt('Opción 3: Tablas Art. 152', g('resIsrTablas'));
+            txt('✅ Mejor opción', g('resMejorOpcion'), true);
+        } else {
+            seccion('Cálculo ISR — Art. 126/152 LISR');
+            txt('Utilidad anual (utilidad ÷ años)', g('resUtilidadAnual'));
+            txt('ISR anual (tablas Art. 152)', g('resIsrAnual'));
+            txt('ISR total (ISR anual × años)', g('resIsrTotal'));
+        }
+        linea();
+
+        // ── DISTRIBUCIÓN ──────────────────────────────────────
+        seccion('Distribución del ISR');
+        txt('ISR Entidad Federativa (máx 5%)', g('resIsrEstado'));
+        txt('ISR Federación', g('resIsrFed'));
+        if (isVisible('rowIva'))     txt('IVA Local Comercial (16%)', g('resIva'));
+        if (isVisible('rowCedular')) txt('ISR Cedular Estatal', g('resIsrCedular'));
+
+        y += 2;
+        totalRow('💰 TOTAL ISR A PAGAR', g('resIsrFinal'));
+        txt('% sobre precio de venta', g('resPorcentaje'));
+
+        // ── FOOTER ────────────────────────────────────────────
+        const totalPags = doc.getNumberOfPages();
+        for (let i = 1; i <= totalPags; i++) {
+            doc.setPage(i);
+            doc.setDrawColor(...VERDE);
+            doc.line(margen, 270, pageW - margen, 270);
+            doc.setFontSize(7.5);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(...GRIS);
+            doc.text('Este documento es un estimado informativo. No sustituye la opinión de un contador o notario público.', margen, 275);
+            doc.text('Expat Advisor MX · expatadvisormx.com · ' + hoy, margen, 280);
+            doc.text('Página ' + i + ' de ' + totalPags, pageW - margen, 280, { align: 'right' });
+        }
+
+        // Nombre de archivo con fecha de enajenación
+        const fechaStr = fechaVenta.replace(/\//g,'-') || 'calculo';
+        doc.save('ISR_Enajenacion_' + fechaStr + '.pdf');
     }
     </script>
 </body>
