@@ -1345,22 +1345,24 @@
 
     async function cargarTCBanxico() {
         const label = document.getElementById('tcFuenteLabel');
-        label.textContent = '(cargando TC…)';
+        label.textContent = '(cargando FIX…)';
         try {
-            const res = await fetch('https://open.er-api.com/v6/latest/USD');
+            // Proxy Vercel en Anfitrión MX — llama a Banxico server-side, sin CORS
+            const res = await fetch('https://anfitrion.expatadvisormx.com/api/fx-usd');
             if (!res.ok) throw new Error('status ' + res.status);
             const data = await res.json();
-            const tc = data.rates && data.rates.MXN;
+            const tc = data.tipoCambio;
             if (tc && !isNaN(tc)) {
                 document.getElementById('tcValue').value = tc.toFixed(4);
-                const fecha = data.time_last_update_utc
-                    ? new Date(data.time_last_update_utc).toLocaleDateString('es-MX', {day:'2-digit',month:'short',year:'numeric'})
+                const fecha = data.fecha
+                    ? new Date(data.fecha + 'T12:00:00').toLocaleDateString('es-MX', {day:'2-digit', month:'short', year:'numeric'})
                     : 'hoy';
-                label.textContent = `(TC referencia ${fecha})`;
+                const fuente = data.fuente === 'Banxico' ? 'Banxico FIX' : 'Referencia';
+                label.textContent = `(${fuente} ${fecha})`;
                 calcUSD();
                 return;
             }
-        } catch(e) { /* silencioso — usuario captura manualmente */ }
+        } catch(e) { /* silencioso — fallback a captura manual */ }
         label.textContent = '(captura manual)';
     }
 
