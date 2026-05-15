@@ -308,14 +308,13 @@
 
             <!-- Fiscal shortcuts -->
             <div class="fiscal-row">
-                <button class="fiscal-btn iva" onclick="cpFiscal('iva16')">16% IVA</button>
                 <button class="fiscal-btn iva" onclick="cpFiscal('masiva')">+IVA</button>
                 <button class="fiscal-btn iva" onclick="cpFiscal('menosiva')">−IVA</button>
-                <button class="fiscal-btn pct" onclick="cpFiscal('p35')">35%</button>
-                <button class="fiscal-btn pct" onclick="cpFiscal('p30')">30%</button>
-                <button class="fiscal-btn pct" onclick="cpFiscal('p25')">25%</button>
-                <button class="fiscal-btn pct" onclick="cpFiscal('p20')">20%</button>
-                <button class="fiscal-btn pct" onclick="cpFiscal('p10')">10%</button>
+                <button class="fiscal-btn pct" onclick="cpFiscal('p16')">16%</button>
+                <button class="fiscal-btn pct" onclick="cpFiscal('p8')">8%</button>
+                <button class="fiscal-btn pct" onclick="cpFiscal('p7')">7%</button>
+                <button class="fiscal-btn pct" onclick="cpFiscal('p35')">3.5%</button>
+                <button class="fiscal-btn pct" onclick="cpFiscal('p2')">2%</button>
             </div>
 
             <!-- Keypad -->
@@ -549,10 +548,6 @@
         const cur = parseFloat(cpState.display) || 0;
         let result, exprStr;
         switch(type) {
-            case 'iva16':
-                result = cur * 0.16;
-                exprStr = cpFmt(cur) + ' × 16% IVA';
-                break;
             case 'masiva':
                 result = cur * 1.16;
                 exprStr = cpFmt(cur) + ' + IVA (×1.16)';
@@ -561,11 +556,11 @@
                 result = cur / 1.16;
                 exprStr = cpFmt(cur) + ' ÷ 1.16 (−IVA)';
                 break;
-            case 'p35': result = cur * 0.35; exprStr = cpFmt(cur) + ' × 35%'; break;
-            case 'p30': result = cur * 0.30; exprStr = cpFmt(cur) + ' × 30%'; break;
-            case 'p25': result = cur * 0.25; exprStr = cpFmt(cur) + ' × 25%'; break;
-            case 'p20': result = cur * 0.20; exprStr = cpFmt(cur) + ' × 20%'; break;
-            case 'p10': result = cur * 0.10; exprStr = cpFmt(cur) + ' × 10%'; break;
+            case 'p16': result = cur * 0.16; exprStr = cpFmt(cur) + ' × 16%'; break;
+            case 'p8':  result = cur * 0.08; exprStr = cpFmt(cur) + ' × 8%';  break;
+            case 'p7':  result = cur * 0.07; exprStr = cpFmt(cur) + ' × 7%';  break;
+            case 'p35': result = cur * 0.035; exprStr = cpFmt(cur) + ' × 3.5%'; break;
+            case 'p2':  result = cur * 0.02; exprStr = cpFmt(cur) + ' × 2%';  break;
             default: return;
         }
         cpAddHistory(exprStr, result);
