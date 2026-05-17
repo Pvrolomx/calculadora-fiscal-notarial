@@ -453,7 +453,7 @@
                     <span>Tipo: Casa Habitación</span>
                 </label>
                 <label class="checkbox-item">
-                    <input type="checkbox" id="aplicaExencion">
+                    <input type="checkbox" id="aplicaExencion" onchange="onAplicaExencionChange()">
                     <span>Aplica Exención Art.93 LISR</span>
                 </label>
                 <label class="checkbox-item">
@@ -1162,7 +1162,7 @@
         }
 
         
-        async function calcularISR() {
+        async function calcularISR(forzar = false) {
             // Obtener valores
             const fechaVenta = document.getElementById('fechaVenta').value;
             const fechaCompra = document.getElementById('fechaCompra').value;
@@ -1198,6 +1198,15 @@
             
             const numEnajenantes = parseInt(document.getElementById('numEnajenantes').value) || 1;
             const numExentan = parseInt(document.getElementById('numExentan').value) || 0;
+
+            // DETECCIÓN ENAJENANTES MIXTOS — Art. 93 LISR
+            if (!forzar && esCasaHabitacion && aplicaExencion
+                && numExentan > 0 && numExentan < numEnajenantes) {
+                document.getElementById('modalMixtosDesc').textContent =
+                    `${numExentan} de ${numEnajenantes} enajenantes aplica exención Art. 93.`;
+                document.getElementById('modalMixtos').style.display = 'flex';
+                return;
+            }
 
             // Comisión actualizada con INPC desde fecha de pago hasta mes enajenación (Art.121)
             // Se divide entre número de enajenantes — cada quien deduce su proporción
@@ -1495,6 +1504,31 @@
         setTimeout(() => { input.style.borderColor = ''; }, 1500);
     }
 
+    function onAplicaExencionChange() {
+        const aplica = document.getElementById('aplicaExencion').checked;
+        const campo  = document.getElementById('numExentan');
+        campo.disabled = !aplica;
+        campo.style.opacity = aplica ? '1' : '0.4';
+        if (!aplica) campo.value = '0';
+    }
+
+    function cerrarModalMixtos() {
+        document.getElementById('modalMixtos').style.display = 'none';
+    }
+
+    function calcularMixto(exenta) {
+        cerrarModalMixtos();
+        document.getElementById('numEnajenantes').value = '1';
+        document.getElementById('aplicaExencion').checked = exenta;
+        document.getElementById('numExentan').value = exenta ? '1' : '0';
+        if (!exenta) {
+            document.getElementById('esCasaHabitacion').checked = false;
+        }
+        onAplicaExencionChange();
+        onNumEnajenantesChange();
+        calcularISR(true);
+    }
+
     function cargarEjemplo() {
         const E = {
             fechaCompra:       '2022-07-26',
@@ -1668,6 +1702,8 @@
 
             // Casa habitación checked por default
             document.getElementById('esCasaHabitacion').checked = true;
+            // numExentan: estado inicial según aplicaExencion
+            onAplicaExencionChange();
         });
     }
     </script>
@@ -1889,5 +1925,27 @@
         doc.save('ISR_Enajenacion_' + fechaStr + '.pdf');
     }
     </script>
+    <!-- Modal enajenantes mixtos -->
+    <div id="modalMixtos" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:14px;padding:2rem;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.18);">
+            <div style="font-size:1.4rem;margin-bottom:.5rem;">⚠️ Enajenantes mixtos</div>
+            <p style="font-weight:600;margin-bottom:.25rem;" id="modalMixtosDesc"></p>
+            <p style="font-size:.88rem;color:#666;margin-bottom:1.25rem;">
+                Cada enajenante debe calcularse individualmente:
+            </p>
+            <div style="display:flex;flex-direction:column;gap:.65rem;">
+                <button class="btn btn-primary" onclick="calcularMixto(true)">
+                    🧮 Calcular quien EXENTA
+                </button>
+                <button class="btn btn-primary" onclick="calcularMixto(false)">
+                    🧮 Calcular quien NO EXENTA
+                </button>
+                <button class="btn-ejemplo" onclick="cerrarModalMixtos(); calcularISR(true)">
+                    Calcular de todas formas
+                </button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
