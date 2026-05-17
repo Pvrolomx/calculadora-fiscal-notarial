@@ -1541,7 +1541,7 @@
             numEnajenantes:    '2',
             numExentan:        '1',
             entidadFederativa: 'jalisco',
-            esCasaHabitacion:  false,
+            esCasaHabitacion:  true,
             aplicaExencion:    false,
             esLocalComercial:  false,
             esExtranjero:      false,
@@ -1564,6 +1564,8 @@
         });
         // Actualizar tabla enajenantes múltiples
         onNumEnajenantesChange();
+        // Sincronizar numExentan con estado de aplicaExencion
+        onAplicaExencionChange();
     }
 
     function toggleComisionPct() {
