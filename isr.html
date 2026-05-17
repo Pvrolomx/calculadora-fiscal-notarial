@@ -1564,7 +1564,6 @@
 
         const pageW = 215.9;
         const margen = 18;
-        const colVal = 140;
         let y = 0;
 
         // ── Helpers ──────────────────────────────────────────────
@@ -1575,26 +1574,26 @@
             doc.text(label, margen, y);
             doc.setTextColor(...NEGRO);
             doc.setFont('helvetica', bold ? 'bold' : 'normal');
-            doc.text(value, colVal, y, { align: 'right' });
-            y += 6;
+            doc.text(value, pageW - margen, y, { align: 'right' });
+            y += 5;
         }
 
         function seccion(titulo) {
-            y += 3;
+            y += 2;
             doc.setFillColor(...FONDO);
             doc.roundedRect(margen - 2, y - 4, pageW - (margen * 2) + 4, 8, 1, 1, 'F');
             doc.setFontSize(8.5);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(...VERDE);
             doc.text(titulo.toUpperCase(), margen, y);
-            y += 7;
+            y += 6;
             doc.setTextColor(...NEGRO);
         }
 
         function linea() {
             doc.setDrawColor(220, 220, 220);
             doc.line(margen, y, pageW - margen, y);
-            y += 4;
+            y += 3;
         }
 
         function totalRow(label, value) {
@@ -1655,9 +1654,16 @@
         const pctConstruccion = document.getElementById('pctConstruccion')?.value || '—';
         const comision = document.getElementById('comision')?.value || '—';
 
-        txt('Fecha de adquisición', fechaCompra);
+        // Formateador ISO → dd/mm/yyyy
+        function fmtFecha(iso) {
+            if (!iso || iso === '—') return '—';
+            const [y, m, d] = iso.split('-');
+            return d && m && y ? `${d}/${m}/${y}` : iso;
+        }
+
+        txt('Fecha de adquisición', fmtFecha(fechaCompra));
         txt('Precio de adquisición', precioCompra);
-        txt('Fecha de enajenación', fechaVenta);
+        txt('Fecha de enajenación', fmtFecha(fechaVenta));
         txt('Precio de enajenación', precioVenta);
         txt('Número de enajenantes', numEnajenantes);
         txt('% Terreno / Construcción', pctTerreno + '% / ' + pctConstruccion + '%');
@@ -1746,17 +1752,17 @@
         for (let i = 1; i <= totalPags; i++) {
             doc.setPage(i);
             doc.setDrawColor(...VERDE);
-            doc.line(margen, pageH - 18, pageW - margen, pageH - 18);
-            doc.setFontSize(7.5);
+            doc.line(margen, pageH - 22, pageW - margen, pageH - 22);
+            doc.setFontSize(7);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(...GRIS);
-            doc.text('Este documento es un estimado informativo. No sustituye la opinión de un contador o notario público.', margen, pageH - 13);
-            doc.text('Expat Advisor MX · expatadvisormx.com · ' + hoy, margen, pageH - 8);
-            doc.text('Página ' + i + ' de ' + totalPags, pageW - margen, pageH - 8, { align: 'right' });
+            doc.text('Este documento es un estimado informativo. No sustituye la opinión de un contador o notario público.', margen, pageH - 16);
+            doc.text('Expat Advisor MX · expatadvisormx.com · ' + hoy, margen, pageH - 10);
+            doc.text('Página ' + i + ' de ' + totalPags, pageW - margen, pageH - 10, { align: 'right' });
         }
 
         // Nombre de archivo con fecha de enajenación
-        const fechaStr = fechaVenta.replace(/\//g,'-') || 'calculo';
+        const fechaStr = fmtFecha(fechaVenta).replace(/\//g,'-') || 'calculo';
         doc.save('ISR_Enajenacion_' + fechaStr + '.pdf');
     }
     </script>
