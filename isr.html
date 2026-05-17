@@ -152,6 +152,20 @@
         .btn-primary:hover {
             background: var(--primary-light);
         }
+        .btn-ejemplo {
+            background: transparent;
+            border: 1.5px solid var(--primary);
+            color: var(--primary);
+            border-radius: 8px;
+            padding: .55rem 1.1rem;
+            font-size: .82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s, color .15s;
+        }
+        .btn-ejemplo:hover {
+            background: var(--primary-pale);
+        }
         .result-section {
             background: var(--bg);
             border-radius: 12px;
@@ -555,9 +569,12 @@
         </div>
 
         <!-- BOTÓN CALCULAR -->
-        <button class="btn btn-primary" onclick="calcularISR()">
-            🧮 Calcular ISR
-        </button>
+        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="calcularISR()">
+                🧮 Calcular ISR
+            </button>
+            <button class="btn-ejemplo" onclick="cargarEjemplo()">📋 Cargar ejemplo</button>
+        </div>
 
         <!-- RESULTADOS -->
         <div id="resultados" class="card hidden">
@@ -1476,6 +1493,43 @@
         // Flash verde en el campo
         input.style.borderColor = '#1A8C5B';
         setTimeout(() => { input.style.borderColor = ''; }, 1500);
+    }
+
+    function cargarEjemplo() {
+        const E = {
+            fechaCompra:       '2022-07-26',
+            precioCompra:      '$3,485,000.00',
+            fechaVenta:        '2026-05-15',
+            precioVenta:       '$5,087,500.00',
+            pctTerreno:        '20',
+            pctConstruccion:   '80',
+            comision:          '$814,000.00',
+            numEnajenantes:    '2',
+            numExentan:        '1',
+            entidadFederativa: 'jalisco',
+            esCasaHabitacion:  false,
+            aplicaExencion:    false,
+            esLocalComercial:  false,
+            esExtranjero:      false,
+            usarTablaLocal:    true
+        };
+        // Campos de texto y fecha
+        ['fechaCompra','precioCompra','fechaVenta','precioVenta',
+         'pctTerreno','pctConstruccion','comision','numEnajenantes',
+         'numExentan'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = E[id];
+        });
+        // Select
+        document.getElementById('entidadFederativa').value = E.entidadFederativa;
+        // Checkboxes
+        ['esCasaHabitacion','aplicaExencion','esLocalComercial',
+         'esExtranjero','usarTablaLocal'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.checked = E[id];
+        });
+        // Actualizar tabla enajenantes múltiples
+        onNumEnajenantesChange();
     }
 
     function toggleComisionPct() {
