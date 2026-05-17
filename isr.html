@@ -1598,13 +1598,15 @@
         }
 
         function totalRow(label, value) {
+            const bannerX = margen - 2;
+            const bannerW = (pageW - margen) - bannerX;
             doc.setFillColor(...VERDE);
-            doc.roundedRect(margen - 2, y - 4, pageW - (margen * 2) + 4, 9, 1, 1, 'F');
+            doc.roundedRect(bannerX, y - 4, bannerW, 9, 1, 1, 'F');
             doc.setFontSize(10);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(...BLANCO);
             doc.text(label, margen, y);
-            doc.text(value, colVal, y, { align: 'right' });
+            doc.text(value, pageW - margen, y, { align: 'right' });
             y += 10;
         }
 
@@ -1731,21 +1733,26 @@
         if (isVisible('rowCedular')) txt('ISR Cedular Estatal', g('resIsrCedular'));
 
         y += 2;
-        totalRow('💰 TOTAL ISR A PAGAR', g('resIsrFinal'));
-        txt('% sobre precio de venta', g('resPorcentaje'));
+        totalRow('TOTAL ISR A PAGAR', g('resIsrFinal'));
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...GRIS);
+        doc.text('% sobre precio de venta: ' + g('resPorcentaje'), pageW - margen, y, { align: 'right' });
+        y += 7;
 
-        // ── FOOTER ────────────────────────────────────────────
+        // ── FOOTER anclado a posición fija desde abajo ────────
+        const pageH = doc.internal.pageSize.getHeight();
         const totalPags = doc.getNumberOfPages();
         for (let i = 1; i <= totalPags; i++) {
             doc.setPage(i);
             doc.setDrawColor(...VERDE);
-            doc.line(margen, 270, pageW - margen, 270);
+            doc.line(margen, pageH - 18, pageW - margen, pageH - 18);
             doc.setFontSize(7.5);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(...GRIS);
-            doc.text('Este documento es un estimado informativo. No sustituye la opinión de un contador o notario público.', margen, 275);
-            doc.text('Expat Advisor MX · expatadvisormx.com · ' + hoy, margen, 280);
-            doc.text('Página ' + i + ' de ' + totalPags, pageW - margen, 280, { align: 'right' });
+            doc.text('Este documento es un estimado informativo. No sustituye la opinión de un contador o notario público.', margen, pageH - 13);
+            doc.text('Expat Advisor MX · expatadvisormx.com · ' + hoy, margen, pageH - 8);
+            doc.text('Página ' + i + ' de ' + totalPags, pageW - margen, pageH - 8, { align: 'right' });
         }
 
         // Nombre de archivo con fecha de enajenación
