@@ -523,6 +523,30 @@
             <div class="field">
                 <label>Comisión Inmobiliaria (opcional) $</label>
                 <input type="text" id="comision" placeholder="$0.00" oninput="formatInputMoney(this)" onblur="formatInputMoneyFull(this)">
+                <!-- Calculadora % comisión -->
+                <div class="usd-toggle-row" onclick="toggleComisionPct()">
+                    <span id="comisionPctIcon">▶</span>
+                    <span style="font-size:.72rem;font-weight:600;color:var(--text-light);"> Calcular desde porcentaje</span>
+                </div>
+                <div id="comisionPctPanel" style="display:none;">
+                    <div class="usd-row" style="align-items:flex-end;gap:.75rem;">
+                        <div class="usd-field" style="max-width:100px;">
+                            <label>%</label>
+                            <input type="number" id="comisionPct" placeholder="8" min="0" max="100" step="0.5" oninput="calcComisionPct()">
+                        </div>
+                        <div class="usd-sep">→</div>
+                        <div class="usd-field usd-result-field">
+                            <label>MXN</label>
+                            <div class="usd-result" id="comisionPctResult">—</div>
+                        </div>
+                    </div>
+                    <div id="comisionPctAviso" style="display:none;font-size:.75rem;color:var(--danger);margin-top:.4rem;">
+                        ⚠️ Captura primero el precio de enajenación
+                    </div>
+                    <button class="usd-apply-btn" id="comisionPctApplyBtn" onclick="applyComisionPct()" disabled>
+                        ↑ Usar este monto como Comisión
+                    </button>
+                </div>
             </div>
             <div class="field">
                 <label>Fecha de Comisión <small style="font-weight:400;opacity:.7">(default: fecha enajenación)</small></label>
@@ -1453,6 +1477,48 @@
         input.style.borderColor = '#1A8C5B';
         setTimeout(() => { input.style.borderColor = ''; }, 1500);
     }
+
+    function toggleComisionPct() {
+        const panel = document.getElementById('comisionPctPanel');
+        const icon  = document.getElementById('comisionPctIcon');
+        const open  = panel.style.display === 'none';
+        panel.style.display = open ? 'block' : 'none';
+        icon.textContent = open ? '▼' : '▶';
+        if (open) calcComisionPct();
+    }
+
+    function calcComisionPct() {
+        const pct      = parseFloat(document.getElementById('comisionPct').value) || 0;
+        const precio   = parseInputMoney(document.getElementById('precioVenta').value);
+        const resultEl = document.getElementById('comisionPctResult');
+        const applyBtn = document.getElementById('comisionPctApplyBtn');
+        const aviso    = document.getElementById('comisionPctAviso');
+
+        if (!precio || precio === 0) {
+            resultEl.textContent = '—';
+            applyBtn.disabled = true;
+            aviso.style.display = 'block';
+            return;
+        }
+        aviso.style.display = 'none';
+        const monto = (precio * pct) / 100;
+        resultEl.textContent = formatMoney(monto);
+        applyBtn.disabled = pct <= 0;
+        applyBtn._monto = monto;
+    }
+
+    function applyComisionPct() {
+        const monto = document.getElementById('comisionPctApplyBtn')._monto;
+        if (!monto) return;
+        const el = document.getElementById('comision');
+        el.value = formatMoney(monto);
+        // Cerrar panel
+        document.getElementById('comisionPctPanel').style.display = 'none';
+        document.getElementById('comisionPctIcon').textContent = '▶';
+        // Flash verde en el campo
+        el.style.borderColor = '#1A8C5B';
+        setTimeout(() => { el.style.borderColor = ''; }, 1500);
+    }
     </script>
     <!-- MEJORAS: Sin RFC / Enajenantes Mixtos -->
     <script>
@@ -1545,6 +1611,9 @@
             navigator.serviceWorker.register("/sw.js")
                 .then(reg => console.log("SW registrado", reg.scope))
                 .catch(err => console.log("SW error", err));
+
+            // Casa habitación checked por default
+            document.getElementById('esCasaHabitacion').checked = true;
         });
     }
     </script>
