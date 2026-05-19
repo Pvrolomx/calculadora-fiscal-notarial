@@ -191,7 +191,18 @@ Cada mantenimiento ejecutado deja registro aquí (en orden cronológico inverso,
 
 | Fecha | Hito | Edición | Commit | Responsable |
 |---|---|---|---|---|
+| 18-may-2026 | Hito retroactivo | Corrección `const UDIS` — valores canónicos Banxico SIE CP150 2024-2026 (fix bug crítico exención Art. 93-XIX LISR inflada ~16×) | `e587f21` | CD03 Supervisor + CD04 Senior |
 | 18-may-2026 | Hito 1 (retroactivo) | Corrección `TABLA_ISR_2026` — 10/11 tramos alineados con Anexo 8 RMF 2026 (DOF 28-dic-2025) | `610b987` | CD03 Senior + Junior |
+
+---
+
+## 🔲 Tareas pendientes (asignadas, no ejecutadas)
+
+| ID | Tarea | Disparador |
+|---|---|---|
+| T-08 | Poblar `const UDIS` con valores históricos 2020-2023 (~48 valores canónicos día 10 de cada mes) | Cuando El Arquitecto descargue XLSX Banxico SIE CP150 de ese rango |
+| T-09 | Verificar endpoint `/api/inpc` en producción (puede tener mismo bug 404 que `/api/udi`) | Después de T-07 cerrado |
+| T-10 | Rebuild de endpoints `/api/udi` y `/api/inpc` en backend Vercel | Decisión del Arquitecto |
 
 ---
 
