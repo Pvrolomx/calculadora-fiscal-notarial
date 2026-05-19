@@ -198,6 +198,73 @@ Cada mantenimiento ejecutado deja registro aquí (en orden cronológico inverso,
 
 ---
 
+## 🔍 Hallazgos de Auditoría Conceptual (NotebookLM)
+
+Esta sección registra hallazgos de la auditoría conceptual del motor contra LISR/RLISR/CFF/RMF realizada vía NotebookLM con el documento `05_Logica_Fiscal_Calculadora_v1.md` y fuentes oficiales cargadas. **Estos hallazgos NO siempre se traducen en ediciones de código** — algunos son notas legales que el Arquitecto usa en asesoría directa con clientes.
+
+### H-01 · Comisión inmobiliaria — deducción 100% por un solo enajenante
+
+**Fecha hallazgo:** 19-may-2026
+**Fuente:** Auditoría NotebookLM, punto abierto #3 del documento `05`
+**Sección del motor afectada:** 3.7 (actualización y división de comisión)
+
+**Resumen del hallazgo:**
+
+La división de la comisión inmobiliaria entre el número de enajenantes — implementada actualmente en el motor — **no proviene del Art. 126 LISR** como mi documento de lógica fiscal v1 indicaba erróneamente. El fundamento correcto es el **Art. 201 RLISR**, que ordena la división proporcional **únicamente cuando no se puedan identificar las deducciones que corresponden a cada copropietario**.
+
+**Cita literal Art. 201 RLISR:**
+
+> "En el caso de que no pudieran identificarse las deducciones que correspondan a cada copropietario, éstas se harán en forma proporcional a los derechos de copropiedad."
+
+**Implicación práctica:**
+
+Si el comprobante fiscal y el flujo de pago identifican a un solo copropietario como pagador real de la comisión inmobiliaria, **ese enajenante puede deducir el 100% de la comisión** — la división proporcional es subsidiaria, no obligatoria.
+
+**Aplicación en escenarios de exención mixta (caso de oro EA):**
+
+Cuando dos enajenantes venden y uno aplica exención por casa habitación (Art. 93-XIX) y el otro no, asignar el 100% de la comisión al **enajenante no-exentante** reduce su utilidad gravable y por tanto su ISR. El enajenante exentante no se ve afectado (su ISR sigue siendo $0 por la exención). El ahorro puede ser parcial o llegar al **ISR total = $0** cuando la comisión total iguala o supera la utilidad bruta del no-exentante.
+
+**Condición matemática para llegar a ISR = $0:**
+
+```
+comisión_total ≥ (precio_venta / 2) − (costo_actualizado / 2)
+```
+
+O dicho más simple: comisión total ≥ utilidad bruta de un enajenante.
+
+**Decisión del Arquitecto (19-may-2026):**
+
+**Calculadora NO se modifica.** El motor mantiene división proporcional como default (postura conservadora SAT-friendly). La asesoría sobre esta optimización se hace **manualmente por El Arquitecto** en el cálculo cliente por cliente cuando aplique.
+
+**Acción operativa para El Arquitecto:**
+
+Cuando un cliente presente caso de **dos enajenantes con exención mixta**:
+1. Correr la calculadora con la configuración estándar (división proporcional)
+2. Verificar si la comisión, asignada 100% al no-exentante, mata su ISR
+3. Calcular manualmente el escenario con asignación concentrada
+4. Asesorar al cliente para que la factura se emita a nombre del no-exentante y el flujo de pago sea consistente
+5. Conservar comprobantes para defender la deducción concentrada ante SAT
+
+**Requisitos documentales para defender la deducción concentrada:**
+
+- Factura CFDI de la comisión emitida exclusivamente a nombre del enajenante pagador
+- Comprobante de pago bancario que muestre el flujo desde la cuenta del enajenante pagador
+- Consistencia del nombre en cláusula del contrato de servicios inmobiliarios
+- Planeación pre-cierre (no se puede retro-aplicar después de la operación)
+
+**Cuándo NO usar esta estrategia:**
+
+- Cuando ambos enajenantes exentan: irrelevante (ambos ISR = 0 sin importar comisión)
+- Cuando ninguno exenta: la optimización es marginal (~5-15% ahorro), evaluar caso a caso
+- Cuando la factura ya fue emitida a nombre de ambos: no se puede modificar retroactivamente
+
+**Tareas pendientes derivadas:**
+
+- ~~T-13~~ Modificación del motor para soportar asignación manual de deducciones por enajenante — **descartada** por decisión del Arquitecto (19-may-2026)
+- T-14 (futura) Actualización de `05_Logica_Fiscal_Calculadora_v1.md` a v1.1 con cita correcta Art. 201 RLISR
+
+---
+
 ## 🔲 Tareas pendientes
 
 | ID | Tarea | Disparador |
@@ -205,6 +272,7 @@ Cada mantenimiento ejecutado deja registro aquí (en orden cronológico inverso,
 | T-10 | Actualización mensual `const UDIS` — valores 2026 (jun en adelante) | Día 10 de cada mes; Banxico API SP68257 |
 | T-11 | Verificar endpoint `/api/inpc` en producción (posible bug 404 igual que `/api/udi`) | Próxima sesión |
 | T-12 | Rebuild de endpoints `/api/udi` y `/api/inpc` en backend Vercel | Decisión del Arquitecto |
+| T-14 | Actualizar `05_Logica_Fiscal_Calculadora_v1.md` a v1.1 — corregir cita Art. 126→Art. 201 RLISR en sección 3.7; agregar nota del hallazgo H-01 | Próxima sesión de auditoría NotebookLM |
 
 ---
 
