@@ -432,6 +432,76 @@ La mayoría de notarios aplican retención automática del 25% por pereza admini
 - T-16 (actualizada) corregir cita Art. 158 → Art. 160 en sección 3.15 del doc lógica fiscal v1.1
 - T-20 (futura) crear plantilla de manifestación del extranjero para opción B + checklist documental para notarios
 
+### H-05 · IVA local comercial — cálculo incorrecto sobre valor total (debe ser solo construcción)
+
+**Fecha hallazgo:** 19-may-2026
+**Fuente:** Auditoría NotebookLM punto abierto #8 del documento `05`
+**Sección del motor afectada:** 3.16 (cálculo IVA local comercial)
+**Categoría:** 🚨 BUG DE CÁLCULO VERIFICADO — requiere modificación al motor
+
+**Resumen del hallazgo:**
+
+El motor calcula IVA sobre el **valor total** del inmueble (`precioVenta × 0.16`), pero el Art. 9 fracción I LIVA exime literalmente el suelo. Por lo tanto, el IVA del 16% solo se causa sobre el valor de la **construcción**, no sobre el terreno.
+
+**Citas literales LIVA:**
+
+> Art. 9 fracción I: *"No se pagará el impuesto en la enajenación de los siguientes bienes: I.- El suelo."*
+
+> Art. 9 fracción II: *"Cuando sólo parte de las construcciones se utilicen o destinen a casa habitación, no se pagará el impuesto por dicha parte"*
+
+> Art. 33 LIVA: *"los notarios, corredores, jueces y demás fedatarios... calcularán el impuesto bajo su responsabilidad y lo enterarán dentro de los quince días siguientes a la fecha en que se firme la escritura"*
+
+**Errores identificados en el motor:**
+
+1. **Aplica IVA sobre valor total (terreno + construcción)** — debe ser solo sobre construcción
+2. **No considera uso mixto** (habitación + comercial) — escenario común en Vallarta
+3. **Presenta el IVA como cálculo directo** sin advertir que el notario es quien lo entera bajo su responsabilidad (Art. 33 LIVA)
+
+**Impacto numérico real:**
+
+Caso típico Vallarta: local comercial $5,000,000 con división 20/80 terreno/construcción.
+
+| Cálculo | IVA |
+|---|---|
+| Motor actual (incorrecto) | $5,000,000 × 16% = $800,000 |
+| Cálculo correcto (solo construcción) | $4,000,000 × 16% = $640,000 |
+| **Sobre-cálculo del motor** | **$160,000** |
+
+En caso de uso mixto (40% comercial, 60% habitacional), el sobre-cálculo puede llegar a $544,000.
+
+**Decisión del Arquitecto (19-may-2026): Camino B — Corrección Quirúrgica**
+
+- **T-21 inmediata:** corregir cálculo a `IVA = precioVenta × pctConstruccion × 0.16`
+- **T-22 futura:** agregar opción "Uso mixto" para prorrateo casa habitación vs comercial
+- **T-23 inmediata:** agregar nota visual "IVA será calculado y enterado por el notario (Art. 33 LIVA). Monto informativo."
+
+**Por qué la corrección es minimalista:**
+
+El motor YA tiene la variable `pctConstruccion` calculada en la línea 1268 a partir del input del usuario. La corrección es modificar una sola línea (1440) de:
+
+```javascript
+const iva = esLocalComercial ? precioVenta * 0.16 : 0;
+```
+
+a:
+
+```javascript
+const iva = esLocalComercial ? (precioVenta * pctConstruccion * 0.16) : 0;
+```
+
+Más una nota informativa en el resultado.
+
+**Por qué NO es como H-04:**
+
+H-04 (pérdida fiscal del extranjero) era oportunidad fiscal donde el motor ya calculaba correctamente y faltaba asesoría humana. H-05 es un cálculo numérico incorrecto que el cliente está viendo hoy en producción. La asesoría humana no compensa porque el cliente ya tomó decisión con cifra inflada.
+
+**Tareas pendientes derivadas:**
+
+- T-21 Corregir cálculo IVA — HO al Senior, prioridad alta
+- T-22 Agregar opción "Uso mixto" para prorrateo IVA habitación/comercial
+- T-23 Agregar nota visual sobre Art. 33 LIVA (responsabilidad del notario)
+- T-16 (actualizada) agregar H-05 en sección 3.16 del doc lógica fiscal v1.1
+
 ---
 
 ## 🔲 Tareas pendientes
@@ -448,6 +518,9 @@ La mayoría de notarios aplican retención automática del 25% por pereza admini
 | T-18 | Decisión sobre acción en Opción C del motor — eliminar, advertir o mantener | Solo si T-17 confirma H-03 |
 | T-19 | Auditoría retrospectiva de cierres EA con extranjeros que usaron Opción C | Solo si T-17 confirma H-03 |
 | T-20 | Crear plantilla manifestación extranjero opción B + checklist documental para notarios | H-04 — uso en asesoría EA |
+| T-21 | Corregir cálculo IVA — multiplicar por pctConstruccion (Art. 9-I LIVA exime suelo) | HO al Senior, prioridad ALTA — bug verificado |
+| T-22 | Agregar opción "Uso mixto" en formulario para prorrateo IVA habitación/comercial | Después de T-21 |
+| T-23 | Agregar nota visual sobre Art. 33 LIVA (notario calcula y entera IVA) | Junto con T-21 |
 
 ---
 
