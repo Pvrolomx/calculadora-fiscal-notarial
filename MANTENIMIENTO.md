@@ -194,6 +194,7 @@ Cada mantenimiento ejecutado deja registro aquí (en orden cronológico inverso,
 | 19-may-2026 | Hito retroactivo | Reemplazo total `const UDIS` — 373 valores canónicos Banxico API SP68257/CP150, may-1995→may-2026, 6 decimales; corrige 2021-04 (6.772368→6.773632) | `f4b0ab7` | CD04 Senior + CD05 Junior |
 | 18-may-2026 | Hito retroactivo | `const UDIS` histórico 2020-2023 — 48 valores canónicos día 10, Banxico SIE CP150 vía ikiwi | `cae8314` | CD04 Senior + CD05 Junior |
 | 18-may-2026 | Hito retroactivo | Corrección `const UDIS` — valores canónicos Banxico SIE CP150 2024-2026 (fix bug crítico exención Art. 93-XIX LISR inflada ~16×) | `e587f21` | CD03 Supervisor + CD04 Senior |
+| 19-may-2026 | Hito H-05 | Fix bug IVA local comercial — cálculo corregido a `precioVenta × pctConstruccion × 0.16` (Art. 9-I LIVA exime suelo); nota visual Art. 33 LIVA; label UI y texto PDF actualizados | `f3946d8` | CD04 Senior + CD05 Junior |
 | 18-may-2026 | Hito 1 (retroactivo) | Corrección `TABLA_ISR_2026` — 10/11 tramos alineados con Anexo 8 RMF 2026 (DOF 28-dic-2025) | `610b987` | CD03 Senior + Junior |
 
 ---
@@ -518,9 +519,9 @@ H-04 (pérdida fiscal del extranjero) era oportunidad fiscal donde el motor ya c
 | T-18 | Decisión sobre acción en Opción C del motor — eliminar, advertir o mantener | Solo si T-17 confirma H-03 |
 | T-19 | Auditoría retrospectiva de cierres EA con extranjeros que usaron Opción C | Solo si T-17 confirma H-03 |
 | T-20 | Crear plantilla manifestación extranjero opción B + checklist documental para notarios | H-04 — uso en asesoría EA |
-| T-21 | Corregir cálculo IVA — multiplicar por pctConstruccion (Art. 9-I LIVA exime suelo) | HO al Senior, prioridad ALTA — bug verificado |
+| T-21 | ~~Corregir cálculo IVA — multiplicar por pctConstruccion (Art. 9-I LIVA exime suelo)~~ | ✅ CERRADO `f3946d8` · 19-may-2026 |
 | T-22 | Agregar opción "Uso mixto" en formulario para prorrateo IVA habitación/comercial | Después de T-21 |
-| T-23 | Agregar nota visual sobre Art. 33 LIVA (notario calcula y entera IVA) | Junto con T-21 |
+| T-23 | ~~Agregar nota visual sobre Art. 33 LIVA (notario calcula y entera IVA)~~ | ✅ CERRADO `f3946d8` · incluido en T-21 |
 
 ---
 
