@@ -504,6 +504,35 @@ H-04 (pérdida fiscal del extranjero) era oportunidad fiscal donde el motor ya c
 - T-23 Agregar nota visual sobre Art. 33 LIVA (responsabilidad del notario)
 - T-16 (actualizada) agregar H-05 en sección 3.16 del doc lógica fiscal v1.1
 
+### Punto #10 · Tipo de cambio USD/MXN — CONFIRMADO sin hallazgo
+
+**Fecha auditoría:** 19-may-2026
+**Fuente:** Auditoría NotebookLM punto abierto #10 del documento `05`
+**Sección del motor afectada:** Panel colapsable USD→MXN
+**Categoría:** ✅ CONFIRMADO — motor implementa correctamente las opciones
+
+**Resumen:**
+
+NotebookLM confirmó con cita literal del Art. 20 CFF que para enajenaciones en moneda extranjera aplica el TC del **día inmediato anterior** a la causación (firma de escritura):
+
+> Art. 20 CFF tercer párrafo: *"Para determinar las contribuciones y sus accesorios se considerará el tipo de cambio a que se haya adquirido la moneda extranjera de que se trate y no habiendo adquisición, se estará al tipo de cambio que el Banco de México publique en el Diario Oficial de la Federación el día anterior a aquél en que se causen las contribuciones."*
+
+**Estado del motor:**
+
+El motor implementa correctamente dos opciones en su panel USD→MXN:
+1. **TC del día** — Banxico publicado el día de consulta
+2. **TC del día + colchón de volatilidad** — $1 MXN/USD adicional
+
+La segunda opción es **mejor práctica EA documentada por El Arquitecto**:
+
+> "Todos los cálculos previos al cierre se hacen con TC del día. Le incremento $1 al menos por cuestiones de volatilidad del dólar/peso porque es mejor corregir hacia abajo que hacia arriba."
+
+**Sin hallazgo derivado.** Motor calibrado correctamente. La fecha fiscalmente válida (día anterior a firma) la determina el notario al momento del cierre. El motor solo provee herramienta de planeación con margen de prudencia.
+
+**Tareas pendientes derivadas:**
+
+- T-24 (futura, no urgente) — Agregar nota explicativa al lado del toggle TC+1 indicando cuándo conviene activarlo (cuando la firma está 5+ días después del cálculo) y aclarando que el TC fiscalmente válido es el del día anterior a firma (Art. 20 CFF)
+
 ---
 
 ## 🔲 Tareas pendientes
@@ -523,6 +552,7 @@ H-04 (pérdida fiscal del extranjero) era oportunidad fiscal donde el motor ya c
 | T-21 | ~~Corregir cálculo IVA — multiplicar por pctConstruccion (Art. 9-I LIVA exime suelo)~~ | ✅ CERRADO `f3946d8` · 19-may-2026 |
 | T-22 | ~~Agregar opción "Uso mixto" en formulario para prorrateo IVA habitación/comercial~~ | ✅ CERRADO `ba1873d` · 19-may-2026 |
 | T-23 | ~~Agregar nota visual sobre Art. 33 LIVA (notario calcula y entera IVA)~~ | ✅ CERRADO `f3946d8` · incluido en T-21 |
+| T-24 | Agregar nota explicativa al toggle TC+1 (Art. 20 CFF + mejor práctica EA) | Futura, no urgente |
 
 ---
 
