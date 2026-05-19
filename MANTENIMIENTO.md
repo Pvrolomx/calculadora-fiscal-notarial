@@ -263,6 +263,50 @@ Cuando un cliente presente caso de **dos enajenantes con exención mixta**:
 - ~~T-13~~ Modificación del motor para soportar asignación manual de deducciones por enajenante — **descartada** por decisión del Arquitecto (19-may-2026)
 - T-14 (futura) Actualización de `05_Logica_Fiscal_Calculadora_v1.md` a v1.1 con cita correcta Art. 201 RLISR
 
+### H-02 · Restricción temporal de 3 años para exención casa habitación
+
+**Fecha hallazgo:** 19-may-2026
+**Fuente:** Auditoría NotebookLM adicional A-01 (derivada del punto abierto #9 del documento `05`)
+**Sección del motor afectada:** 3.10 (exención casa habitación Art. 93-XIX LISR)
+
+**Resumen del hallazgo:**
+
+El Art. 93 fracción XIX inciso a) LISR establece literalmente que la exención de casa habitación **solo aplica si el contribuyente no enajenó otra casa habitación con exención en los 3 años inmediatos anteriores**. El motor calcula la exención sin validar esta restricción, lo cual puede generar cálculos optimistas que el notario o el SAT después rechacen.
+
+**Cita literal Art. 93 fracción XIX inciso a) LISR:**
+
+> "La exención prevista en este inciso será aplicable siempre que durante los tres años inmediatos anteriores a la fecha de enajenación de que se trate el contribuyente no hubiere enajenado otra casa habitación por la que hubiera obtenido la exención prevista en este inciso."
+
+**Hallazgos sub-derivados de NotebookLM:**
+
+1. **Cero excepciones al plazo.** No hay supuestos de fuerza mayor, divorcio, ni traslado laboral que liberen al contribuyente. Postura conservadora respaldada por ausencia de excepción normativa.
+
+2. **El notario tiene obligación legal de consultar al SAT.** El Art. 93 LISR ordena al fedatario verificar en el portal SAT y dejar constancia en la escritura. Si no consulta, asume responsabilidad solidaria.
+
+3. **Discrepancia ley vs RMF.** El Art. 93 LISR dice "cinco años" (residuo histórico). La regla 3.11.4 RMF armoniza a "tres años" para fines operativos del notario. La regla operativa correcta es 3 años.
+
+4. **Doble vía de acreditación.** El contribuyente manifiesta bajo protesta + el notario consulta el portal SAT + se imprime el resultado en la escritura. Las dos vías deben cumplirse.
+
+5. **Sanción por aplicación indebida (Art. 21 + Art. 76 CFF):** ISR omitido + actualización + recargos sobre total + **multa del 55% al 75% de las contribuciones omitidas**. En operaciones típicas, la sanción total puede llegar a 2-3x el ISR que se intentó evitar.
+
+**Decisión del Arquitecto (19-may-2026):**
+
+**Opción D — Documentación H-02 + warning visual al motor.** La calculadora se modifica para agregar un warning informativo (no bloqueante) que aparezca cuando el usuario active la exención. El cálculo no cambia. El warning educa al usuario y blinda legalmente a EA.
+
+**Acción operativa para El Arquitecto:**
+
+Cuando un cliente presente caso de **exención por casa habitación**:
+1. Preguntar directamente: "¿Ha vendido otra casa habitación con exención en los últimos 3 años?"
+2. Si la respuesta es sí o ambigua → la exención NO aplica, recalcular sin exención
+3. Si la respuesta es no → asesorar para que la manifestación bajo protesta esté correctamente preparada antes del cierre notarial
+4. Coordinar con el notario para asegurar que la consulta SAT se haga y conste en escritura
+5. Documentar todo en el expediente del cliente
+
+**Tareas pendientes derivadas:**
+
+- T-15 Modificación motor — agregar warning visual no-bloqueante al activar exención (mini-HO para Senior)
+- T-16 Actualizar `05_Logica_Fiscal_Calculadora_v1.md` a v1.1 — agregar referencia a H-02 en sección 3.10 y en limitaciones §7
+
 ---
 
 ## 🔲 Tareas pendientes
@@ -273,6 +317,8 @@ Cuando un cliente presente caso de **dos enajenantes con exención mixta**:
 | T-11 | Verificar endpoint `/api/inpc` en producción (posible bug 404 igual que `/api/udi`) | Próxima sesión |
 | T-12 | Rebuild de endpoints `/api/udi` y `/api/inpc` en backend Vercel | Decisión del Arquitecto |
 | T-14 | Actualizar `05_Logica_Fiscal_Calculadora_v1.md` a v1.1 — corregir cita Art. 126→Art. 201 RLISR en sección 3.7; agregar nota del hallazgo H-01 | Próxima sesión de auditoría NotebookLM |
+| T-15 | Agregar warning visual no-bloqueante de 3 años en modal de exención casa habitación | HO al Senior, prioridad alta |
+| T-16 | Actualizar `05_Logica_Fiscal_Calculadora_v1.md` a v1.1 — agregar H-02 en sección 3.10 y limitaciones §7 | Próxima sesión de auditoría NotebookLM |
 
 ---
 
