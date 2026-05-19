@@ -307,6 +307,65 @@ Cuando un cliente presente caso de **exención por casa habitación**:
 - T-15 Modificación motor — agregar warning visual no-bloqueante al activar exención (mini-HO para Senior)
 - T-16 Actualizar `05_Logica_Fiscal_Calculadora_v1.md` a v1.1 — agregar referencia a H-02 en sección 3.10 y en limitaciones §7
 
+### H-03 (CANDIDATO — EN VALIDACIÓN) · Opción C "Tarifa Art. 152" para extranjeros sin respaldo legal
+
+**⚠️ ESTATUS: HALLAZGO EN VALIDACIÓN — NO APLICAR EN MOTOR NI EN ASESORÍA HASTA CONFIRMAR**
+
+**Fecha hallazgo:** 19-may-2026
+**Fuente primaria:** Auditoría NotebookLM punto abierto #5 + validación cruzada A-02
+**Validación requerida:** Debate Colmena multi-IA + consulta con fiscalista humano especializado en residentes en el extranjero
+**Sección del motor potencialmente afectada:** 3.15 (cálculo ISR para extranjero — Opción C)
+
+**Resumen del hallazgo preliminar:**
+
+NotebookLM concluyó en dos pasadas independientes (la primera y una validación cruzada con prompt afilado) que **la Opción C del motor — aplicar tarifa progresiva Art. 152 con anualización a residentes en el extranjero por enajenación de inmuebles — no tiene fundamento en el marco legal vigente**.
+
+**Citas literales de NotebookLM:**
+
+- **Art. 161 LISR** se limita expresamente a "acciones o títulos valor": *"Tratándose de la enajenación de acciones o de títulos valor..."*. La mención a inmuebles en este artículo solo aplica para determinar fuente de riqueza de un título valor, no para venta directa de bien raíz.
+
+- **Art. 160 LISR** (que sí regula enajenación de inmuebles por extranjeros) ordena solo dos opciones: 25% sobre ingreso bruto, o **"tasa máxima"** (35% — no la tarifa progresiva) sobre la ganancia neta.
+
+- **RMF Capítulo 3.18** (residentes en el extranjero): sin reglas operativas que modifiquen o expandan las dos opciones del Art. 160.
+
+- **RLISR** (Arts. 214, 280): sin reglas que permitan anualización para extranjeros.
+
+**Reconocimiento explícito de NotebookLM sobre límite de fuentes:**
+
+> "Si existe alguna práctica notarial que permita la anualización a extranjeros, no localicé respaldo formal para la misma en las fuentes legales vigentes."
+
+NotebookLM no tiene cargada jurisprudencia SJF, criterios normativos SAT no publicados, oficios, consultas vinculantes, ni doctrina. Esto **no significa que NotebookLM se equivoque** — significa que la conclusión está basada en fuentes textuales y puede haber capas adicionales (práctica, jurisprudencia) que requieren validación humana.
+
+**Por qué este hallazgo NO se cierra con NotebookLM solo:**
+
+1. **Impacto reversible**: si se elimina la Opción C del motor y resulta que sí había sustento vía jurisprudencia, perjudicaría a clientes con derecho a opción más barata.
+
+2. **Impacto irreversible**: si se deja la Opción C y NotebookLM tiene razón, el motor sigue ofreciendo cálculos sin fundamento legal a clientes extranjeros.
+
+3. **Decisión fuera del alcance de Supervisor/Senior**: requiere consulta con fiscalista especializado en régimen de extranjeros + verificación de práctica notarial real.
+
+**Plan de validación pendiente:**
+
+1. **Debate Colmena multi-IA** sobre el alcance del Art. 160 LISR para extranjeros — exigir que cada IA cite fuentes literales y reconozca cuándo está inventando práctica
+2. **Consulta con fiscalista humano** de la red EA especializado en CDI y régimen de no residentes
+3. **Revisión histórica**: ¿hay cierres EA pasados donde el notario aplicó Opción C sin que SAT lo rechazara?
+4. **Investigación de origen**: ¿quién fundamentó originalmente la Opción C en el motor y con qué soporte?
+
+**Decisión del Arquitecto (19-may-2026):**
+
+**Hallazgo queda en pausa documentada.** Calculadora no se modifica. No se aplica en asesoría a clientes. Pendiente debate Colmena + validación humana antes de decidir si:
+
+- Eliminar Opción C del motor
+- Agregar warning informativo (similar a H-02)
+- Mantener como está documentando justificación
+- Permitir Opción C solo bajo condiciones específicas (representante + retención notario)
+
+**Tareas pendientes derivadas:**
+
+- T-17 Debate Colmena multi-IA sobre Art. 160 LISR — coordinado por Arquitecto
+- T-18 (futura — solo si T-17 confirma) Decisión de acción sobre Opción C en motor
+- T-19 (futura — solo si se confirma hallazgo) Auditoría de cierres EA pasados con extranjeros que usaron Opción C
+
 ---
 
 ## 🔲 Tareas pendientes
@@ -319,6 +378,9 @@ Cuando un cliente presente caso de **exención por casa habitación**:
 | T-14 | Actualizar `05_Logica_Fiscal_Calculadora_v1.md` a v1.1 — corregir cita Art. 126→Art. 201 RLISR en sección 3.7; agregar nota del hallazgo H-01 | Próxima sesión de auditoría NotebookLM |
 | T-15 | Agregar warning visual no-bloqueante de 3 años en modal de exención casa habitación | HO al Senior, prioridad alta |
 | T-16 | Actualizar `05_Logica_Fiscal_Calculadora_v1.md` a v1.1 — agregar H-02 en sección 3.10 y limitaciones §7 | Próxima sesión de auditoría NotebookLM |
+| T-17 | Debate Colmena multi-IA sobre alcance del Art. 160 LISR para extranjeros en enajenación de inmuebles | Coordinado por Arquitecto — H-03 candidato |
+| T-18 | Decisión sobre acción en Opción C del motor — eliminar, advertir o mantener | Solo si T-17 confirma H-03 |
+| T-19 | Auditoría retrospectiva de cierres EA con extranjeros que usaron Opción C | Solo si T-17 confirma H-03 |
 
 ---
 
