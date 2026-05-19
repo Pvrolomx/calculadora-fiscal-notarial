@@ -366,6 +366,72 @@ NotebookLM no tiene cargada jurisprudencia SJF, criterios normativos SAT no publ
 - T-18 (futura — solo si T-17 confirma) Decisión de acción sobre Opción C en motor
 - T-19 (futura — solo si se confirma hallazgo) Auditoría de cierres EA pasados con extranjeros que usaron Opción C
 
+### H-04 · Pérdida fiscal del extranjero — liberación de retención 25% por notario
+
+**Fecha hallazgo:** 19-may-2026
+**Fuente:** Auditoría NotebookLM punto abierto #7 del documento `05`
+**Sección del motor afectada:** 3.15 (cálculo ISR para extranjero — escenario pérdida)
+**Categoría:** Oportunidad fiscal documentada (sin modificación al motor)
+
+**Resumen del hallazgo:**
+
+El motor selecciona correctamente la Opción B (35% sobre ganancia = $0) cuando el extranjero tiene pérdida fiscal. NotebookLM trajo cita literal del Art. 160 LISR confirmando que la ley **explícitamente contempla** este escenario y que el notario puede liberar la retención del 25% bajo su responsabilidad.
+
+**Citas literales Art. 160 LISR:**
+
+> "El impuesto se determinará aplicando la tasa del 25% sobre el total del ingreso obtenido, sin deducción alguna."
+
+> "En las enajenaciones que se consignen en escritura pública no se requerirá representante en el país para ejercer la opción a que se refiere el párrafo anterior."
+
+> "Los notarios, jueces, corredores y demás fedatarios calcularán el impuesto bajo su responsabilidad, lo harán constar en la escritura y lo enterarán mediante declaración... **aun cuando no haya impuesto a enterar**."
+
+**Implicaciones operativas para EA:**
+
+1. **Cliente extranjero con pérdida fiscal real** puede tributar bajo Opción B sin retención del 25%
+2. **No requiere representante designado** — la operación en escritura pública por sí sola habilita la opción
+3. **El notario decide bajo su responsabilidad** — EA debe proveer documentación sólida (avalúos, comprobación de costo) para que el notario tenga base
+4. **Persiste obligación de declaración** aunque ISR = $0 — no es invisibilidad fiscal
+
+**Corrección al documento `05` (lógica fiscal v1):**
+
+NotebookLM detectó error en mi documento: cito Art. 158 como fundamento del 25% para extranjeros, pero **el Art. 158 regula arrendamiento**. El fundamento correcto es Art. 160 LISR. Esto va a T-16 (actualización a v1.1).
+
+**Ejemplo de impacto fiscal:**
+
+Cliente compra 2022 a $5M, vende 2026 a $5.8M (apreciación nominal 16% en 4 años). Costo actualizado por INPC = $5.93M (factor 1.186). Resultado: pérdida fiscal $130k.
+
+- Notario aplicando retención ciega 25%: ISR = $1,450,000
+- Notario aplicando Opción B con documentación EA: ISR = $0
+- **Diferencia: $1,450,000 a favor del cliente**
+
+**Decisión del Arquitecto (19-may-2026):**
+
+**Calculadora NO se modifica** — el motor ya selecciona Opción B correctamente. Esta oportunidad se gestiona vía **asesoría humana en pre-cierre** con documentación robusta para el notario.
+
+**Acción operativa para El Arquitecto:**
+
+Cuando llegue cliente extranjero con caso de **enajenación con utilidad cercana o negativa** después de actualización por INPC:
+
+1. Correr la calculadora con datos reales
+2. Verificar que el motor sugiere Opción B con resultado $0 o muy bajo
+3. **Preparar paquete documental para el notario:**
+   - Avalúo bancario reciente (idealmente del banco fiduciario o uno designado por SAT)
+   - Comprobación literal del costo de adquisición histórico (escritura previa)
+   - Comprobantes de inversiones en mejoras con CFDI
+   - Comprobantes de comisión inmobiliaria a nombre del enajenante
+4. **Negociar con el notario** la aplicación de Opción B en lugar de retención ciega 25%
+5. **Asegurar declaración** aunque sea informativa con ISR = $0
+6. Documentar todo el expediente para protección ante revisión SAT
+
+**Diferenciación competitiva EA:**
+
+La mayoría de notarios aplican retención automática del 25% por pereza administrativa o aversión al riesgo. EA es el asesor que prepara documentación sólida y empuja para que la Opción B se aplique cuando favorece al cliente. **En operaciones donde aplica, el ahorro puede ser de cientos de miles a millones de pesos.**
+
+**Tareas pendientes derivadas:**
+
+- T-16 (actualizada) corregir cita Art. 158 → Art. 160 en sección 3.15 del doc lógica fiscal v1.1
+- T-20 (futura) crear plantilla de manifestación del extranjero para opción B + checklist documental para notarios
+
 ---
 
 ## 🔲 Tareas pendientes
@@ -381,6 +447,7 @@ NotebookLM no tiene cargada jurisprudencia SJF, criterios normativos SAT no publ
 | T-17 | Debate Colmena multi-IA sobre alcance del Art. 160 LISR para extranjeros en enajenación de inmuebles | Coordinado por Arquitecto — H-03 candidato |
 | T-18 | Decisión sobre acción en Opción C del motor — eliminar, advertir o mantener | Solo si T-17 confirma H-03 |
 | T-19 | Auditoría retrospectiva de cierres EA con extranjeros que usaron Opción C | Solo si T-17 confirma H-03 |
+| T-20 | Crear plantilla manifestación extranjero opción B + checklist documental para notarios | H-04 — uso en asesoría EA |
 
 ---
 
