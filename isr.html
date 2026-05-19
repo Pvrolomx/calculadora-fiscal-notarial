@@ -755,8 +755,11 @@
                     <span class="value" id="resIsrFed">-</span>
                 </div>
                 <div id="rowIva" class="result-row hidden">
-                    <span class="label">IVA Local Comercial (16%)</span>
+                    <span class="label">IVA Local Comercial</span>
                     <span class="value" id="resIva">-</span>
+                </div>
+                <div id="notaIva" style="display:none; margin-top:8px; padding:10px 14px; background:rgba(59,130,246,0.06); border-left:3px solid #3b82f6; border-radius:8px; font-size:0.8rem; color:var(--text-secondary); line-height:1.5;">
+                    <strong>ℹ️ Sobre el IVA:</strong> El notario calculará y enterará este impuesto dentro de los 15 días siguientes a la firma (<em>Art. 33 LIVA</em>). El 16% aplica únicamente sobre el valor de la <strong>construcción</strong> — el suelo está exento (<em>Art. 9-I LIVA</em>). Cifra informativa.
                 </div>
                 <div id="rowCedular" class="result-row hidden">
                 <span class="label">ISR Cedular Estatal (5% s/ganancia)</span>
@@ -1437,7 +1440,8 @@
             }
             
             // IVA local comercial
-            const iva = esLocalComercial ? precioVenta * 0.16 : 0;
+            // IVA solo sobre construcción — Art. 9-I LIVA exime al suelo
+            const iva = esLocalComercial ? (precioVenta * pctConstruccion * 0.16) : 0;
             
             // Mostrar resultados
             document.getElementById('resultados').classList.remove('hidden');
@@ -1498,8 +1502,10 @@
             if (esLocalComercial) {
                 document.getElementById('rowIva').classList.remove('hidden');
                 document.getElementById('resIva').textContent = formatMoney(iva);
+                document.getElementById('notaIva').style.display = (iva > 0) ? 'block' : 'none';
             } else {
                 document.getElementById('rowIva').classList.add('hidden');
+                document.getElementById('notaIva').style.display = 'none';
             }
             
             // ISR Cedular ya esta incluido en ISR Estado (es el mecanismo de distribucion)
@@ -1992,7 +1998,7 @@
         seccion('Distribución del ISR');
         txt('ISR Entidad Federativa (máx 5%)', g('resIsrEstado'));
         txt('ISR Federación', g('resIsrFed'));
-        if (isVisible('rowIva'))     txt('IVA Local Comercial (16%)', g('resIva'));
+        if (isVisible('rowIva'))     txt('IVA Local Comercial (Art. 9-I LIVA)', g('resIva'));
         if (isVisible('rowCedular')) txt('ISR Cedular Estatal', g('resIsrCedular'));
 
         y += 2;
