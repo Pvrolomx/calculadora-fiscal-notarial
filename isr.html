@@ -513,13 +513,21 @@
                     <span>Aplica Exención Art.93 LISR</span>
                 </label>
                 <label class="checkbox-item">
-                    <input type="checkbox" id="esLocalComercial" onchange="if(this.checked) document.getElementById('esCasaHabitacion').checked=false">
+                    <input type="checkbox" id="esLocalComercial" onchange="onLocalComercialChange()">
                     <span>Local Comercial (genera IVA)</span>
                 </label>
                 <label class="checkbox-item">
                     <input type="checkbox" id="usarTablaLocal" checked>
                     <span>Usar tabla INPC local (ejercicio)</span>
                 </label>
+            </div>
+            <div id="rowUsoComercial" style="display:none; margin-top:8px;">
+                <label style="font-size:0.85rem; color:var(--text-secondary);">
+                    % de construcción con uso comercial
+                </label>
+                <input type="number" id="pctUsoComercial" value="100" min="0" max="100"
+                       style="width:80px; margin-left:8px; padding:4px 8px; border:1px solid var(--border); border-radius:6px; background:var(--input-bg); color:var(--text);">
+                <span style="font-size:0.85rem; color:var(--text-secondary); margin-left:4px;">%</span>
             </div>
             <div class="grid-2" id="enajenantesSection">
                 <div class="field">
@@ -1279,6 +1287,10 @@
             const esCasaHabitacion = document.getElementById('esCasaHabitacion').checked;
             const aplicaExencion = document.getElementById('aplicaExencion').checked;
             const esLocalComercial = document.getElementById('esLocalComercial').checked;
+            const pctUsoRaw = parseFloat(document.getElementById('pctUsoComercial').value);
+            const pctUsoComercial = esLocalComercial
+                ? (Number.isNaN(pctUsoRaw) ? 1 : pctUsoRaw / 100)
+                : 0;
             
             // Calcular años transcurridos
             const dVenta = new Date(fechaVenta);
@@ -1440,8 +1452,8 @@
             }
             
             // IVA local comercial
-            // IVA solo sobre construcción — Art. 9-I LIVA exime al suelo
-            const iva = esLocalComercial ? (precioVenta * pctConstruccion * 0.16) : 0;
+            // IVA solo sobre fracción comercial de construcción — Art. 9-I LIVA exime suelo; uso mixto prorrateable
+            const iva = esLocalComercial ? (precioVenta * pctConstruccion * pctUsoComercial * 0.16) : 0;
             
             // Mostrar resultados
             document.getElementById('resultados').classList.remove('hidden');
@@ -1612,6 +1624,14 @@
         campo.disabled = !aplica;
         campo.style.opacity = aplica ? '1' : '0.4';
         if (!aplica) campo.value = '0';
+    }
+
+    function onLocalComercialChange() {
+        const cb = document.getElementById('esLocalComercial');
+        // Mutuamente excluyente con esCasaHabitacion (preserva comportamiento original)
+        if (cb.checked) document.getElementById('esCasaHabitacion').checked = false;
+        // Mostrar/ocultar input de % uso comercial (T-22)
+        document.getElementById('rowUsoComercial').style.display = cb.checked ? 'block' : 'none';
     }
 
     function cerrarModalMixtos() {
@@ -1998,7 +2018,7 @@
         seccion('Distribución del ISR');
         txt('ISR Entidad Federativa (máx 5%)', g('resIsrEstado'));
         txt('ISR Federación', g('resIsrFed'));
-        if (isVisible('rowIva'))     txt('IVA Local Comercial (Art. 9-I LIVA)', g('resIva'));
+        if (isVisible('rowIva'))     txt('IVA Local/Mixto Comercial (Art. 9-I LIVA)', g('resIva'));
         if (isVisible('rowCedular')) txt('ISR Cedular Estatal', g('resIsrCedular'));
 
         y += 2;
