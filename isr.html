@@ -602,7 +602,7 @@
                 <label>Comisión Inmobiliaria (opcional) $</label>
                 <input type="text" id="comision" placeholder="$0.00" oninput="formatInputMoney(this)" onblur="formatInputMoneyFull(this)">
                 <!-- Calculadora % comisión -->
-                <div class="usd-toggle-row" onclick="toggleComisionPct()">
+                <div class="usd-toggle-row" id="comisionPctToggleRow" onclick="toggleComisionPct()">
                     <span id="comisionPctIcon">▶</span>
                     <span style="font-size:.72rem;font-weight:600;color:var(--text-light);"> Calcular desde porcentaje</span>
                 </div>
@@ -1707,13 +1707,31 @@
         onAplicaExencionChange();
     }
 
+    function cerrarComisionPct() {
+        document.getElementById('comisionPctPanel').style.display = 'none';
+        document.getElementById('comisionPctIcon').textContent = '▶';
+    }
+
+    // Cerrar panel comisión% al hacer clic/tap fuera de él (mejora UX móvil — T-30)
+    // Para desactivar sin revertir commit: poner esta constante en false.
+    const CLICK_OUTSIDE_CIERRA_COMISION = true;
+    document.addEventListener('click', function(e) {
+        if (!CLICK_OUTSIDE_CIERRA_COMISION) return;
+        const panel = document.getElementById('comisionPctPanel');
+        if (!panel || panel.style.display === 'none') return;
+        const toggleRow = document.getElementById('comisionPctToggleRow');
+        // No cerrar si el clic fue dentro del panel o en su fila-toggle (esa la maneja toggleComisionPct)
+        if (panel.contains(e.target) || (toggleRow && toggleRow.contains(e.target))) return;
+        cerrarComisionPct();
+    });
+
     function toggleComisionPct() {
         const panel = document.getElementById('comisionPctPanel');
-        const icon  = document.getElementById('comisionPctIcon');
         const open  = panel.style.display === 'none';
-        panel.style.display = open ? 'block' : 'none';
-        icon.textContent = open ? '▼' : '▶';
-        if (open) calcComisionPct();
+        if (!open) { cerrarComisionPct(); return; }
+        panel.style.display = 'block';
+        document.getElementById('comisionPctIcon').textContent = '▼';
+        calcComisionPct();
     }
 
     function calcComisionPct() {
@@ -1742,8 +1760,7 @@
         const el = document.getElementById('comision');
         el.value = formatMoney(monto);
         // Cerrar panel
-        document.getElementById('comisionPctPanel').style.display = 'none';
-        document.getElementById('comisionPctIcon').textContent = '▶';
+        cerrarComisionPct();
         // Flash verde en el campo
         el.style.borderColor = '#1A8C5B';
         setTimeout(() => { el.style.borderColor = ''; }, 1500);
