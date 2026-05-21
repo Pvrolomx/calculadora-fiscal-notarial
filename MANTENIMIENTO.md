@@ -191,6 +191,7 @@ Cada mantenimiento ejecutado deja registro aquí (en orden cronológico inverso,
 
 | Fecha | Hito | Edición | Commit | Responsable |
 |---|---|---|---|---|
+| 20-may-2026 | T-24 (H-06) | Fix doble división de comisión — `comisionActualizada` entraba como `comision / numEnajenantes` (línea 1324) Y se dividía otra vez vía `utilidadGravable / numEnajenantes` (línea 1441), mientras terreno/construcción/mejoras solo se dividían una vez → comisión sub-deducida, ganancia inflada en ~comisión/2 con 2+ enajenantes. Fix: comisión entra COMPLETA, división única en 1441. Árbitros: PDF notarial Castro (ganancia $610k, ISR $213k extranjero sin RFC) + desglose interno V1 residente. Caso validación estándar recalibrado ($66,034→$25,275, valor previo estaba calibrado con el bug) | `f909d57` | CD05 Senior + CD06 Junior |
 | 19-may-2026 | Hito retroactivo | Reemplazo total `const UDIS` — 373 valores canónicos Banxico API SP68257/CP150, may-1995→may-2026, 6 decimales; corrige 2021-04 (6.772368→6.773632) | `f4b0ab7` | CD04 Senior + CD05 Junior |
 | 18-may-2026 | Hito retroactivo | `const UDIS` histórico 2020-2023 — 48 valores canónicos día 10, Banxico SIE CP150 vía ikiwi | `cae8314` | CD04 Senior + CD05 Junior |
 | 18-may-2026 | Hito retroactivo | Corrección `const UDIS` — valores canónicos Banxico SIE CP150 2024-2026 (fix bug crítico exención Art. 93-XIX LISR inflada ~16×) | `e587f21` | CD03 Supervisor + CD04 Senior |
@@ -533,6 +534,32 @@ La segunda opción es **mejor práctica EA documentada por El Arquitecto**:
 
 - T-24 (futura, no urgente) — Agregar nota explicativa al lado del toggle TC+1 indicando cuándo conviene activarlo (cuando la firma está 5+ días después del cálculo) y aclarando que el TC fiscalmente válido es el del día anterior a firma (Art. 20 CFF)
 
+> ⚠️ NOTA DE NUMERACIÓN (CD05, 20-may-2026): existe colisión — este "T-24 (futura)" del TC+1 es distinto del T-24 (fix doble división comisión, `f909d57`) que se cerró el 20-may. El Arquitecto debe decidir renumeración. El fix de comisión es el T-24 "real" ejecutado; esta nota TC+1 debería renumerarse a T-26+.
+
+---
+
+### Punto #11 · Cobertura de prueba — ruta "extranjero sin RFC" no estaba en batería
+
+**Fecha:** 20-may-2026 (descubierto durante T-24)
+**Categoría:** 🟡 Hueco de cobertura cerrado
+
+El motor tiene **tres rutas de cálculo de ISR**: (1) residente (tarifa Art. 152 vía `calcularISRTablas`, división por `numEnajenantes`), (2) extranjero con RFC (incluye opción tablas en comparación 25/35/tablas), (3) extranjero sin RFC (solo 25% bruto vs. 35% ganancia, sin tablas — gobernado por `hayEnajSinRfc()`, líneas 1805-1816).
+
+Hasta T-24, la batería de validación solo cubría la **ruta 1 (residente)**. El caso de validación estándar nunca ejercitó `hayEnajSinRfc()`. Esto se descubrió cuando el caso Castro (extranjero sin RFC) inicialmente daba ISR $63,048 (eligiendo tablas) en vez de $213,505 (opción 35%), porque el script de prueba no activaba el checkbox `#sinRfc`.
+
+**Estado:** el caso Castro queda como caso permanente en la batería de validación, cubriendo la ruta 3. Pendiente agregar un caso de ruta 2 (extranjero CON RFC) para cobertura completa.
+
+---
+
+### Punto #12 · INPC 2026-04 y 2026-05 igualados en tabla embebida
+
+**Fecha:** 20-may-2026 (descubierto durante T-24)
+**Categoría:** 🟡 Dato pendiente de actualización (no es bug)
+
+La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — valores idénticos. Esto hace que el factor de actualización de comisión sea 1.0000 cuando `fechaComision` cae en abril y `fechaVenta` en mayo 2026. **No es bug** — INEGI aún no publicaba el INPC de mayo 2026 al momento de la última actualización de la tabla, por lo que mayo quedó provisionalmente igualado a abril.
+
+**Resolución:** cuando INEGI publique el INPC de mayo 2026 (~24-jun-2026, segunda quincena), actualizar `'2026-05'` con el valor real. Esto es exactamente el tipo de actualización que el monitoreo INPC mensual (Hito 3) debe capturar. Ver tareas pendientes de automatización PI.
+
 ---
 
 ## 🔲 Tareas pendientes
@@ -552,7 +579,10 @@ La segunda opción es **mejor práctica EA documentada por El Arquitecto**:
 | T-21 | ~~Corregir cálculo IVA — multiplicar por pctConstruccion (Art. 9-I LIVA exime suelo)~~ | ✅ CERRADO `f3946d8` · 19-may-2026 |
 | T-22 | ~~Agregar opción "Uso mixto" en formulario para prorrateo IVA habitación/comercial~~ | ✅ CERRADO `ba1873d` · 19-may-2026 |
 | T-23 | ~~Agregar nota visual sobre Art. 33 LIVA (notario calcula y entera IVA)~~ | ✅ CERRADO `f3946d8` · incluido en T-21 |
-| T-24 | Agregar nota explicativa al toggle TC+1 (Art. 20 CFF + mejor práctica EA) | Futura, no urgente |
+| T-24 | ~~Fix doble división de comisión por enajenantes (H-06)~~ | ✅ CERRADO `f909d57` · 20-may-2026 |
+| T-25 | Agregar nota explicativa al toggle TC+1 (Art. 20 CFF + mejor práctica EA) — *(antes numerada T-24, renumerada por colisión)* | Futura, no urgente |
+| T-26 | Agregar caso "extranjero CON RFC" a la batería de validación (ruta 2 del motor — comparación 25/35/tablas) | Próxima sesión — cobertura |
+| T-27 | Actualizar `INPC['2026-05']` con valor real cuando INEGI publique (~24-jun-2026) | Hito 3 — junio |
 
 ---
 
