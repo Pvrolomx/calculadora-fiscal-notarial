@@ -191,6 +191,7 @@ Cada mantenimiento ejecutado deja registro aquí (en orden cronológico inverso,
 
 | Fecha | Hito | Edición | Commit | Responsable |
 |---|---|---|---|---|
+| 20-may-2026 | T-28 | Endpoint `/api/tc` — serverless proxy a Banxico SF43718 (FIX USD/MXN). Elimina llamada directa browser→Banxico (bloqueada CORS) y token hardcoded en HTML cliente (`adca3040…`, que además estaba MUERTO — devolvía "Token inválido"). Token ahora desde env var `BANXICO_TOKEN` (proyecto calculadora, configurado por Arquitecto). `vercel.json`: declara function (128MB/10s). Cache 30min edge. Fallback a captura manual si `tc:null`. Verificado vivo post-deploy: `{"tc":17.2938,"fecha":"20/05/2026"}` | `4379883` | CD05 Senior + CD06 Junior |
 | 20-may-2026 | T-24 (H-06) | Fix doble división de comisión — `comisionActualizada` entraba como `comision / numEnajenantes` (línea 1324) Y se dividía otra vez vía `utilidadGravable / numEnajenantes` (línea 1441), mientras terreno/construcción/mejoras solo se dividían una vez → comisión sub-deducida, ganancia inflada en ~comisión/2 con 2+ enajenantes. Fix: comisión entra COMPLETA, división única en 1441. Árbitros: PDF notarial Castro (ganancia $610k, ISR $213k extranjero sin RFC) + desglose interno V1 residente. Caso validación estándar recalibrado ($66,034→$25,275, valor previo estaba calibrado con el bug) | `f909d57` | CD05 Senior + CD06 Junior |
 | 19-may-2026 | Hito retroactivo | Reemplazo total `const UDIS` — 373 valores canónicos Banxico API SP68257/CP150, may-1995→may-2026, 6 decimales; corrige 2021-04 (6.772368→6.773632) | `f4b0ab7` | CD04 Senior + CD05 Junior |
 | 18-may-2026 | Hito retroactivo | `const UDIS` histórico 2020-2023 — 48 valores canónicos día 10, Banxico SIE CP150 vía ikiwi | `cae8314` | CD04 Senior + CD05 Junior |
@@ -568,7 +569,7 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 |---|---|---|
 | T-10 | Actualización mensual `const UDIS` — valores 2026 (jun en adelante) | Día 10 de cada mes; Banxico API SP68257 |
 | T-11 | Verificar endpoint `/api/inpc` en producción (posible bug 404 igual que `/api/udi`) | Próxima sesión |
-| T-12 | Rebuild de endpoints `/api/udi` y `/api/inpc` en backend Vercel | Decisión del Arquitecto |
+| T-12 | Rebuild de endpoints `/api/udi` y `/api/inpc` en backend Vercel — **ahora hay molde: `api/tc.js` (T-28) es el patrón a replicar** (serverless proxy + env var `BANXICO_TOKEN`, que ya sirve para SF43718, SP68257 UDI y series INPC con el mismo token) | Decisión del Arquitecto |
 | T-14 | Actualizar `05_Logica_Fiscal_Calculadora_v1.md` a v1.1 — corregir cita Art. 126→Art. 201 RLISR en sección 3.7; agregar nota del hallazgo H-01 | Próxima sesión de auditoría NotebookLM |
 | T-15 | Agregar warning visual no-bloqueante de 3 años en modal de exención casa habitación | HO al Senior, prioridad alta |
 | T-16 | Actualizar `05_Logica_Fiscal_Calculadora_v1.md` a v1.1 — agregar H-02 en sección 3.10 y limitaciones §7 | Próxima sesión de auditoría NotebookLM |
@@ -583,6 +584,7 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-25 | Agregar nota explicativa al toggle TC+1 (Art. 20 CFF + mejor práctica EA) — *(antes numerada T-24, renumerada por colisión)* | Futura, no urgente |
 | T-26 | Agregar caso "extranjero CON RFC" a la batería de validación (ruta 2 del motor — comparación 25/35/tablas) | Próxima sesión — cobertura |
 | T-27 | Actualizar `INPC['2026-05']` con valor real cuando INEGI publique (~24-jun-2026) | Hito 3 — junio |
+| T-28 | ~~Endpoint `/api/tc` — tipo de cambio en vivo (proxy Banxico, token a env var)~~ | ✅ CERRADO `4379883` · 20-may-2026 |
 
 ---
 
