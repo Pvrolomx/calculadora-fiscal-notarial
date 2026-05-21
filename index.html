@@ -237,40 +237,18 @@
             </div>
         </a>
 
-        <!-- 3 · CalcPro -->
-        <a class="card" href="/calcpro.html">
-            <div class="card-bg ph-calcpro"
-                 style="background-image: url('/img/card-calcpro.jpg'), linear-gradient(145deg,#111824,#1E3A5F);">
-            </div>
-            <div class="card-overlay"></div>
-            <div class="card-arrow">→</div>
-            <div class="card-body">
-                <div class="card-icon">🧮</div>
-                <div class="card-title">CalcPro</div>
-                <div class="card-desc">Calculadora de escritorio con historial, memoria y atajos fiscales. Instalable como app.</div>
-                <span class="card-badge tool">Herramienta de escritorio</span>
-            </div>
-        </a>
 
-        <!-- 4 · IVA -->
-        <a class="card" href="/iva.html">
-            <div class="card-bg ph-iva"
-                 style="background-image: url('/img/card-iva.jpg'), linear-gradient(145deg,#1E3A5F,#3a2810);">
-            </div>
-            <div class="card-overlay"></div>
-            <div class="card-arrow">→</div>
-            <div class="card-body">
-                <div class="card-icon">💼</div>
-                <div class="card-title">IVA Notarial</div>
-                <div class="card-desc">Cálculo de IVA sobre honorarios notariales y servicios gravados en operaciones inmobiliarias.</div>
-                <span class="card-badge">Art. 1 LIVA</span>
-            </div>
-        </a>
+
+
 
     </div>
 
     <button id="install-btn" onclick="installApp()">⬇️ Instalar App</button>
-    <footer>Hecho por duendes.app 2026 · Expat Advisor MX</footer>
+    <footer>
+        Hecho por duendes.app 2026 · Expat Advisor MX
+        <span style="margin:0 0.5rem;opacity:0.4;">·</span>
+        <a href="/calcpro.html" style="color:inherit;opacity:0.5;font-size:0.8rem;text-decoration:none;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">🧮 CalcPro</a>
+    </footer>
 
     <script>
         let deferredPrompt;
