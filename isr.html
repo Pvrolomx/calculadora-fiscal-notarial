@@ -1550,15 +1550,12 @@
         label.textContent = '(cargando FIX…)';
         try {
             // API pública de Banxico — serie SF43718 = FIX USD/MXN
-            const url = 'https://www.banxico.org.mx/SieAPIRest/service/v1/series/SF43718/datos/oportuno';
-            const res = await fetch(url, {
-                headers: { 'Bmx-Token': 'adca30408e2b27272b3752ca9f885d28c25c22e4b2e24d6765e0c2eae55c247c' }
-            });
+            const res = await fetch('/api/tc');
             if (!res.ok) throw new Error('status ' + res.status);
             const data = await res.json();
-            const dato = data.bmx.series[0].datos[0];
-            const tc   = parseFloat(dato.dato);
-            const fecha = dato.fecha;
+            if (!data.tc) throw new Error(data.error || 'sin TC');
+            const tc   = data.tc;
+            const fecha = data.fecha;
             if (!isNaN(tc)) {
                 tcBase = tc;
                 document.getElementById('tcValue').value = tc.toFixed(4);
