@@ -1320,13 +1320,13 @@
             }
 
             // Comisión actualizada con INPC desde fecha de pago hasta mes enajenación (Art.121)
-            // Se divide entre número de enajenantes — cada quien deduce su proporción
-            let comisionActualizada = comision / numEnajenantes;
+            // Entra COMPLETA al total — la división por enajenante ocurre una sola vez en utilidadGravable (línea ~1441)
+            let comisionActualizada = comision;
             if (comision > 0) {
                 const inpcEnajDirecto = await getINPCAsync(fechaVenta, false);
                 const inpcComision = await getINPCAsync(fechaComision, false);
                 const factorComision = inpcEnajDirecto / inpcComision;
-                comisionActualizada = (comision / numEnajenantes) * factorComision;
+                comisionActualizada = comision * factorComision;
             }
 
             // Calcular valores actualizados
@@ -1350,7 +1350,7 @@
                 mejorasActualizadas = gastosMejoras * factorMejoras;
             }
             
-            // Total deducciones — comisionActualizada ya está dividida por numEnajenantes
+            // Total deducciones — todas las deducciones en total; división por enajenante ocurre en utilidadGravable
             let totalDeducciones = terrenoActualizado + construccionActualizada + mejorasActualizadas + comisionActualizada;
             
             // COSTO MINIMO 10% (Art.121 LISR)
