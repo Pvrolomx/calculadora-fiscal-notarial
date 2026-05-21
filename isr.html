@@ -464,7 +464,7 @@
                     <label>💰 Precio de Enajenación $</label>
                     <input type="text" id="precioVenta" placeholder="$0.00" oninput="formatInputMoney(this)" onblur="formatInputMoneyFull(this)">
                     <!-- Convertidor USD -->
-                    <div class="usd-toggle-row" onclick="toggleUSD()">
+                    <div class="usd-toggle-row" id="usdToggleRow" onclick="toggleUSD()">
                         <span id="usdToggleIcon">▶</span>
                         <span style="font-size:.72rem;font-weight:600;color:var(--text-light);"> Capturar en USD</span>
                     </div>
@@ -1536,11 +1536,33 @@
     <script>
     let usdOpen = false;
 
+    function cerrarUSD() {
+        usdOpen = false;
+        document.getElementById('usdPanel').style.display = 'none';
+        document.getElementById('usdToggleIcon').textContent = '▶';
+    }
+
+    // Cerrar panel USD al hacer clic/tap fuera de él (mejora UX móvil — T-29)
+    // Para desactivar sin revertir commit: poner esta constante en false.
+    const CLICK_OUTSIDE_CIERRA_USD = true;
+    document.addEventListener('click', function(e) {
+        if (!CLICK_OUTSIDE_CIERRA_USD) return;
+        if (!usdOpen) return;
+        const panel = document.getElementById('usdPanel');
+        const toggleRow = document.getElementById('usdToggleRow');
+        // No cerrar si el clic fue dentro del panel o en su fila-toggle (esa la maneja toggleUSD).
+        // Nota: tocar la fila de comisión% NO está excluida — eso cierra el USD a propósito
+        // (abrir un panel cierra el otro: UX intencional, confirmado en reconocimiento T-29).
+        if (panel.contains(e.target) || (toggleRow && toggleRow.contains(e.target))) return;
+        cerrarUSD();
+    });
+
     function toggleUSD() {
-        usdOpen = !usdOpen;
-        document.getElementById('usdPanel').style.display = usdOpen ? 'block' : 'none';
-        document.getElementById('usdToggleIcon').textContent = usdOpen ? '▼' : '▶';
-        if (usdOpen) cargarTCBanxico();
+        if (usdOpen) { cerrarUSD(); return; }
+        usdOpen = true;
+        document.getElementById('usdPanel').style.display = 'block';
+        document.getElementById('usdToggleIcon').textContent = '▼';
+        cargarTCBanxico();
     }
 
     let tcBase = null; // TC del día guardado al cargar
@@ -1607,9 +1629,7 @@
         const input = document.getElementById('precioVenta');
         input.value = '$' + mxn.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
         // Cerrar panel
-        usdOpen = false;
-        document.getElementById('usdPanel').style.display = 'none';
-        document.getElementById('usdToggleIcon').textContent = '▶';
+        cerrarUSD();
         // Flash verde en el campo
         input.style.borderColor = '#1A8C5B';
         setTimeout(() => { input.style.borderColor = ''; }, 1500);
