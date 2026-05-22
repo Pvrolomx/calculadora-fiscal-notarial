@@ -567,6 +567,23 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 
 ---
 
+### H-06 · Factor INPC — precisión completa vs. convención notarial 4 decimales
+
+**Fecha hallazgo:** 22-may-2026
+**Fuente:** T-33 — diagnóstico delta $11.21 vs. motores Adán Meza y Nuviogant (caso V Marina DP 707)
+**Sección del motor afectada:** `calcularISR()` línea ~1308 (`factorINPC = inpcVenta / inpcCompra`)
+**Categoría:** ✅ DIFERENCIA DE CONVENCIÓN — no es bug. **Decisión Arquitecto: mantener precisión completa.**
+
+**Resumen:** nuestro motor calcula `factorINPC` con precisión completa JS (~1.186119...). Motores notariales externos (Adán Meza, Nuviogant) redondean a 4 decimales (1.1861). Nuestro motor produce deducciones mayores e ISR menor — matemáticamente más preciso y más favorable al contribuyente.
+
+**Impacto cuantificado** (V Marina DP 707, residente 2 enajenantes sin comisión): delta -$11.21 vs. Adán Meza.
+
+**Decisión del Arquitecto (22-may-2026):** mantener precisión completa. Motor no se modifica.
+
+**Protocolo de comunicación:** cuando el cliente lleve el resultado a firma notarial, explicar: *"la diferencia de ~$11-15 pesos viene de los decimales del factor INPC — nuestro motor usa precisión completa, el notario redondea a 4 decimales. Nuestro resultado es ligeramente más favorable."*
+
+---
+
 ## 🔲 Tareas pendientes
 
 | ID | Tarea | Disparador |
@@ -593,6 +610,7 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-30 | ~~Panel comisión% cierra con click-outside (espejo T-29)~~ | ✅ CERRADO `082841c` · 21-may-2026 |
 | T-31 | ~~Portada: eliminar tarjetas IVA Notarial y CalcPro (CalcPro→footer)~~ | ✅ CERRADO `d498c8a` · 21-may-2026 |
 | T-32 | ~~Portada: firma Colmena 2026 + subtítulo Jalisco y Nayarit~~ | ✅ CERRADO `d9eecfe` · 21-may-2026 |
+| T-33 | Diagnóstico delta $11.21 vs. motores notariales externos (V Marina DP 707) | ✅ CERRADO sin commit · 22-may-2026 · **Decisión Arquitecto: mantener precisión completa** |
 
 ---
 
