@@ -611,6 +611,8 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-31 | ~~Portada: eliminar tarjetas IVA Notarial y CalcPro (CalcPro→footer)~~ | ✅ CERRADO `d498c8a` · 21-may-2026 |
 | T-32 | ~~Portada: firma Colmena 2026 + subtítulo Jalisco y Nayarit~~ | ✅ CERRADO `d9eecfe` · 21-may-2026 |
 | T-33 | Diagnóstico delta $11.21 vs. motores notariales externos (V Marina DP 707) | ✅ CERRADO sin commit · 22-may-2026 · **Decisión Arquitecto: mantener precisión completa** |
+| T-34 | Logo EA en header portada calculadora | ✅ CERRADO `9f5f01b` · 22-may-2026 |
+| T-35 | Fix bug CalcPro — RangeError cpFmt con números de 1 decimal | ✅ CERRADO `bd68131` · 22-may-2026 |
 
 ---
 
