@@ -8,21 +8,21 @@
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg:          #0f1117;
-            --surface:     #1a1d27;
-            --surface2:    #22263a;
-            --surface3:    #2a2f45;
-            --primary:     #1E3A5F;
-            --primary-btn: #1e4a80;
-            --accent:      #C9A227;
-            --accent-dark: #a07d10;
-            --green:       #1db954;
-            --green-dark:  #158a3e;
-            --red:         #e05252;
-            --text:        #e8eaf0;
-            --text-mid:    #9aa0b8;
-            --text-dim:    #5a6080;
-            --border:      #2e3450;
+            --bg:          #020617;
+            --surface:     #0f172a;
+            --surface2:    #1f2937;
+            --surface3:    #374151;
+            --primary:     #22c55e;
+            --primary-btn: #16a34a;
+            --accent:      #22c55e;
+            --accent-dark: #16a34a;
+            --green:       #22c55e;
+            --green-dark:  #16a34a;
+            --red:         #f87171;
+            --text:        #f9fafb;
+            --text-mid:    #9ca3af;
+            --text-dim:    #6b7280;
+            --border:      #1f2937;
             --radius:      12px;
             --radius-sm:   8px;
         }
@@ -122,7 +122,7 @@
         }
         .display-main {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             font-weight: 700;
             text-align: right;
             color: var(--text);
@@ -314,6 +314,7 @@
                 <button class="fiscal-btn pct" onclick="cpFiscal('p8')">8%</button>
                 <button class="fiscal-btn pct" onclick="cpFiscal('p7')">7%</button>
                 <button class="fiscal-btn pct" onclick="cpFiscal('p35')">3.5%</button>
+                <button class="fiscal-btn pct" onclick="cpFiscal('p4')">4%</button>
                 <button class="fiscal-btn pct" onclick="cpFiscal('p2')">2%</button>
             </div>
 
@@ -562,6 +563,7 @@
             case 'p8':  result = cur * 0.08; exprStr = cpFmt(cur) + ' × 8%';  break;
             case 'p7':  result = cur * 0.07; exprStr = cpFmt(cur) + ' × 7%';  break;
             case 'p35': result = cur * 0.035; exprStr = cpFmt(cur) + ' × 3.5%'; break;
+            case 'p4':  result = cur * 0.04;  exprStr = cpFmt(cur) + ' × 4%';   break;
             case 'p2':  result = cur * 0.02; exprStr = cpFmt(cur) + ' × 2%';  break;
             default: return;
         }
