@@ -313,8 +313,8 @@
                 <button class="fiscal-btn pct" onclick="cpFiscal('p16')">16%</button>
                 <button class="fiscal-btn pct" onclick="cpFiscal('p8')">8%</button>
                 <button class="fiscal-btn pct" onclick="cpFiscal('p7')">7%</button>
-                <button class="fiscal-btn pct" onclick="cpFiscal('p35')">3.5%</button>
                 <button class="fiscal-btn pct" onclick="cpFiscal('p4')">4%</button>
+                <button class="fiscal-btn pct" onclick="cpFiscal('p35')">3.5%</button>
                 <button class="fiscal-btn pct" onclick="cpFiscal('p2')">2%</button>
             </div>
 
@@ -561,9 +561,9 @@
                 break;
             case 'p16': result = cur * 0.16; exprStr = cpFmt(cur) + ' × 16%'; break;
             case 'p8':  result = cur * 0.08; exprStr = cpFmt(cur) + ' × 8%';  break;
-            case 'p7':  result = cur * 0.07; exprStr = cpFmt(cur) + ' × 7%';  break;
-            case 'p35': result = cur * 0.035; exprStr = cpFmt(cur) + ' × 3.5%'; break;
+            case 'p7':  result = cur * 0.07;  exprStr = cpFmt(cur) + ' × 7%';   break;
             case 'p4':  result = cur * 0.04;  exprStr = cpFmt(cur) + ' × 4%';   break;
+            case 'p35': result = cur * 0.035; exprStr = cpFmt(cur) + ' × 3.5%'; break;
             case 'p2':  result = cur * 0.02; exprStr = cpFmt(cur) + ' × 2%';  break;
             default: return;
         }
