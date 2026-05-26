@@ -392,9 +392,11 @@
         }
         // Use locale formatting
         const decimals = Number.isInteger(num) ? 2 : Math.min(10, (num.toString().split('.')[1] || '').length);
+        const maxDec = Math.min(decimals, 8);
+        const minDec = Math.min(2, maxDec);
         str = Math.abs(num).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: Math.min(decimals, 8)
+            minimumFractionDigits: minDec,
+            maximumFractionDigits: maxDec
         });
         return sign + '$' + str;
     }
