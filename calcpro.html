@@ -349,6 +349,7 @@
                 <button class="key key-mem"  id="key-mr"     onclick="cpMem('MR')">MR</button>
                 <button class="key key-mem"  id="key-mc"     onclick="cpMem('MC')">MC</button>
                 <button class="key key-util" onclick="cpPercent()">%</button>
+                <button class="key key-util" onclick="cpFiscal('istp')" style="grid-column:span 2;font-size:.75rem;">ISTP JAL</button>
             </div>
         </div>
 
@@ -546,6 +547,32 @@
         cpUpdateDisplay();
     }
 
+    // Tabla ISTP Jalisco 2026 (Art. 18 Ley de Hacienda Municipal)
+    const TABLA_ISTP_JAL = [
+        { li: 0.01,          ls: 584775.00,    cuota: 0.00,        porc: 2.65 },
+        { li: 584775.01,     ls: 988162.00,    cuota: 15496.54,    porc: 2.75 },
+        { li: 988162.01,     ls: 1630274.00,   cuota: 26589.68,    porc: 2.85 },
+        { li: 1630274.01,    ls: 2500184.00,   cuota: 44889.87,    porc: 2.95 },
+        { li: 2500184.01,    ls: 4067064.00,   cuota: 70552.22,    porc: 3.05 },
+        { li: 4067064.01,    ls: 6559136.00,   cuota: 118342.06,   porc: 3.15 },
+        { li: 6559136.01,    ls: 13143342.00,  cuota: 196842.32,   porc: 3.25 },
+        { li: 13143342.01,   ls: 48372251.00,  cuota: 410829.02,   porc: 3.35 },
+        { li: 48372251.01,   ls: 219067566.00, cuota: 1590997.47,  porc: 3.45 },
+        { li: 219067566.01,  ls: null,          cuota: 7479985.84,  porc: 3.55 }
+    ];
+
+    function cpIstpJal(base) {
+        if (base <= 0) return 0;
+        for (let i = 0; i < TABLA_ISTP_JAL.length; i++) {
+            const t = TABLA_ISTP_JAL[i];
+            const enRango = t.ls === null ? base >= t.li : base >= t.li && base <= t.ls;
+            if (enRango) {
+                return t.cuota + (base - t.li) * (t.porc / 100);
+            }
+        }
+        return 0;
+    }
+
     /* ── FISCAL SHORTCUTS ── */
     function cpFiscal(type) {
         const cur = parseFloat(cpState.display) || 0;
@@ -565,6 +592,7 @@
             case 'p4':  result = cur * 0.04;  exprStr = cpFmt(cur) + ' × 4%';   break;
             case 'p35': result = cur * 0.035; exprStr = cpFmt(cur) + ' × 3.5%'; break;
             case 'p2':  result = cur * 0.02; exprStr = cpFmt(cur) + ' × 2%';  break;
+            case 'istp': result = cpIstpJal(cur); exprStr = 'ISTP JAL ' + cpFmt(cur); break;
             default: return;
         }
         cpAddHistory(exprStr, result);
