@@ -614,6 +614,10 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-34 | Logo EA en header portada calculadora | ✅ CERRADO `9f5f01b` · 22-may-2026 |
 | T-35 | Fix bug CalcPro — RangeError cpFmt con números de 1 decimal | ✅ CERRADO `bd68131` · 22-may-2026 |
 | T-36 | CalcPro: empatar UX con ISR + agregar botón 4% | ✅ CERRADO `1045ff1` · 22-may-2026 |
+| T-37 | CalcPro: reordenar botón 4% orden descendente | ✅ CERRADO · 22-may-2026 |
+| T-38 | CalcPro: botón ISTP Jalisco tabla progresiva 2026 | ✅ CERRADO `c2ba92c` · 22-may-2026 |
+| T-39 | Logo EAMx portada | ⏪ REVERTIDO `3bd5f24` · 23-may-2026 · logo en proceso |
+| T-40 | CalcPro: habilitar paste Ctrl+V en display | ✅ CERRADO `311e3b8` · 23-may-2026 |
 
 ---
 
