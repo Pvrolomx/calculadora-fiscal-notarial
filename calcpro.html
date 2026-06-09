@@ -529,6 +529,21 @@
         cpUpdateDisplay();
     }
 
+    async function cpPaste() {
+        try {
+            const text = await navigator.clipboard.readText();
+            // Limpiar: quitar $, comas, espacios — conservar dígitos, punto y signo negativo inicial
+            const clean = text.replace(/[^0-9.\-]/g, '').replace(/(?!^)-/g, '');
+            const num = parseFloat(clean);
+            if (isNaN(num) || !isFinite(num)) return;  // no era un número — ignorar
+            cpState.display = clean.includes('.') ? String(num) : String(Math.trunc(num));
+            cpState.justEvaled = false;
+            cpUpdateDisplay();
+        } catch (e) {
+            // Clipboard no disponible (permisos, contexto no seguro) — ignorar silenciosamente
+        }
+    }
+
     function cpToggleSign() {
         const n = parseFloat(cpState.display) || 0;
         cpState.display = String(-n);
@@ -665,6 +680,7 @@
         else if (e.key === 'Escape') { cpClear(); }
         else if (e.key === 'Backspace') { cpBackspace(); }
         else if (e.key === '%') { cpPercent(); }
+        else if ((e.ctrlKey || e.metaKey) && e.key === 'v') { e.preventDefault(); cpPaste(); }
     });
 
     /* ── PWA INSTALL ── */
