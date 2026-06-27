@@ -496,14 +496,18 @@
                 </div>
             </div>
             <div class="checkbox-group">
-                <label class="checkbox-item">
-                    <input type="checkbox" id="esExtranjero" onchange="onExtranjeroChange()">
-                    <span>Enajenante Extranjero</span>
-                </label>
-                <label class="checkbox-item" id="rowSinRfc" style="display:none;">
-                    <input type="checkbox" id="sinRfc" onchange="onSinRfcChange()">
-                    <span>Sin RFC / Turista</span>
-                </label>
+                <label class="form-label" style="font-size:.8rem;font-weight:600;margin-bottom:.25rem;">Tipo de enajenante</label>
+                <select id="tipoEnajenante" onchange="onTipoEnajenanteChange()" style="width:100%;padding:.5rem .75rem;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:.9rem;">
+                    <option value="nacional">🇲🇽 Nacional</option>
+                    <option value="residente">🏦 Residente con RFC</option>
+                    <option value="extranjero">🌎 Extranjero sin RFC / Turista</option>
+                </select>
+                <!-- Checkboxes ocultos — alimentados por el dropdown, leídos por calcularISR() -->
+                <input type="checkbox" id="esExtranjero" style="display:none;">
+                <input type="checkbox" id="sinRfc" style="display:none;">
+                <div id="avisoExtranjeroExencion" style="display:none;margin-top:.5rem;padding:.5rem .75rem;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);border-radius:6px;font-size:.78rem;color:#fbbf24;">
+                    ⚠️ La exención de casa habitación aplica solo a residentes fiscales. Para extranjeros sin RFC el ISR se calcula sobre el total.
+                </div>
                 <label class="checkbox-item">
                     <input type="checkbox" id="esCasaHabitacion" onchange="if(this.checked) document.getElementById('esLocalComercial').checked=false">
                     <span>Tipo: Casa Habitación</span>
@@ -1771,7 +1775,7 @@
                 // Disparar eventos dependientes
                 if (typeof onNumEnajenantesChange === 'function') onNumEnajenantesChange();
                 if (typeof onAplicaExencionChange === 'function') onAplicaExencionChange();
-                if (typeof onExtranjeroChange     === 'function') onExtranjeroChange();
+                if (typeof onExtranjeroChange     === 'function') onExtranjeroChange(); // sincroniza dropdown
                 if (typeof onLocalComercialChange === 'function') onLocalComercialChange();
 
                 // Reset del input para permitir cargar el mismo archivo de nuevo
@@ -1846,23 +1850,41 @@
     <!-- MEJORAS: Sin RFC / Enajenantes Mixtos -->
     <script>
         /* ── MEJORA 1: Toggle Sin RFC / Turista ───────────────── */
-        function onExtranjeroChange() {
-            const esExt = document.getElementById('esExtranjero').checked;
-            document.getElementById('rowSinRfc').style.display = esExt ? 'flex' : 'none';
-            if (!esExt) {
-                document.getElementById('sinRfc').checked = false;
-                onSinRfcChange();
-            }
-            // También disparar la visibilidad de la tabla de enajenantes
+        function onTipoEnajenanteChange() {
+            const tipo = document.getElementById('tipoEnajenante').value;
+            const esExt   = tipo === 'residente' || tipo === 'extranjero';
+            const esSinRfc = tipo === 'extranjero';
+
+            // Alimentar checkboxes ocultos que lee calcularISR()
+            document.getElementById('esExtranjero').checked = esExt;
+            document.getElementById('sinRfc').checked = esSinRfc;
+
+            // Visibilidad tabla ISR / aviso sin RFC (sección resultados)
+            const rowTablas   = document.getElementById('rowIsrTablas');
+            const avisoSinRfc = document.getElementById('avisoSinRfc');
+            if (rowTablas)    rowTablas.classList.toggle('hidden', esSinRfc);
+            if (avisoSinRfc)  avisoSinRfc.classList.toggle('hidden', !esSinRfc);
+
+            // Aviso exención inválida para extranjero
+            const avisoExencion = document.getElementById('avisoExtranjeroExencion');
+            if (avisoExencion) avisoExencion.style.display = esSinRfc ? 'block' : 'none';
+
+            // Tabla de enajenantes mixtos
             onNumEnajenantesChange();
         }
 
-        function onSinRfcChange() {
+        function onExtranjeroChange() {
+            // Mantener por compatibilidad con cargarEjemplo() y cargarDesdeJSON()
+            const esExt = document.getElementById('esExtranjero').checked;
             const sinRfc = document.getElementById('sinRfc').checked;
-            const rowTablas   = document.getElementById('rowIsrTablas');
-            const avisoSinRfc = document.getElementById('avisoSinRfc');
-            if (rowTablas)    rowTablas.classList.toggle('hidden', sinRfc);
-            if (avisoSinRfc)  avisoSinRfc.classList.toggle('hidden', !sinRfc);
+            const tipo = !esExt ? 'nacional' : sinRfc ? 'extranjero' : 'residente';
+            document.getElementById('tipoEnajenante').value = tipo;
+            onTipoEnajenanteChange();
+        }
+
+        function onSinRfcChange() {
+            // Mantener por compatibilidad
+            onExtranjeroChange();
         }
 
         /* ── MEJORA 2: Tabla enajenantes mixtos ────────────────── */
