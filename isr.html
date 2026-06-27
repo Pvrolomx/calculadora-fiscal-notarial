@@ -1922,7 +1922,7 @@
         /* ── MEJORA 1: Toggle Sin RFC / Turista ───────────────── */
         function onTipoEnajenanteChange() {
             const tipo = document.getElementById('tipoEnajenante').value;
-            const esExt   = tipo === 'residente' || tipo === 'extranjero';
+            const esExt   = tipo === 'extranjero';
             const esSinRfc = tipo === 'extranjero';
 
             // Alimentar checkboxes ocultos que lee calcularISR()
