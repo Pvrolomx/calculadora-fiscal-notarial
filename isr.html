@@ -638,6 +638,36 @@
                 🧮 Calcular ISR
             </button>
             <button class="btn-ejemplo" onclick="cargarEjemplo()">📋 Cargar ejemplo</button>
+            <button class="btn-ejemplo" onclick="document.getElementById('inputJsonISR').click()">📂 Cargar JSON</button>
+            <!--
+            PROMPT PARA GÉMINIS / IA — Extracción de datos para esta calculadora:
+
+            "Lee el documento adjunto (escritura, avalúo o expediente) y extrae los datos
+            para calcular el ISR por enajenación de inmuebles. Genera ÚNICAMENTE un JSON
+            con estos campos exactos (sin explicación ni texto adicional):
+
+            {
+              "fechaCompra":       "YYYY-MM-DD",
+              "precioCompra":      número sin formato (ej: 3484982.27),
+              "fechaVenta":        "YYYY-MM-DD",
+              "precioVenta":       número sin formato,
+              "pctTerreno":        número (ej: 20),
+              "pctConstruccion":   número (ej: 80),
+              "comision":          número sin formato (0 si no hay),
+              "fechaComision":     "YYYY-MM-DD" o "" si no aplica,
+              "numEnajenantes":    número entero,
+              "entidadFederativa": "jalisco" o "nayarit" en minúsculas,
+              "esCasaHabitacion":  true o false,
+              "aplicaExencion":    true o false,
+              "numExentan":        número entero (0 si no aplica),
+              "esExtranjero":      true o false,
+              "sinRfc":            true o false,
+              "esLocalComercial":  false,
+              "usarTablaLocal":    true
+            }"
+            -->
+            <input type="file" id="inputJsonISR" accept=".json" style="display:none"
+                   onchange="cargarDesdeJSON(this)">
         </div>
 
         <!-- RESULTADOS -->
@@ -1705,6 +1735,53 @@
         onNumEnajenantesChange();
         // Sincronizar numExentan con estado de aplicaExencion
         onAplicaExencionChange();
+    }
+
+    function cargarDesdeJSON(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const D = JSON.parse(e.target.result);
+
+                // Campos de texto y fecha
+                ['fechaCompra','precioCompra','fechaVenta','precioVenta',
+                 'pctTerreno','pctConstruccion','comision','numEnajenantes',
+                 'numExentan','fechaComision'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && D[id] !== undefined) {
+                        el.value = D[id];
+                        el.dispatchEvent(new Event('blur'));
+                    }
+                });
+
+                // Select
+                if (D.entidadFederativa) {
+                    document.getElementById('entidadFederativa').value = D.entidadFederativa;
+                }
+
+                // Checkboxes
+                ['esCasaHabitacion','aplicaExencion','esLocalComercial',
+                 'esExtranjero','sinRfc','usarTablaLocal'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && D[id] !== undefined) el.checked = Boolean(D[id]);
+                });
+
+                // Disparar eventos dependientes
+                if (typeof onNumEnajenantesChange === 'function') onNumEnajenantesChange();
+                if (typeof onAplicaExencionChange === 'function') onAplicaExencionChange();
+                if (typeof onExtranjeroChange     === 'function') onExtranjeroChange();
+                if (typeof onLocalComercialChange === 'function') onLocalComercialChange();
+
+                // Reset del input para permitir cargar el mismo archivo de nuevo
+                input.value = '';
+
+            } catch(err) {
+                alert('❌ El archivo no es un JSON válido.\n\n' + err.message);
+            }
+        };
+        reader.readAsText(file);
     }
 
     function cerrarComisionPct() {
