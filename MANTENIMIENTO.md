@@ -618,6 +618,10 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-38 | CalcPro: botón ISTP Jalisco tabla progresiva 2026 | ✅ CERRADO `c2ba92c` · 22-may-2026 |
 | T-39 | Logo EAMx portada | ⏪ REVERTIDO `3bd5f24` · 23-may-2026 · logo en proceso |
 | T-40 | CalcPro: habilitar paste Ctrl+V en display | ✅ CERRADO `311e3b8` · 23-may-2026 |
+| T-41 | ISR: cargar datos desde JSON generado por IA | ✅ CERRADO `4d8f5ae` · 26-jun-2026 |
+| T-42 | ISR: dropdown tipo enajenante — Nacional / Residente / Extranjero sin RFC | ✅ CERRADO `651b050` · 27-jun-2026 |
+| T-43 | ISR: tooltip deducciones Art.121 + nota sin IVA en gastosMejoras | ✅ CERRADO `9543a30` · 27-jun-2026 |
+| T-44 | ISR: fix esExtranjero para Residente con RFC — recupera exención casa habitación | ✅ CERRADO `2a00106` · 27-jun-2026 |
 
 ---
 
