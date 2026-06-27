@@ -425,6 +425,61 @@
         .tc-btn-plus:hover { background: #edd97a; }
 
         .hidden { display: none; }
+
+        /* ── TOOLTIP DEDUCCIONES ── */
+        .tooltip-wrap {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            font-size: .65rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: .35rem;
+            vertical-align: middle;
+            user-select: none;
+        }
+        .tooltip-box {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: calc(100% + 6px);
+            z-index: 999;
+            width: 280px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: .75rem 1rem;
+            font-size: .78rem;
+            line-height: 1.6;
+            color: var(--text);
+            box-shadow: 0 4px 16px rgba(0,0,0,.4);
+        }
+        .tooltip-wrap:hover .tooltip-box,
+        .tooltip-wrap.open .tooltip-box {
+            display: block;
+        }
+        .tooltip-box ul {
+            margin: .4rem 0 0 1rem;
+            padding: 0;
+        }
+        .tooltip-box ul li {
+            margin-bottom: .2rem;
+        }
+        .tooltip-box .tip-note {
+            margin-top: .5rem;
+            font-size: .72rem;
+            opacity: .7;
+            font-style: italic;
+        }
     </style>
     <!-- PWA Meta Tags -->
     <link rel=" manifest href=/manifest.json>
@@ -595,7 +650,22 @@
             </div>
             
             <div class="field">
-                <label>Gastos/Mejoras Deducibles (opcional) $</label>
+                <label>
+                    Gastos/Mejoras Deducibles (opcional) $
+                    <span class="tooltip-wrap" onclick="this.classList.toggle('open')">
+                        <span class="tooltip-icon">ⓘ</span>
+                        <div class="tooltip-box">
+                            <strong>Deducciones permitidas (Art. 121 LISR)</strong>
+                            <ul>
+                                <li>Honorarios del notario <em>(sin IVA)</em></li>
+                                <li>Derechos de registro (RPP)</li>
+                                <li>Impuesto de transmisión patrimonial pagado al adquirir (ISTP/ISABI)</li>
+                                <li>Mejoras, ampliaciones y construcciones</li>
+                            </ul>
+                            <div class="tip-note">⚠️ La comisión inmobiliaria se captura por separado. No incluye predial ni mantenimiento.</div>
+                        </div>
+                    </span>
+                </label>
                 <input type="text" id="gastosMejoras" placeholder="$0.00" oninput="formatInputMoney(this)" onblur="formatInputMoneyFull(this)">
             </div>
             <div class="field">
