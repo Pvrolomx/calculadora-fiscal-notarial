@@ -622,6 +622,7 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-42 | ISR: dropdown tipo enajenante — Nacional / Residente / Extranjero sin RFC | ✅ CERRADO `651b050` · 27-jun-2026 |
 | T-43 | ISR: tooltip deducciones Art.121 + nota sin IVA en gastosMejoras | ✅ CERRADO `9543a30` · 27-jun-2026 |
 | T-44 | ISR: fix esExtranjero para Residente con RFC — recupera exención casa habitación | ✅ CERRADO `2a00106` · 27-jun-2026 |
+| T-45 | ISR: distinguir pérdida real de exención completa — mensaje verde vs. naranja | ✅ CERRADO `7bd443a` · 27-jun-2026 · CD04 autoriza |
 
 ---
 
