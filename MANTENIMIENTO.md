@@ -623,6 +623,7 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-43 | ISR: tooltip deducciones Art.121 + nota sin IVA en gastosMejoras | ✅ CERRADO `9543a30` · 27-jun-2026 |
 | T-44 | ISR: fix esExtranjero para Residente con RFC — recupera exención casa habitación | ✅ CERRADO `2a00106` · 27-jun-2026 |
 | T-45 | ISR: distinguir pérdida real de exención completa — mensaje verde vs. naranja | ✅ CERRADO `7bd443a` · 27-jun-2026 · CD04 autoriza |
+| T-46 | ISR: dos bloques deducciones — gastos adquisición dinámico (Art.121-III) + mejoras | ✅ CERRADO `9dbe34e` · 27-jun-2026 · CD04 autoriza · ISTP/ISABI adquisición deducible per texto literal |
 
 ---
 
