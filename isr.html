@@ -280,6 +280,14 @@
             font-size: 0.8rem;
             margin-top: 1rem;
         }
+        .success-box {
+            background: rgba(16,185,129,.1);
+            border-left: 4px solid var(--success);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.8rem;
+            margin-top: 1rem;
+        }
         .sinrfc-warning {
             background: #FEF3C7;
             border-left: 4px solid var(--warning);
@@ -890,6 +898,9 @@
             <div id="infoPerdida" class="warning-box hidden">
                 ⚠️ <strong>Pérdida:</strong> El cálculo arroja una pérdida (deducciones mayores al precio de venta). No hay ISR a pagar.
             </div>
+            <div id="infoExencion" class="success-box hidden">
+                ✅ <strong>Exención completa:</strong> El precio de venta está dentro del límite de 700,000 UDIs aplicable a esta operación. No hay ISR a pagar.
+            </div>
 
             <div style="margin-top:1.5rem;text-align:center;">
                 <button onclick="generarPDF()" style="
@@ -1492,7 +1503,8 @@
             
             // Utilidad gravable = precio gravable - deducciones gravables
             let utilidadGravable = precioGravable - deduccionesGravables;
-            const hayPerdida = utilidadGravable <= 0;
+            const hayExencionCompleta = pctGravable === 0;
+            const hayPerdida = !hayExencionCompleta && (precioGravable - deduccionesGravables) <= 0;
             utilidadGravable = Math.max(0, utilidadGravable);
             
             // Calcular ISR
@@ -1629,11 +1641,8 @@
         document.getElementById('resIsrFinal').textContent = formatMoney(isrTotal);
             document.getElementById('resPorcentaje').textContent = ((isrTotal / precioVenta) * 100).toFixed(2) + '%';
             
-            if (hayPerdida) {
-                document.getElementById('infoPerdida').classList.remove('hidden');
-            } else {
-                document.getElementById('infoPerdida').classList.add('hidden');
-            }
+            document.getElementById('infoPerdida').classList.toggle('hidden', !hayPerdida);
+            document.getElementById('infoExencion').classList.toggle('hidden', !hayExencionCompleta);
         }
     </script>
     <!-- CONVERTIDOR USD → MXN -->
