@@ -803,7 +803,7 @@
                     <span class="value" id="resConstruccionAct">-</span>
                 </div>
                 <div class="result-row">
-                    <span class="label">Gastos/Mejoras</span>
+                    <span class="label">Gastos adquisición + Mejoras</span>
                     <span class="value" id="resGastos">-</span>
                 </div>
                 <div class="result-row">
@@ -1602,7 +1602,7 @@
             
             document.getElementById('resTerrenoAct').textContent = formatMoney(terrenoActualizado);
             document.getElementById('resConstruccionAct').textContent = formatMoney(construccionActualizada);
-            document.getElementById('resGastos').textContent = formatMoney(mejorasActualizadas);
+            document.getElementById('resGastos').textContent = formatMoney(gastosAdqActualizados + mejorasActualizadas);
             document.getElementById('resComision').textContent = formatMoney(comisionActualizada);
             document.getElementById('resTotalDeduc').textContent = formatMoney(totalDeducciones);
             
