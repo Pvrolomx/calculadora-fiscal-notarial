@@ -1455,9 +1455,9 @@
             // Entra COMPLETA al total — la división por enajenante ocurre una sola vez en utilidadGravable (línea ~1441)
             let comisionActualizada = comision;
             if (comision > 0) {
-                const inpcEnajDirecto = await getINPCAsync(fechaVenta, false);
+                const inpcEnajMesAnterior = await getINPCAsync(fechaVenta, true);
                 const inpcComision = await getINPCAsync(fechaComision, false);
-                const factorComision = inpcEnajDirecto / inpcComision;
+                const factorComision = inpcEnajMesAnterior / inpcComision;
                 comisionActualizada = comision * factorComision;
             }
 
