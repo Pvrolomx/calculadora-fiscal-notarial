@@ -795,11 +795,11 @@
             <div class="result-section">
                 <h3 style="font-size:0.85rem;margin-bottom:1rem;color:var(--primary);">Deducciones</h3>
                 <div class="result-row">
-                    <span class="label">Terreno Actualizado</span>
+                    <span class="label" id="labelTerrenoAct">Terreno Actualizado</span>
                     <span class="value" id="resTerrenoAct">-</span>
                 </div>
                 <div class="result-row">
-                    <span class="label">Construcción (depreciada y actualizada)</span>
+                    <span class="label" id="labelConstruccionAct">Construcción (depreciada y actualizada)</span>
                     <span class="value" id="resConstruccionAct">-</span>
                 </div>
                 <div class="result-row">
@@ -1600,8 +1600,17 @@
             document.getElementById('resFactor').textContent = factorINPC.toFixed(4);
             document.getElementById('resAnios').textContent = anios;
             
-            document.getElementById('resTerrenoAct').textContent = formatMoney(terrenoActualizado);
-            document.getElementById('resConstruccionAct').textContent = formatMoney(construccionActualizada);
+            if (usaCostoMinimo) {
+                document.getElementById('labelTerrenoAct').textContent = 'Costo mínimo deducible (10% Art.121 LISR)';
+                document.getElementById('resTerrenoAct').textContent = formatMoney(costoMinimo);
+                document.getElementById('labelConstruccionAct').textContent = 'Construcción (incluida en costo mínimo)';
+                document.getElementById('resConstruccionAct').textContent = '-';
+            } else {
+                document.getElementById('labelTerrenoAct').textContent = 'Terreno Actualizado';
+                document.getElementById('resTerrenoAct').textContent = formatMoney(terrenoActualizado);
+                document.getElementById('labelConstruccionAct').textContent = 'Construcción (depreciada y actualizada)';
+                document.getElementById('resConstruccionAct').textContent = formatMoney(construccionActualizada);
+            }
             document.getElementById('resGastos').textContent = formatMoney(gastosAdqActualizados + mejorasActualizadas);
             document.getElementById('resComision').textContent = formatMoney(comisionActualizada);
             document.getElementById('resTotalDeduc').textContent = formatMoney(totalDeducciones);
