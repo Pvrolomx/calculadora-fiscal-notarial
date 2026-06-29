@@ -624,6 +624,38 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-44 | ISR: fix esExtranjero para Residente con RFC — recupera exención casa habitación | ✅ CERRADO `2a00106` · 27-jun-2026 |
 | T-45 | ISR: distinguir pérdida real de exención completa — mensaje verde vs. naranja | ✅ CERRADO `7bd443a` · 27-jun-2026 · CD04 autoriza |
 | T-46 | ISR: dos bloques deducciones — gastos adquisición dinámico (Art.121-III) + mejoras | ✅ CERRADO `9dbe34e` · 27-jun-2026 · CD04 autoriza · ISTP/ISABI adquisición deducible per texto literal |
+| T-47 | ISR: comisión actualizada con INPC mes anterior (Art.121-IV) — fix hallazgo #3 auditoría CC | ✅ CERRADO `9e32cf0` · 27-jun-2026 · CD04 autoriza · CC como Junior funcional (primer ciclo) |
+
+---
+
+## 📋 Notas de arquitectura del sistema
+
+### CC como Junior funcional — autorizado (27-jun-2026)
+El Arquitecto autoriza Claude Code como canal de ejecución para tareas que tocan `calcularISR()`, bajo el ciclo:
+**CC aplica + valida + muestra diff → Senior CD06 revisa → ✅ explícito → CC pushea.**
+El doble par de ojos se preserva — CC ejecuta, Senior filtra. El ✅ del Senior antes del push es inviolable.
+
+Permisos estándar para prompt de CC (copiar en cada sesión):
+```
+Tienes permiso para ejecutar sin pedirme autorización:
+- git clone, git fetch, git pull, git diff, git log, git status
+- grep, cat, find, wc — cualquier comando de solo lectura
+- node --version, node --check
+- Verificar disponibilidad de Playwright y browsers instalados
+- Localizar módulos npm globales y locales
+- Ejecutar scripts de validación con Playwright/Node
+- git add, git commit, git push — SOLO después de recibir mi ✅ explícito
+
+Antes de modificar cualquier archivo: detente y muéstrame el diff.
+Antes de hacer push: espera mi ✅ explícito.
+```
+
+### T-47 — Criterio fiscal documentado (Art. 121-IV LISR)
+**Bug:** la comisión usaba `getINPCAsync(fechaVenta, false)` — mes directo de la venta — mientras terreno, construcción y mejoras usaban `true` (mes anterior).
+**Ley:** Art. 121 último párrafo: *"Las deducciones a que se refieren las fracciones III y IV se actualizarán... hasta el mes inmediato anterior a aquél en el que se realice la enajenación."* Fracción IV = comisiones.
+**Fix:** `false` → `true`. Rename `inpcEnajDirecto` → `inpcEnajMesAnterior`.
+**Estado latente:** sin diferencia numérica mientras INPC de meses consecutivos 2026 estén igualados (145.831). Efecto visible cuando INEGI publique valores reales posteriores a abril 2026.
+**Validación de comportamiento (V2):** los factores completos de comisión y terreno difieren por diseño legal (denominadores = periodos de pago distintos). Lo que debe coincidir es el **numerador INPC** (tope superior del periodo). Post-fix: comisión = terreno = 144.628 para fechaVenta 2026-03-15. ✅
 
 ---
 
