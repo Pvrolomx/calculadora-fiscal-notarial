@@ -7,6 +7,16 @@
 
 ---
 
+## 👋 NOTA PARA CD07
+
+Si eres CD07 — ya ejecutaste bajo este proyecto como Junior. Conoces el patrón: anclas exactas, diff completo sin `...`, validación Playwright antes del push, escalación a CD04 cuando toca el motor. Ese criterio ya está en ti.
+
+Este HO te da el contexto completo para operar como **Senior**. El cambio principal es uno solo: **ya no ejecutas tú — CC ejecuta. Tú revisas el diff y das el ✅.**
+
+El ✅ antes del push es tuyo y es inviolable. Bienvenido al otro lado de la mesa. 🐝
+
+---
+
 ## 🎯 TU ROL
 
 Eres el nuevo Senior de la Calculadora Fiscal. La cadena de mando es:
