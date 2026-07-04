@@ -1442,6 +1442,19 @@
             const numEnajenantes = parseInt(document.getElementById('numEnajenantes').value) || 1;
             const numExentan = parseInt(document.getElementById('numExentan').value) || 0;
 
+            // VALIDACIÓN DE CAMPOS REQUERIDOS
+            const camposFaltantes = [];
+            if (!fechaCompra)                          camposFaltantes.push('Fecha de adquisición');
+            if (!fechaVenta)                           camposFaltantes.push('Fecha de enajenación');
+            if (!precioCompra || precioCompra <= 0)    camposFaltantes.push('Precio de adquisición');
+            if (!precioVenta  || precioVenta  <= 0)    camposFaltantes.push('Precio de enajenación');
+            if (Number.isNaN(pctTerreno) || Number.isNaN(pctConstruccion) || (pctTerreno + pctConstruccion) <= 0)
+                camposFaltantes.push('% Terreno / Construcción');
+            if (camposFaltantes.length > 0) {
+                alert('⚠️ Faltan datos obligatorios:\n\n• ' + camposFaltantes.join('\n• '));
+                return;
+            }
+
             // DETECCIÓN ENAJENANTES MIXTOS — Art. 93 LISR
             if (!forzar && esCasaHabitacion && aplicaExencion
                 && numExentan > 0 && numExentan < numEnajenantes) {
