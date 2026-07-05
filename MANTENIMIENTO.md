@@ -625,6 +625,12 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-45 | ISR: distinguir pérdida real de exención completa — mensaje verde vs. naranja | ✅ CERRADO `7bd443a` · 27-jun-2026 · CD04 autoriza |
 | T-46 | ISR: dos bloques deducciones — gastos adquisición dinámico (Art.121-III) + mejoras | ✅ CERRADO `9dbe34e` · 27-jun-2026 · CD04 autoriza · ISTP/ISABI adquisición deducible per texto literal |
 | T-47 | ISR: comisión actualizada con INPC mes anterior (Art.121-IV) — fix hallazgo #3 auditoría CC | ✅ CERRADO `9e32cf0` · 27-jun-2026 · CD04 autoriza · CC como Junior funcional (primer ciclo) |
+| T-48 | ISR: resGastos omitía gastosAdqActualizados — solo mostraba mejoras (bug introducido en T-46) | ✅ CERRADO `14848f6` · 04-jul-2026 · hallazgo #4 auditoría CC · display fix, motor intacto |
+| T-49 | ISR: display costo mínimo 10% — consolidar en resTerrenoAct con label dinámico Art.121 (Opción A) | ✅ CERRADO `a591370` · 04-jul-2026 · hallazgo #5 auditoría CC · display fix, motor intacto |
+| T-50 | ISR: validar campos requeridos antes de calcularISR() — fecha vacía → getINPCAsync('') → fallback silencioso | ✅ CERRADO `72b4cbb` · 04-jul-2026 · hallazgo Longcat · check NaN+suma para pct (CC detectó regresión pre-apply) |
+| T-51 | ISR: actualizar VALOR_UDI fallback — 8.465213 (dic-2024) → 8.841000 (may-2026) | ✅ CERRADO `bf811ab` · 04-jul-2026 · hallazgo #8 auditoría CC · actualizar en Hito 3 mensual |
+| T-52 | CalcPro: reemplazar colores residuales paleta pre-T-36 — hover azul + dorado × 10 → verde | ✅ CERRADO `5f02b9b` · 04-jul-2026 · hallazgos #16/#17 auditoría CC |
+| T-53 | ISR: corregir meta tags PWA corruptos — 6 líneas con BEL/TAB → markup limpio, theme-color verde | ✅ CERRADO `3f5573a` · 04-jul-2026 · hallazgo #11 auditoría CC · alcance expandido de 2→6 líneas por CC |
 
 ---
 
@@ -649,6 +655,24 @@ Tienes permiso para ejecutar sin pedirme autorización:
 Antes de modificar cualquier archivo: detente y muéstrame el diff.
 Antes de hacer push: espera mi ✅ explícito.
 ```
+
+### Ascenso CD06 → Supervisor · CD07 → Senior (04-jul-2026)
+Autorizado por El Arquitecto. Nueva cadena:
+**Rolo (Arquitecto) → CD06 Supervisor (autoriza calcularISR() y tablas) → CD07 Senior (revisa diffs, da ✅) → CC (ejecutor)**
+CD07 Senior asume custodia del criterio fiscal acumulado en commits T-24 a T-53 y en este documento.
+
+### Estado auditoría CC — 04-jul-2026
+| Hallazgo | Ticket | Estado |
+|---|---|---|
+| #3 comisión INPC mes anterior | T-47 | ✅ |
+| #4 resGastos omitía gastos adq | T-48 | ✅ |
+| #5 costo mínimo display | T-49 | ✅ |
+| #7 fecha vacía → fallback silencioso | T-50 | ✅ |
+| #8 VALOR_UDI desfasado | T-51 | ✅ |
+| #11 meta tags PWA corruptos | T-53 | ✅ |
+| #16/#17 colores residuales CalcPro | T-52 | ✅ |
+| #9 INPC 2026 aplanado sin marcar estimado | — | 🟡 Bloqueado — espera INEGI ~24-jul-2026 |
+| T-54 manifest.json theme_color | — | 🟠 Pendiente inmediato |
 
 ### T-47 — Criterio fiscal documentado (Art. 121-IV LISR)
 **Bug:** la comisión usaba `getINPCAsync(fechaVenta, false)` — mes directo de la venta — mientras terreno, construcción y mejoras usaban `true` (mes anterior).
