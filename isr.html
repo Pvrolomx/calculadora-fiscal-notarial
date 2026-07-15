@@ -753,6 +753,8 @@
               "pctConstruccion":   número (ej: 80),
               "comision":          número sin formato (0 si no hay),
               "fechaComision":     "YYYY-MM-DD" o "" si no aplica,
+              "mejoras":           número sin formato (0 si no hay),
+              "fechaMejoras":      "YYYY-MM-DD" o "" si no aplica,
               "numEnajenantes":    número entero,
               "entidadFederativa": "jalisco" o "nayarit" en minúsculas,
               "esCasaHabitacion":  true o false,
@@ -1926,7 +1928,7 @@
                 // Campos de texto y fecha
                 ['fechaCompra','precioCompra','fechaVenta','precioVenta',
                  'pctTerreno','pctConstruccion','comision','numEnajenantes',
-                 'numExentan','fechaComision'].forEach(id => {
+                 'numExentan','fechaComision','mejoras','fechaMejoras'].forEach(id => {
                     const el = document.getElementById(id);
                     if (el && D[id] !== undefined) {
                         el.value = D[id];
