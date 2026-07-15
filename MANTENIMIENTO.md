@@ -631,6 +631,8 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-51 | ISR: actualizar VALOR_UDI fallback — 8.465213 (dic-2024) → 8.841000 (may-2026) | ✅ CERRADO `bf811ab` · 04-jul-2026 · hallazgo #8 auditoría CC · actualizar en Hito 3 mensual |
 | T-52 | CalcPro: reemplazar colores residuales paleta pre-T-36 — hover azul + dorado × 10 → verde | ✅ CERRADO `5f02b9b` · 04-jul-2026 · hallazgos #16/#17 auditoría CC |
 | T-53 | ISR: corregir meta tags PWA corruptos — 6 líneas con BEL/TAB → markup limpio, theme-color verde | ✅ CERRADO `3f5573a` · 04-jul-2026 · hallazgo #11 auditoría CC · alcance expandido de 2→6 líneas por CC |
+| T-54 | Manifest: theme_color `#1E3A5F` (azul) → `#22c55e` (verde) — alinear con paleta T-36/T-52/T-53 | ✅ CERRADO `47b2db9` · 04-jul-2026 · CD07 Senior autoriza · paleta verde ya consistente en CSS + meta + manifest |
+| T-55 | ISR: cargarDesdeJSON ignoraba `mejoras` y `fechaMejoras` — se descartaban en silencio, cálculo corría con mejoras = $0 | ✅ CERRADO `b0730cd` · 15-jul-2026 · ticket Rolo · fix arreglo de IDs + documentar campos en prompt embebido |
 
 ---
 
@@ -672,7 +674,8 @@ CD07 Senior asume custodia del criterio fiscal acumulado en commits T-24 a T-53 
 | #11 meta tags PWA corruptos | T-53 | ✅ |
 | #16/#17 colores residuales CalcPro | T-52 | ✅ |
 | #9 INPC 2026 aplanado sin marcar estimado | — | 🟡 Bloqueado — espera INEGI ~24-jul-2026 |
-| T-54 manifest.json theme_color | — | 🟠 Pendiente inmediato |
+| manifest.json theme_color azul vs. paleta verde | T-54 | ✅ |
+| Loader JSON ignoraba mejoras/fechaMejoras (ticket Rolo) | T-55 | ✅ |
 
 ### T-47 — Criterio fiscal documentado (Art. 121-IV LISR)
 **Bug:** la comisión usaba `getINPCAsync(fechaVenta, false)` — mes directo de la venta — mientras terreno, construcción y mejoras usaban `true` (mes anterior).
