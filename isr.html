@@ -1302,28 +1302,45 @@
             return null;
         }
         
+        // Procedencia de la última UDI consultada — la lee generarPDF() para dejar
+        // constancia de si el valor vino en vivo de Banxico o de un fallback local.
+        // fetchUDI() falla en silencio (catch → null); sin esta señal un /api/udi caído
+        // pasa inadvertido y el cálculo usa un valor viejo sin avisar. (T-56)
+        const udiFuenteCache = {};
+        let udiFuenteUltima = null;  // 'Banxico API' | 'tabla local' | 'constante VALOR_UDI'
+        let udiKeyUltima    = null;  // 'YYYY-MM' consultado
+
         // Obtener UDI con API primero, fallback a tabla local
         async function getUDIAsync(fecha) {
             const d = new Date(fecha);
             const year = d.getFullYear();
             const month = d.getMonth() + 1;
             const key = year + '-' + String(month).padStart(2, '0');
-            
+            udiKeyUltima = key;
+
             // Revisar cache
             if (udiCache[key]) {
+                udiFuenteUltima = udiFuenteCache[key];
                 return udiCache[key];
             }
-            
+
             // Intentar API primero
             const apiValue = await fetchUDI(year, month);
             if (apiValue) {
                 udiCache[key] = apiValue;
+                udiFuenteCache[key] = 'Banxico API';
+                udiFuenteUltima = 'Banxico API';
                 return apiValue;
             }
-            
+
             // Fallback a tabla local o valor por defecto
+            const enTabla = UDIS[key] !== undefined;
             const fallback = UDIS[key] || VALOR_UDI;
             udiCache[key] = fallback;
+            udiFuenteCache[key] = enTabla ? 'tabla local' : 'constante VALOR_UDI';
+            udiFuenteUltima = udiFuenteCache[key];
+            console.warn('UDI ' + key + ' desde ' + udiFuenteUltima + ' = ' + fallback
+                       + ' (/api/udi no respondió)');
             return fallback;
         }
         
@@ -2302,7 +2319,15 @@
         seccion('Utilidad Gravable');
         txt('Precio de enajenación', g('resPrecioVenta'));
         txt('(−) Total deducciones', g('resMenosDeduc'));
-        if (isVisible('rowExencion'))  txt('(−) Exención casa habitación', g('resExencion'));
+        if (isVisible('rowExencion')) {
+            txt('(−) Exención casa habitación', g('resExencion'));
+            // Constancia de procedencia de la UDI — en vivo vs. fallback local (T-56)
+            const udiVal = udiKeyUltima ? udiCache[udiKeyUltima] : null;
+            if (udiVal) {
+                txt('Valor UDI aplicado (' + udiKeyUltima + ', día 10)',
+                    udiVal.toFixed(6) + ' · ' + (udiFuenteUltima || '—'));
+            }
+        }
         if (isVisible('rowPctGravable')) txt('% Gravable (después exención)', g('resPctGravable'));
         txt('UTILIDAD GRAVABLE', g('resUtilidad'), true);
         linea();
