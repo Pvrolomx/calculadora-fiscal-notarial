@@ -633,6 +633,8 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-53 | ISR: corregir meta tags PWA corruptos — 6 líneas con BEL/TAB → markup limpio, theme-color verde | ✅ CERRADO `3f5573a` · 04-jul-2026 · hallazgo #11 auditoría CC · alcance expandido de 2→6 líneas por CC |
 | T-54 | Manifest: theme_color `#1E3A5F` (azul) → `#22c55e` (verde) — alinear con paleta T-36/T-52/T-53 | ✅ CERRADO `47b2db9` · 04-jul-2026 · CD07 Senior autoriza · paleta verde ya consistente en CSS + meta + manifest |
 | T-55 | ISR: cargarDesdeJSON ignoraba `mejoras` y `fechaMejoras` — se descartaban en silencio, cálculo corría con mejoras = $0 | ✅ CERRADO `b0730cd` · 15-jul-2026 · ticket Rolo · fix arreglo de IDs + documentar campos en prompt embebido |
+| T-56 | API: crear `/api/udi` (serie SP68257, criterio día 10) — no existía, la UDI nunca se consultaba en vivo + constancia de procedencia en PDF | ✅ CERRADO `a142a0c` · 15-jul-2026 · ticket Rolo · ⚠️ falta verificar llamada real a Banxico en preview |
+| T-57 | ISR: criterio UDI — día 10 (Art. 124) vs. fecha de enajenación (Art. 93 fr. XIX) | 🔴 **ABIERTO** · dirigido a CD06 Supervisor / Arquitecto · ver nota abajo · bloquea la premisa "exentamos de más" |
 
 ---
 
@@ -676,6 +678,33 @@ CD07 Senior asume custodia del criterio fiscal acumulado en commits T-24 a T-53 
 | #9 INPC 2026 aplanado sin marcar estimado | — | 🟡 Bloqueado — espera INEGI ~24-jul-2026 |
 | manifest.json theme_color azul vs. paleta verde | T-54 | ✅ |
 | Loader JSON ignoraba mejoras/fechaMejoras (ticket Rolo) | T-55 | ✅ |
+| `/api/udi` no existía — UDI nunca en vivo (ticket Rolo) | T-56 | ✅ (falta verificar en preview) |
+| Criterio UDI: día 10 vs. fecha de enajenación | T-57 | 🔴 Abierto — decisión de Supervisor |
+
+### T-57 — [ABIERTO] Criterio UDI: día 10 vs. fecha de enajenación
+**Dirigido a:** CD06 Supervisor / El Arquitecto — es decisión de criterio fiscal, fuera del alcance de CC y CD07.
+**Origen:** ticket Rolo de `/api/udi` (T-56), 15-jul-2026.
+
+**La pregunta:** el ticket de T-56 afirmó que la exención del Art. 93 fr. XIX se calcula con la UDI **a la fecha de enajenación**. Pero la tabla `UDIS` de `isr.html` documenta deliberadamente otro criterio:
+> `// Valor del día 10 de cada mes; sáb/dom → lunes siguiente (Art. 124 LISR)`
+
+**Por qué no se resolvió en T-56.** Adoptar granularidad diaria habría creado una inconsistencia peor que la actual: con `/api/udi` vivo el cálculo usaría el **día exacto**, y si Banxico se cae usaría el **día 10** de la tabla. La misma operación daría dos exenciones distintas según si hubo red. Hoy al menos es consistente (siempre día 10), aunque desactualizado. T-56 se implementó con criterio día 10 para no introducir esa divergencia.
+
+**La magnitud real del hallazgo.** Si el criterio correcto fuera "día de la enajenación", entonces **la tabla `UDIS` completa está construida sobre el criterio equivocado — no solo desactualizada**. Eso no se arregla con un endpoint: obliga a rehacer la tabla entera y a revisar todo cálculo de exención emitido hasta hoy. Es de otra magnitud que el bug de T-56.
+
+**Dato que apunta a la causa raíz.** Las dos discrepancias contra Nuvigant tienen casi la misma magnitud y el mismo signo:
+| Serie | Discrepancia |
+|---|---|
+| INPC | −0.48% |
+| UDI | −0.43% |
+
+Eso no parece dato malo de ninguno de los dos sistemas; parece que **un sistema está tomando un mes distinto que el otro**. Vale la pena partir de ahí.
+
+**La premisa "exentamos de más" queda EN SUSPENSO.** Se tomó del PDF de Nuvigant sin verificar contra Banxico. La cifra `8.803055` (15-jul-2026) implicaría que la UDI *cayó* −0.43% en dos meses, rompiendo la tendencia monótona de la propia tabla (ene→may 2026: 8.674400 → 8.841000). Es posible, pero no está confirmado. **Importa porque de ese número depende la dirección del error:** si la UDI real de julio fuera mayor a 8.841, estaríamos exentando **de menos**, no de más.
+
+**Lo único confirmado y suficiente para haber actuado en T-56:** usamos un valor de mayo para un cálculo de julio. Hacia dónde apunta el error se sabrá cuando el endpoint viva.
+
+**Verificación pendiente (preview de Vercel).** Pegarle a `/api/udi?year=2026&month=5` y confirmar que devuelve **8.841000** — el valor que la tabla ya tiene para may-2026. Si coincide, el criterio día-10 queda validado end-to-end contra la fuente. Si no coincide, la ventana 10→14 de `api/udi.js` no reproduce la convención con que se construyó la tabla y hay que ajustar antes de confiar en jul-2026.
 
 ### T-47 — Criterio fiscal documentado (Art. 121-IV LISR)
 **Bug:** la comisión usaba `getINPCAsync(fechaVenta, false)` — mes directo de la venta — mientras terreno, construcción y mejoras usaban `true` (mes anterior).
