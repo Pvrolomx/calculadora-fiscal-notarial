@@ -237,6 +237,20 @@
             font-size: 1.6rem;
             font-weight: 700;
         }
+        /* Columna derecha del total: MXN manda, USD queda subordinado (T-58) */
+        .result-row.total .total-values {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.1rem;
+        }
+        .result-row.total .value-usd {
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+        }
         .result-row.highlight {
             background: rgba(251,191,36,0.08);
             border: 1px solid rgba(251,191,36,0.35);
@@ -905,7 +919,10 @@
             </div>
             <div class="result-row total">
                     <span class="label">💰 TOTAL ISR A PAGAR</span>
-                    <span class="value" id="resIsrFinal">-</span>
+                    <div class="total-values">
+                        <span class="value" id="resIsrFinal">-</span>
+                        <span class="value-usd hidden" id="resIsrFinalUsd"></span>
+                    </div>
                 </div>
                 <div class="result-row">
                     <span class="label">% sobre Precio Venta</span>
@@ -1702,6 +1719,8 @@
         document.getElementById('rowCedular').classList.add('hidden');
         document.getElementById('resIsrFinal').textContent = formatMoney(isrTotal);
             document.getElementById('resPorcentaje').textContent = ((isrTotal / precioVenta) * 100).toFixed(2) + '%';
+            // Equivalente en USD del total — informativo, no altera ningún cálculo (T-58)
+            await mostrarTotalUSD(isrTotal);
             
             document.getElementById('infoPerdida').classList.toggle('hidden', !hayPerdida);
             document.getElementById('infoExencion').classList.toggle('hidden', !hayExencionCompleta);
@@ -1764,6 +1783,50 @@
         label.textContent = '(captura manual)';
     }
 
+    /* ── TOTAL EN USD — línea informativa del total (T-58) ──────────────
+       Reutiliza la infraestructura de TC ya existente. Prioridad:
+       1) el TC que el usuario tenga capturado/elegido en el panel USD
+          (respeta su decisión, incluida la opción TC + $1)
+       2) el TC de Banxico ya cargado en esta sesión
+       3) consulta a /api/tc
+       Si ninguna funciona, la línea simplemente no se muestra —
+       nunca se inventa un tipo de cambio. */
+    async function getTCParaTotal() {
+        const manual = parseFloat((document.getElementById('tcValue')?.value || '').replace(/,/g, ''));
+        if (manual > 0) return { tc: manual, fuente: 'capturado en panel USD' };
+        if (tcBase > 0) return { tc: tcBase, fuente: 'Banxico FIX' };
+        try {
+            const res = await fetch('/api/tc');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.tc && !isNaN(data.tc)) {
+                    tcBase = data.tc;
+                    return { tc: data.tc, fuente: 'Banxico FIX' + (data.fecha ? ' ' + data.fecha : '') };
+                }
+            }
+        } catch (e) { /* sin red — se omite la línea USD */ }
+        return null;
+    }
+
+    // Último total calculado — permite refrescar la línea USD si el usuario
+    // cambia el TC después de calcular (si no, panel y total mostrarían TCs distintos)
+    let ultimoIsrTotal = null;
+
+    async function mostrarTotalUSD(isrTotal) {
+        ultimoIsrTotal = isrTotal;
+        const el = document.getElementById('resIsrFinalUsd');
+        if (!el) return;
+        if (!(isrTotal > 0)) { el.classList.add('hidden'); return; }
+        const info = await getTCParaTotal();
+        if (!info) { el.classList.add('hidden'); return; }
+        const usd = isrTotal / info.tc;
+        el.textContent = '≈ USD $' + usd.toLocaleString('en-US',
+                             { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                       + '  ·  TC ' + info.tc.toFixed(4);
+        el.title = 'Cifra informativa. Tipo de cambio: ' + info.fuente;
+        el.classList.remove('hidden');
+    }
+
     function usarTC(extra) {
         // extra=0 → TC del día exacto | extra=1 → TC + $1 de previsión
         const base = tcBase || parseFloat((document.getElementById('tcValue').value || '').replace(/,/g,'')) || 0;
@@ -1794,6 +1857,8 @@
             applyBtn.disabled = true;
             applyBtn.textContent = '↑ Usar este monto como Precio de Enajenación';
         }
+        // Mantener sincronizada la línea USD del total con el TC del panel (T-58)
+        if (ultimoIsrTotal !== null) mostrarTotalUSD(ultimoIsrTotal);
     }
 
     function applyUSD() {
