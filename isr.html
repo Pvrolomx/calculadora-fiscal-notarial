@@ -787,6 +787,7 @@
         <!-- RESULTADOS -->
         <div id="resultados" class="card hidden">
             <h2>📊 Resultados del Cálculo</h2>
+            <div id="avisoFrescura" style="display:none;background:#fef3c7;border-left:3px solid #d97706;color:#92400e;padding:.6rem .9rem;border-radius:4px;font-size:.85rem;margin:.5rem 0;"></div>
             
             <div class="result-section">
                 <h3 style="font-size:0.85rem;margin-bottom:1rem;color:var(--primary);">Actualización por Inflación</h3>
@@ -1111,6 +1112,14 @@
         const VALOR_UDI = 8.841000; // Mayo 2026 — actualizar en cada auditoría mensual (Hito 3)
         const EXENCION_UDIS = 700000; // 700,000 UDIs
 
+        // Última verificación contra fuente oficial — ACTUALIZAR en cada Hito 3 (T-61)
+        // OJO: es el último mes VERIFICADO contra fuente, NO el último mes de la tabla
+        // (que trae meses estimados/placeholder). Ver check de frescura más abajo.
+        // INPC: jun-2026 real (INEGI); jul-2026 es ESTIMADO en la tabla (T-60), NO real.
+        // UDI: jun-2026 (DOF 10-jun) agregado en T-60; jul+ se resuelven vía /api/udi.
+        const INPC_VERIFICADO_HASTA = '2026-06'; // INEGI
+        const UDI_VERIFICADO_HASTA  = '2026-06'; // Banxico SIE
+
         // === VALORES UDI OFICIALES (Banxico SIE CP150) ===
         // Fallback estático para getUDIAsync() cuando /api/udi no responde
         // Valor del día 10 de cada mes (criterio Art. 124 LISR)
@@ -1284,6 +1293,28 @@
             }
         }
         
+        // Check de frescura de índices (T-61) — avisa si la operación necesita un mes
+        // posterior al último verificado contra fuente. NO toca ninguna cifra; solo
+        // muestra/oculta un banner. Comparación lexicográfica de 'YYYY-MM' (correcta).
+        function checkFrescuraIndices(fechaVenta) {
+            const el = document.getElementById('avisoFrescura');
+            if (!el || !fechaVenta) return;
+            const d = new Date(fechaVenta);
+            // INPC usa el mes ANTERIOR a la venta (Art. 124); UDI usa el mes de la venta
+            const ant = new Date(d.getFullYear(), d.getMonth() - 1, 1);
+            const kINPC = ant.getFullYear() + '-' + String(ant.getMonth() + 1).padStart(2, '0');
+            const kUDI  = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+            const av = [];
+            if (kINPC > INPC_VERIFICADO_HASTA) av.push('INPC de ' + kINPC + ' (verificado a ' + INPC_VERIFICADO_HASTA + ')');
+            if (kUDI  > UDI_VERIFICADO_HASTA)  av.push('UDI de ' + kUDI + ' (verificado a ' + UDI_VERIFICADO_HASTA + ')');
+            if (av.length) {
+                el.textContent = '⚠️ Índices posiblemente no vigentes: ' + av.join('; ') + '. Verificar contra INEGI/Banxico antes de usar el resultado como definitivo.';
+                el.style.display = 'block';
+            } else {
+                el.style.display = 'none';
+            }
+        }
+
         function getINPC(fecha, usarMesAnterior = false) {
             const d = new Date(fecha + 'T12:00:00');
             if (usarMesAnterior) {
@@ -1740,6 +1771,9 @@
             
             document.getElementById('infoPerdida').classList.toggle('hidden', !hayPerdida);
             document.getElementById('infoExencion').classList.toggle('hidden', !hayExencionCompleta);
+
+            // Aviso de frescura de índices (T-61) — informativo, no altera el cálculo
+            checkFrescuraIndices(fechaVenta);
         }
     </script>
     <!-- CONVERTIDOR USD → MXN -->
