@@ -1,0 +1,84 @@
+[
+  {
+    "id": "1_sin_rfc",
+    "desc": "Extranjero sin RFC (elige 25% s/bruto)",
+    "pc": 9246707.66,
+    "fCompra": "2010-10",
+    "pv": 49500000,
+    "pctT": 20,
+    "pctC": 80,
+    "extranjero": 1,
+    "esperado": 12375000
+  },
+  {
+    "id": "2_con_rfc",
+    "desc": "Residente con RFC, sin exención",
+    "pc": 9246707.66,
+    "fCompra": "2010-10",
+    "pv": 49500000,
+    "pctT": 20,
+    "pctC": 80,
+    "esperado": 10860829.45
+  },
+  {
+    "id": "3_exentando",
+    "desc": "Residente, exención casa habitación",
+    "pc": 9246707.66,
+    "fCompra": "2010-10",
+    "pv": 49500000,
+    "pctT": 20,
+    "pctC": 80,
+    "exenc": 1,
+    "numExentan": 1,
+    "esperado": 9250244.32
+  },
+  {
+    "id": "4_exent_mejoras",
+    "desc": "FIX: exención + mejoras (deprecia+prorratea)",
+    "pc": 9246707.66,
+    "fCompra": "2010-10",
+    "pv": 49500000,
+    "pctT": 20,
+    "pctC": 80,
+    "exenc": 1,
+    "numExentan": 1,
+    "mejoras": 21452588.96,
+    "fMej": "2021-02",
+    "esperado": 2554521.77
+  },
+  {
+    "id": "5_rfc_mejoras",
+    "desc": "Con RFC + mejoras, sin exención",
+    "pc": 9246707.66,
+    "fCompra": "2010-10",
+    "pv": 49500000,
+    "pctT": 20,
+    "pctC": 80,
+    "mejoras": 21452588.96,
+    "fMej": "2021-02",
+    "esperado": 3080642.13
+  },
+  {
+    "id": "6_exencion_total",
+    "desc": "BORDE: precio < 700k UDIS -> todo exento",
+    "pc": 2000000,
+    "fCompra": "2010-10",
+    "pv": 6000000,
+    "pctT": 20,
+    "pctC": 80,
+    "exenc": 1,
+    "numExentan": 1,
+    "esperado": 0
+  },
+  {
+    "id": "7_mejoras_sin_fecha",
+    "desc": "BORDE: mejoras sin fecha -> nominal (regresión)",
+    "pc": 9246707.66,
+    "fCompra": "2010-10",
+    "pv": 49500000,
+    "pctT": 20,
+    "pctC": 80,
+    "mejoras": 5000000,
+    "esperado": 9160829.45
+  }
+]

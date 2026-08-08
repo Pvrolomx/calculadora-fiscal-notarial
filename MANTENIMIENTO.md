@@ -183,6 +183,13 @@ Toda edición de tablas o motor **debe validarse contra este caso** antes del pu
 
 **Fuera de rango → NO push → escalar al Senior o al Arquitecto según corresponda.**
 
+### 🧪🧪 Suite de regresión ampliada — OBLIGATORIA tras cambios de motor
+
+Además del caso único de arriba, correr el **golden set de 7 casos**: `FISCALIZACION_golden_set.md` + `FISCALIZACION_golden_set.json`. Cubre lo que el caso único no toca: exención parcial (Art. 93 fr. XIX), **mejoras con depreciación** (Art. 124/205), extranjero 25%/35% (Art. 160), y bordes (exención total, mejoras sin fecha, regresión). El `.md` trae el procedimiento de corrida (server local + browser) y el criterio de paso (`|obtenido − esperado| < $1`).
+
+- **Última corrida: 08-ago-2026 → 7/7 al centavo** (INPC venta 145.131).
+- ⚠️ **Los `esperado` dependen del INPC/UDI vigente.** Si se actualiza una tabla, RECALCULAR los esperados antes de correr (el fundamento de cada esperado está verificado contra fuente + debate + CX en el `.md`).
+
 ---
 
 ## 📓 Bitácora de mantenimientos
@@ -636,6 +643,8 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-56 | API: crear `/api/udi` (serie SP68257, criterio día 10) — no existía, la UDI nunca se consultaba en vivo + constancia de procedencia en PDF | ✅ CERRADO `a142a0c` · 15-jul-2026 · ticket Rolo · ⚠️ falta verificar llamada real a Banxico en preview |
 | T-57 | ISR: criterio UDI — día 10 (Art. 124) vs. fecha de enajenación (Art. 93 fr. XIX) | 🔴 **ABIERTO** · dirigido a CD06 Supervisor / Arquitecto · ver nota abajo · bloquea la premisa "exentamos de más" |
 | T-58 | ISR: total en USD como línea discreta bajo el total — reusa el TC de `/api/tc`, no altera ningún cálculo | ✅ CERRADO `28b7c3d` · 23-jul-2026 · pedido Rolo · MXN manda / USD subordinado; se oculta si ISR=0 o sin TC |
+| T-61 | ISR: **check de frescura de índices** — al calcular, avisar (banner no-bloqueante) si la fecha de venta requiere un INPC/UDI de un mes posterior al último verificado contra fuente (constantes `INPC_VERIFICADO_HASTA` / `UDI_VERIFICADO_HASTA`). No altera el cálculo; solo alerta "verificar contra INEGI/Banxico". Código en `TICKETS_Veneros_2026-08-07.md` (sección rotulada T-59; en git = **T-61** por colisión con la depreciación de mejoras). | ✅ CERRADO `fa9a9e7` · 08-ago-2026 · Arquitecto autoriza · marcas en 2026-06 (jul INPC estimado, T-60); golden set 7/7 pre y post |
+| — | **Fiscalización golden set (7 casos)** creada — ver `FISCALIZACION_golden_set.md`. Corrida 08-ago: 7/7 al centavo. Validó el fix de depreciación de mejoras (Art. 124/205) e INPC actualizado a 145.131. | ✅ activo de regresión |
 | T-59 | ISR: depreciar mejoras a la construcción 3%/año (Art. 121-II/124) — Ticket 1 cotejo Veneros vs contador Adán Meza | ✅ CERRADO `548a022` · 07-ago-2026 · Arquitecto autoriza opción A (tope simétrico con construcción, 60%) · validado $23,976,706.84 (sobre INPC previo; recalculado en T-60) |
 | T-60 | Datos: corregir tabla INPC 2026 (ene-mar con datos erróneos + abr-dic aplanados) a valores oficiales INEGI + UDI jun; jul-dic estimado-arrastre | ✅ CERRADO `c629735` · 07-ago-2026 · Arquitecto autoriza · resuelve Ticket 2 / #9 · ⚠️ **mueve el ancla canónica** (ver nota abajo) · motor intacto |
 
