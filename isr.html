@@ -1528,11 +1528,20 @@
             const gastosAdqActualizados = gastosMejoras > 0 ? gastosMejoras * factorINPC : 0;
 
             // Mejoras — fecha propia, factor INPC independiente
+            // Se tratan como CONSTRUCCIÓN (Art. 121-II / 124 LISR): depreciación 3%/año
+            // desde la terminación de la mejora + actualización por INPC. Mismo tope que
+            // la construcción original (años ≤ 20 → máx 60%) para tratamiento simétrico.
             let mejorasActualizadas = mejoras;
             if (mejoras > 0 && fechaMejoras) {
+                const dMej = new Date(fechaMejoras);
+                let aniosMej = dVenta.getFullYear() - dMej.getFullYear();
+                const anivMej = new Date(dVenta.getFullYear(), dMej.getMonth(), dMej.getDate());
+                if (dVenta < anivMej) aniosMej--;
+                const aniosMejDep = Math.max(0, Math.min(aniosMej, 20));
+                const depMej = Math.min(aniosMejDep * 3, 80) / 100;
                 const inpcMejoras = await getINPCAsync(fechaMejoras);
                 const factorMejoras = inpcVenta / inpcMejoras;
-                mejorasActualizadas = mejoras * factorMejoras;
+                mejorasActualizadas = mejoras * (1 - depMej) * factorMejoras;
             }
             
             // Total deducciones — todas las deducciones en total; división por enajenante ocurre en utilidadGravable
