@@ -636,7 +636,8 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-56 | API: crear `/api/udi` (serie SP68257, criterio día 10) — no existía, la UDI nunca se consultaba en vivo + constancia de procedencia en PDF | ✅ CERRADO `a142a0c` · 15-jul-2026 · ticket Rolo · ⚠️ falta verificar llamada real a Banxico en preview |
 | T-57 | ISR: criterio UDI — día 10 (Art. 124) vs. fecha de enajenación (Art. 93 fr. XIX) | 🔴 **ABIERTO** · dirigido a CD06 Supervisor / Arquitecto · ver nota abajo · bloquea la premisa "exentamos de más" |
 | T-58 | ISR: total en USD como línea discreta bajo el total — reusa el TC de `/api/tc`, no altera ningún cálculo | ✅ CERRADO `28b7c3d` · 23-jul-2026 · pedido Rolo · MXN manda / USD subordinado; se oculta si ISR=0 o sin TC |
-| T-59 | ISR: depreciar mejoras a la construcción 3%/año (Art. 121-II/124) — Ticket 1 cotejo Veneros vs contador Adán Meza | ✅ CERRADO `548a022` · 07-ago-2026 · Arquitecto autoriza opción A (tope simétrico con construcción, 60%) · validado $23,976,706.84 exacto |
+| T-59 | ISR: depreciar mejoras a la construcción 3%/año (Art. 121-II/124) — Ticket 1 cotejo Veneros vs contador Adán Meza | ✅ CERRADO `548a022` · 07-ago-2026 · Arquitecto autoriza opción A (tope simétrico con construcción, 60%) · validado $23,976,706.84 (sobre INPC previo; recalculado en T-60) |
+| T-60 | Datos: corregir tabla INPC 2026 (ene-mar con datos erróneos + abr-dic aplanados) a valores oficiales INEGI + UDI jun; jul-dic estimado-arrastre | ✅ CERRADO `c629735` · 07-ago-2026 · Arquitecto autoriza · resuelve Ticket 2 / #9 · ⚠️ **mueve el ancla canónica** (ver nota abajo) · motor intacto |
 
 ---
 
@@ -677,13 +678,22 @@ CD07 Senior asume custodia del criterio fiscal acumulado en commits T-24 a T-53 
 | #8 VALOR_UDI desfasado | T-51 | ✅ |
 | #11 meta tags PWA corruptos | T-53 | ✅ |
 | #16/#17 colores residuales CalcPro | T-52 | ✅ |
-| #9 INPC 2026 aplanado + tablas INPC/UDI congeladas may-2026 (= Ticket 2 Veneros) | — | 🟠 Accionable — la fecha INEGI ~24-jul ya pasó; dato externo cotejo Adán: INPC ago-2026 ≈ 145.131 (vs placeholder 145.831), UDI ≈ 8.796571 (vs 8.841); requiere Arquitecto (tablas) |
+| #9 / Ticket 2: INPC 2026 con datos erróneos (ene-mar) + aplanados (abr-dic); UDI stale | T-60 | ✅ INPC ene-jun a valores reales INEGI; jul-dic estimado-arrastre (145.131); UDI jun agregado, jul+ vía `/api/udi` |
 | manifest.json theme_color azul vs. paleta verde | T-54 | ✅ |
 | Loader JSON ignoraba mejoras/fechaMejoras (ticket Rolo) | T-55 | ✅ |
 | `/api/udi` no existía — UDI nunca en vivo (ticket Rolo) | T-56 | ✅ (falta verificar en preview) |
 | Criterio UDI: día 10 vs. fecha de enajenación | T-57 | 🔴 Abierto — decisión de Supervisor |
 | Total en USD bajo el total (pedido Rolo) | T-58 | ✅ |
 | Ticket 1 Veneros: mejoras no se depreciaban (subestimaba ISR) | T-59 | ✅ |
+
+### ⚠️ ANCLA CANÓNICA DE NO-REGRESIÓN: $25,166.52 (ya NO $25,275.35)
+A partir de **T-60** (`c629735`, 07-ago-2026) el caso canónico de no-regresión da **$25,166.52**, no $25,275.35.
+
+**NO es un bug ni una regresión — NO lo "corrijas" de vuelta.** El viejo $25,275.35 (usado como ancla en T-47…T-59) estaba calculado sobre la tabla INPC 2026 que tenía **datos erróneos**. Al corregir el INPC a los valores oficiales de INEGI (T-60), el caso canónico se recalcula solo: su comisión se actualiza contra el INPC de may-2026, que pasó de `145.831` (placeholder malo) a `145.527` (real) → ISR $25,275.35 → **$25,166.52** (−$108.83, −0.43%).
+
+La lógica del motor validada en T-47…T-59 sigue siendo correcta; solo el número absoluto colgaba de un dato malo. **Ancla vigente: `$25,166.52`.**
+
+Caso canónico: compra 2022-07-26 $3,485,000 · venta 2026-05-15 $5,087,500 · comisión $814,000 · 20/80 · 2 enajenantes · Jalisco · casa habitación · sin exención · tabla local.
 
 ### Cotejo Veneros — 07-ago-2026 (contador externo Adán Meza)
 Cotejo de `isr.html` contra 4 cálculos independientes del contador Adán Meza (Depto. 204, Los Veneros). 2 de 4 escenarios coincidieron < 0.3%; los otros dos dieron dos hallazgos. Origen: `TICKETS_Veneros_2026-08-07.md` (raíz del repo).
