@@ -635,6 +635,8 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-55 | ISR: cargarDesdeJSON ignoraba `mejoras` y `fechaMejoras` — se descartaban en silencio, cálculo corría con mejoras = $0 | ✅ CERRADO `b0730cd` · 15-jul-2026 · ticket Rolo · fix arreglo de IDs + documentar campos en prompt embebido |
 | T-56 | API: crear `/api/udi` (serie SP68257, criterio día 10) — no existía, la UDI nunca se consultaba en vivo + constancia de procedencia en PDF | ✅ CERRADO `a142a0c` · 15-jul-2026 · ticket Rolo · ⚠️ falta verificar llamada real a Banxico en preview |
 | T-57 | ISR: criterio UDI — día 10 (Art. 124) vs. fecha de enajenación (Art. 93 fr. XIX) | 🔴 **ABIERTO** · dirigido a CD06 Supervisor / Arquitecto · ver nota abajo · bloquea la premisa "exentamos de más" |
+| T-58 | ISR: total en USD como línea discreta bajo el total — reusa el TC de `/api/tc`, no altera ningún cálculo | ✅ CERRADO `28b7c3d` · 23-jul-2026 · pedido Rolo · MXN manda / USD subordinado; se oculta si ISR=0 o sin TC |
+| T-59 | ISR: depreciar mejoras a la construcción 3%/año (Art. 121-II/124) — Ticket 1 cotejo Veneros vs contador Adán Meza | ✅ CERRADO `548a022` · 07-ago-2026 · Arquitecto autoriza opción A (tope simétrico con construcción, 60%) · validado $23,976,706.84 exacto |
 
 ---
 
@@ -675,11 +677,20 @@ CD07 Senior asume custodia del criterio fiscal acumulado en commits T-24 a T-53 
 | #8 VALOR_UDI desfasado | T-51 | ✅ |
 | #11 meta tags PWA corruptos | T-53 | ✅ |
 | #16/#17 colores residuales CalcPro | T-52 | ✅ |
-| #9 INPC 2026 aplanado sin marcar estimado | — | 🟡 Bloqueado — espera INEGI ~24-jul-2026 |
+| #9 INPC 2026 aplanado + tablas INPC/UDI congeladas may-2026 (= Ticket 2 Veneros) | — | 🟠 Accionable — la fecha INEGI ~24-jul ya pasó; dato externo cotejo Adán: INPC ago-2026 ≈ 145.131 (vs placeholder 145.831), UDI ≈ 8.796571 (vs 8.841); requiere Arquitecto (tablas) |
 | manifest.json theme_color azul vs. paleta verde | T-54 | ✅ |
 | Loader JSON ignoraba mejoras/fechaMejoras (ticket Rolo) | T-55 | ✅ |
 | `/api/udi` no existía — UDI nunca en vivo (ticket Rolo) | T-56 | ✅ (falta verificar en preview) |
 | Criterio UDI: día 10 vs. fecha de enajenación | T-57 | 🔴 Abierto — decisión de Supervisor |
+| Total en USD bajo el total (pedido Rolo) | T-58 | ✅ |
+| Ticket 1 Veneros: mejoras no se depreciaban (subestimaba ISR) | T-59 | ✅ |
+
+### Cotejo Veneros — 07-ago-2026 (contador externo Adán Meza)
+Cotejo de `isr.html` contra 4 cálculos independientes del contador Adán Meza (Depto. 204, Los Veneros). 2 de 4 escenarios coincidieron < 0.3%; los otros dos dieron dos hallazgos. Origen: `TICKETS_Veneros_2026-08-07.md` (raíz del repo).
+
+- **Ticket 1 → T-59 (cerrado):** las mejoras no se depreciaban. Ancla externa: esc. 4 (mejoras $21,452,588.96 · 2021-02-10 → venta 2026-08-07, dep 15%) → mejoras actualizadas **$23,976,706.84**, idéntico al cálculo de Adán. Nota fina: con el fix la calc queda *más* correcta que Adán, porque él no prorrateó las mejoras por el % gravable de la exención y la calc sí (Art. 93 fr. XIX inciso a). El prorrateo Nuvigant NO se tocó.
+- **Ticket 2 → #9 (abierto, requiere Arquitecto):** tablas INPC/UDI congeladas en may-2026. Datos externos de Adán para ago-2026: INPC ≈ **145.131** (placeholder actual 145.831), UDI ≈ **8.796571** (fallback actual 8.841). Explica las divergencias de 0.18% (esc. 2) y 0.27% (esc. 3). No cambia conclusiones, pero conviene tabla al día para el follow-up al cliente.
+- **Esc. 1 (sin RFC):** −886k no es bug — la calc elige la opción MENOR (óptima, 25%); Adán usó 35%. Criterio, no defecto.
 
 ### T-57 — [ABIERTO] Criterio UDI: día 10 vs. fecha de enajenación
 **Dirigido a:** CD06 Supervisor / El Arquitecto — es decisión de criterio fiscal, fuera del alcance de CC y CD07.
