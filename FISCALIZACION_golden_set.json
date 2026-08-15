@@ -18,7 +18,7 @@
     "pv": 49500000,
     "pctT": 20,
     "pctC": 80,
-    "esperado": 10860829.45
+    "esperado": 10859795.79
   },
   {
     "id": "3_exentando",
@@ -30,7 +30,7 @@
     "pctC": 80,
     "exenc": 1,
     "numExentan": 1,
-    "esperado": 9250244.32
+    "esperado": 9249339.89
   },
   {
     "id": "4_exent_mejoras",
@@ -44,7 +44,7 @@
     "numExentan": 1,
     "mejoras": 21452588.96,
     "fMej": "2021-02",
-    "esperado": 2554521.77
+    "esperado": 2552083.75
   },
   {
     "id": "5_rfc_mejoras",
@@ -56,7 +56,7 @@
     "pctC": 80,
     "mejoras": 21452588.96,
     "fMej": "2021-02",
-    "esperado": 3080642.13
+    "esperado": 3077855.75
   },
   {
     "id": "6_exencion_total",
@@ -79,6 +79,6 @@
     "pctT": 20,
     "pctC": 80,
     "mejoras": 5000000,
-    "esperado": 9160829.45
+    "esperado": 9159795.79
   }
 ]
