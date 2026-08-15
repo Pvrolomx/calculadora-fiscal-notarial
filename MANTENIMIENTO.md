@@ -647,6 +647,7 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | — | **Fiscalización golden set (7 casos)** creada — ver `FISCALIZACION_golden_set.md`. Corrida 08-ago: 7/7 al centavo. Validó el fix de depreciación de mejoras (Art. 124/205) e INPC actualizado a 145.131. | ✅ activo de regresión |
 | T-59 | ISR: depreciar mejoras a la construcción 3%/año (Art. 121-II/124) — Ticket 1 cotejo Veneros vs contador Adán Meza | ✅ CERRADO `548a022` · 07-ago-2026 · Arquitecto autoriza opción A (tope simétrico con construcción, 60%) · validado $23,976,706.84 (sobre INPC previo; recalculado en T-60) |
 | T-60 | Datos: corregir tabla INPC 2026 (ene-mar con datos erróneos + abr-dic aplanados) a valores oficiales INEGI + UDI jun; jul-dic estimado-arrastre | ✅ CERRADO `c629735` · 07-ago-2026 · Arquitecto autoriza · resuelve Ticket 2 / #9 · ⚠️ **mueve el ancla canónica** (ver nota abajo) · motor intacto |
+| T-62 | Datos: INPC jul-2026 al valor REAL INEGI (145.169, antes estimado 145.131) + arrastre ago-dic; sube `INPC_VERIFICADO_HASTA` a 2026-07; golden set refrescado (5/7 esperados recalculados, suite 7/7) | ✅ CERRADO `78880a2` · 14-ago-2026 · Arquitecto autoriza · motor intacto; delta verificado = efecto INPC puro |
 
 ---
 
@@ -687,7 +688,7 @@ CD07 Senior asume custodia del criterio fiscal acumulado en commits T-24 a T-53 
 | #8 VALOR_UDI desfasado | T-51 | ✅ |
 | #11 meta tags PWA corruptos | T-53 | ✅ |
 | #16/#17 colores residuales CalcPro | T-52 | ✅ |
-| #9 / Ticket 2: INPC 2026 con datos erróneos (ene-mar) + aplanados (abr-dic); UDI stale | T-60 | ✅ INPC ene-jun a valores reales INEGI; jul-dic estimado-arrastre (145.131); UDI jun agregado, jul+ vía `/api/udi` |
+| #9 / Ticket 2: INPC 2026 con datos erróneos (ene-mar) + aplanados (abr-dic); UDI stale | T-60 / T-62 | ✅ INPC ene-**jul** a valores reales INEGI (jul 145.169, T-62); ago-dic estimado-arrastre (145.169); UDI jun agregado, jul+ vía `/api/udi` |
 | manifest.json theme_color azul vs. paleta verde | T-54 | ✅ |
 | Loader JSON ignoraba mejoras/fechaMejoras (ticket Rolo) | T-55 | ✅ |
 | `/api/udi` no existía — UDI nunca en vivo (ticket Rolo) | T-56 | ✅ (falta verificar en preview) |
