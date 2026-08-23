@@ -1,9 +1,12 @@
-const CACHE_NAME = 'calcfiscal-v3';
+const CACHE_NAME = 'calcfiscal-v4';
 const STATIC = [
     '/', 'index.html',
     'isr.html', 'isabi.html', 'iva.html',
     'calcpro.html',
-    'manifest.json'
+    'manifest.json',
+    'calcpro-manifest.json',
+    'icon-192.png',
+    'icon-512.png'
 ];
 
 self.addEventListener('install', e => {
