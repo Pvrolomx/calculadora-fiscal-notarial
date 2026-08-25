@@ -640,7 +640,7 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-53 | ISR: corregir meta tags PWA corruptos — 6 líneas con BEL/TAB → markup limpio, theme-color verde | ✅ CERRADO `3f5573a` · 04-jul-2026 · hallazgo #11 auditoría CC · alcance expandido de 2→6 líneas por CC |
 | T-54 | Manifest: theme_color `#1E3A5F` (azul) → `#22c55e` (verde) — alinear con paleta T-36/T-52/T-53 | ✅ CERRADO `47b2db9` · 04-jul-2026 · CD07 Senior autoriza · paleta verde ya consistente en CSS + meta + manifest |
 | T-55 | ISR: cargarDesdeJSON ignoraba `mejoras` y `fechaMejoras` — se descartaban en silencio, cálculo corría con mejoras = $0 | ✅ CERRADO `b0730cd` · 15-jul-2026 · ticket Rolo · fix arreglo de IDs + documentar campos en prompt embebido |
-| T-56 | API: crear `/api/udi` (serie SP68257, criterio día 10) — no existía, la UDI nunca se consultaba en vivo + constancia de procedencia en PDF | ✅ CERRADO `a142a0c` · 15-jul-2026 · ticket Rolo · ⚠️ falta verificar llamada real a Banxico en preview |
+| T-56 | API: crear `/api/udi` (serie SP68257, criterio día 10) — no existía, la UDI nunca se consultaba en vivo + constancia de procedencia en PDF | ✅ CERRADO `a142a0c` · 15-jul-2026 · ticket Rolo · **verificado en prod 23-ago (T-63): devuelve Banxico día-10 real** |
 | T-57 | ISR: criterio UDI — día 10 (Art. 124) vs. fecha de enajenación (Art. 93 fr. XIX) | 🔴 **ABIERTO** · dirigido a CD06 Supervisor / Arquitecto · ver nota abajo · bloquea la premisa "exentamos de más" |
 | T-58 | ISR: total en USD como línea discreta bajo el total — reusa el TC de `/api/tc`, no altera ningún cálculo | ✅ CERRADO `28b7c3d` · 23-jul-2026 · pedido Rolo · MXN manda / USD subordinado; se oculta si ISR=0 o sin TC |
 | T-61 | ISR: **check de frescura de índices** — al calcular, avisar (banner no-bloqueante) si la fecha de venta requiere un INPC/UDI de un mes posterior al último verificado contra fuente (constantes `INPC_VERIFICADO_HASTA` / `UDI_VERIFICADO_HASTA`). No altera el cálculo; solo alerta "verificar contra INEGI/Banxico". Código en `TICKETS_Veneros_2026-08-07.md` (sección rotulada T-59; en git = **T-61** por colisión con la depreciación de mejoras). | ✅ CERRADO `fa9a9e7` · 08-ago-2026 · Arquitecto autoriza · marcas en 2026-06 (jul INPC estimado, T-60); golden set 7/7 pre y post |
@@ -648,6 +648,7 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-59 | ISR: depreciar mejoras a la construcción 3%/año (Art. 121-II/124) — Ticket 1 cotejo Veneros vs contador Adán Meza | ✅ CERRADO `548a022` · 07-ago-2026 · Arquitecto autoriza opción A (tope simétrico con construcción, 60%) · validado $23,976,706.84 (sobre INPC previo; recalculado en T-60) |
 | T-60 | Datos: corregir tabla INPC 2026 (ene-mar con datos erróneos + abr-dic aplanados) a valores oficiales INEGI + UDI jun; jul-dic estimado-arrastre | ✅ CERRADO `c629735` · 07-ago-2026 · Arquitecto autoriza · resuelve Ticket 2 / #9 · ⚠️ **mueve el ancla canónica** (ver nota abajo) · motor intacto |
 | T-62 | Datos: INPC jul-2026 al valor REAL INEGI (145.169, antes estimado 145.131) + arrastre ago-dic; sube `INPC_VERIFICADO_HASTA` a 2026-07; golden set refrescado (5/7 esperados recalculados, suite 7/7) | ✅ CERRADO `78880a2` · 14-ago-2026 · Arquitecto autoriza · motor intacto; delta verificado = efecto INPC puro |
+| T-63 | Datos: UDI 2026 ene-sep re-verificada contra `/api/udi` (Banxico SP68257, día 10) — los previos eran de agregador (jun mal por 0.0009); + jul/ago/sep agregados; `VALOR_UDI`→8.816055, `UDI_VERIFICADO_HASTA`→2026-09. **Verifica y cierra T-56** (endpoint funciona en prod). | ✅ CERRADO `ec6df93` · 23-ago-2026 · Arquitecto autoriza · golden 3/4 recalculados, suite 7/7; fuente canónica = endpoint en vivo, tabla = fallback |
 
 ---
 
@@ -688,10 +689,10 @@ CD07 Senior asume custodia del criterio fiscal acumulado en commits T-24 a T-53 
 | #8 VALOR_UDI desfasado | T-51 | ✅ |
 | #11 meta tags PWA corruptos | T-53 | ✅ |
 | #16/#17 colores residuales CalcPro | T-52 | ✅ |
-| #9 / Ticket 2: INPC 2026 con datos erróneos (ene-mar) + aplanados (abr-dic); UDI stale | T-60 / T-62 | ✅ INPC ene-**jul** a valores reales INEGI (jul 145.169, T-62); ago-dic estimado-arrastre (145.169); UDI jun agregado, jul+ vía `/api/udi` |
+| #9 / Ticket 2: INPC 2026 con datos erróneos (ene-mar) + aplanados (abr-dic); UDI stale | T-60 / T-62 / T-63 | ✅ INPC ene-**jul** reales INEGI (jul 145.169); ago-dic estimado-arrastre; **UDI ene-sep re-verificada vs Banxico `/api/udi` (T-63)**; fuente viva = endpoint |
 | manifest.json theme_color azul vs. paleta verde | T-54 | ✅ |
 | Loader JSON ignoraba mejoras/fechaMejoras (ticket Rolo) | T-55 | ✅ |
-| `/api/udi` no existía — UDI nunca en vivo (ticket Rolo) | T-56 | ✅ (falta verificar en preview) |
+| `/api/udi` no existía — UDI nunca en vivo (ticket Rolo) | T-56 / T-63 | ✅ endpoint verificado en prod (23-ago); tabla UDI ene-sep re-verificada vs Banxico |
 | Criterio UDI: día 10 vs. fecha de enajenación | T-57 | 🔴 Abierto — decisión de Supervisor |
 | Total en USD bajo el total (pedido Rolo) | T-58 | ✅ |
 | Ticket 1 Veneros: mejoras no se depreciaban (subestimaba ISR) | T-59 | ✅ |
