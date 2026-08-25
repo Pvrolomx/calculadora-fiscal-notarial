@@ -2,7 +2,7 @@
 
 **Propósito:** validar el motor de `isr.html` después de cada cambio, corriéndolo contra un conjunto de casos con **resultado esperado verificado contra fuente independiente** (no contra la propia app). Correr esto ANTES y DESPUÉS de tocar el motor o las tablas.
 
-**Última corrida:** 14-ago-2026 → **7/7 casos coinciden al centavo.** Motor validado; fix de depreciación de mejoras (T1) correcto; INPC jul-2026 actualizado a valor REAL INEGI **145.169** (antes estimado 145.131) — esperados recalculados.
+**Última corrida:** 23-ago-2026 → **7/7 casos coinciden al centavo.** Motor validado; INPC jul-2026 real 145.169; **UDI 2026 re-verificada contra `/api/udi` (Banxico) — ago 8.797743** (antes fallback 8.841); esperados de casos 3 y 4 (exención) recalculados.
 
 ---
 
@@ -17,7 +17,7 @@
 3. Pegar el snippet de `FISCALIZACION_golden_set.json` → para cada caso: setear inputs, `await calcularISR(true)`, leer `resIsrTotal` (residente) o `resMejorOpcion` (extranjero), comparar contra `esperado`.
 4. Un caso PASA si `|obtenido − esperado| < $1`.
 
-> **Los `esperado` dependen del INPC de venta vigente.** Si se actualiza la tabla INPC/UDI, recalcular los esperados (el oráculo de referencia está reproducido en el motor validado, ver más abajo). En la corrida del 14-ago se usó INPC venta (jul-2026) = **145.169** (REAL INEGI, antes estimado 145.131), INPC compra (oct-2010) = 73.9689, INPC mejoras (feb-2021) = 110.907, UDI = 8.841.
+> **Los `esperado` dependen del INPC de venta vigente.** Si se actualiza la tabla INPC/UDI, recalcular los esperados (el oráculo de referencia está reproducido en el motor validado, ver más abajo). En la corrida del 14-ago se usó INPC venta (jul-2026) = **145.169** (REAL INEGI, antes estimado 145.131), INPC compra (oct-2010) = 73.9689, INPC mejoras (feb-2021) = 110.907, UDI venta (ago-2026, día 10) = **8.797743** (Banxico SP68257, antes fallback 8.841).
 
 ---
 
@@ -27,8 +27,8 @@
 |---|---|---|---|---|
 | 1 | Extranjero sin RFC | Art. 160: elige la MENOR (25% s/bruto) | $12,375,000.00 | ✅ |
 | 2 | Residente con RFC | tarifa Art. 152, sin exención | $10,859,795.79 | ✅ |
-| 3 | Exentando | prorrateo exención (Art. 93 fr. XIX) | $9,249,339.89 | ✅ |
-| 4 | **Exent. + mejoras** | **fix T1: deprecia (Art.124) + prorratea** | $2,552,083.75 | ✅ |
+| 3 | Exentando | prorrateo exención (Art. 93 fr. XIX) | $9,257,219.48 | ✅ |
+| 4 | **Exent. + mejoras** | **fix T1: deprecia (Art.124) + prorratea** | $2,554,656.23 | ✅ |
 | 5 | Con RFC + mejoras | mejoras sin exención | $3,077,855.75 | ✅ |
 | 6 | Exención total (borde) | precio < 700k UDIS → todo exento | $0.00 | ✅ |
 | 7 | Mejoras sin fecha (borde) | regresión: no rompe sin fecha (nominal) | $9,159,795.79 | ✅ |
@@ -47,5 +47,5 @@ Verificado por: debate adversarial multiagente + contraste con CX (Codex) + cote
 ---
 
 ## Pendientes de tabla (T2, requieren autorización del Arquitecto)
-- **UDI:** la tabla `UDIS` llega a 2026-05 (8.841); `getUDI` cae a fallback para jun/jul/ago 2026. Actualizar contra Banxico SIE. Afecta la exención en centésimas.
+- **UDI:** RESUELTO (T-63). Tabla `UDIS` ene-sep 2026 re-verificada contra `/api/udi` (Banxico SP68257, día 10); fuente canónica = el endpoint en vivo, la tabla es fallback. `VALOR_UDI` = 8.816055 (sep). Próximo Hito 3: leer del endpoint, no de agregadores.
 - INPC: jun-2026 = 145.131 y jul-2026 = 145.169 son valores REALES INEGI; ago-dic arrastran 145.169 (estimado) hasta publicación. Verificar contra INEGI al cierre de cada mes.

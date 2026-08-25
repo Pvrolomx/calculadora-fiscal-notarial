@@ -30,7 +30,7 @@
     "pctC": 80,
     "exenc": 1,
     "numExentan": 1,
-    "esperado": 9249339.89
+    "esperado": 9257219.48
   },
   {
     "id": "4_exent_mejoras",
@@ -44,7 +44,7 @@
     "numExentan": 1,
     "mejoras": 21452588.96,
     "fMej": "2021-02",
-    "esperado": 2552083.75
+    "esperado": 2554656.23
   },
   {
     "id": "5_rfc_mejoras",

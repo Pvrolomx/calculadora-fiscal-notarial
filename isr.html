@@ -1109,7 +1109,7 @@
         }
         
         // Valor UDI (actualizar periodicamente)
-        const VALOR_UDI = 8.841000; // Mayo 2026 — actualizar en cada auditoría mensual (Hito 3)
+        const VALOR_UDI = 8.816055; // Septiembre 2026 (Banxico día 10) — último recurso; /api/udi es la fuente viva
         const EXENCION_UDIS = 700000; // 700,000 UDIs
 
         // Última verificación contra fuente oficial — ACTUALIZAR en cada Hito 3 (T-61)
@@ -1118,7 +1118,7 @@
         // INPC: jul-2026 real (INEGI, 145.169); ago+ ESTIMADO en la tabla (arrastre).
         // UDI: jun-2026 (DOF 10-jun) agregado en T-60; jul+ se resuelven vía /api/udi.
         const INPC_VERIFICADO_HASTA = '2026-07'; // INEGI
-        const UDI_VERIFICADO_HASTA  = '2026-06'; // Banxico SIE
+        const UDI_VERIFICADO_HASTA  = '2026-09'; // Banxico SIE
 
         // === VALORES UDI OFICIALES (Banxico SIE CP150) ===
         // Fallback estático para getUDIAsync() cuando /api/udi no responde
@@ -1254,11 +1254,13 @@
             '2025-01': 8.362982, '2025-02': 8.383356, '2025-03': 8.406034, '2025-04': 8.429136,
             '2025-05': 8.459954, '2025-06': 8.481647, '2025-07': 8.506750, '2025-08': 8.533770,
             '2025-09': 8.537553, '2025-10': 8.560656, '2025-11': 8.586547, '2025-12': 8.638816,
-            // === 2026 (Banxico, día 10). jun-2026 oficial (DOF 10-jun = 8.830830).
-            // jul-2026 en adelante: se resuelven en vivo vía /api/udi (T-56); esta tabla
-            // es solo fallback. jun agregado en T-60 tras cotejo Veneros.
-            '2026-01': 8.674400, '2026-02': 8.699200, '2026-03': 8.735500, '2026-04': 8.819300,
-            '2026-05': 8.841000, '2026-06': 8.830830,
+            // === 2026 (Banxico SP68257, día 10). FUENTE CANÓNICA = /api/udi en vivo
+            // (T-56, verificado en prod 23-ago). Esta tabla es SOLO fallback offline.
+            // T-63: valores ene-sep re-verificados contra /api/udi (los previos eran de
+            // agregador; jun estaba mal por 0.0009: 8.830830 → 8.829940 real).
+            '2026-01': 8.674409, '2026-02': 8.699209, '2026-03': 8.735470, '2026-04': 8.819269,
+            '2026-05': 8.841037, '2026-06': 8.829940, '2026-07': 8.808839, '2026-08': 8.797743,
+            '2026-09': 8.816055,
         };
         
         // Obtener UDI por fecha (usa mes de la fecha)
