@@ -4,6 +4,7 @@
   ],
   "functions": {
     "api/tc.js": { "memory": 128, "maxDuration": 10 },
-    "api/udi.js": { "memory": 128, "maxDuration": 10 }
+    "api/udi.js": { "memory": 128, "maxDuration": 10 },
+    "api/inpc.js": { "memory": 128, "maxDuration": 10 }
   }
 }
