@@ -1048,10 +1048,10 @@
             // abr-dic estaban aplanados en 145.831. Valores reales verificados vs INEGI.
             '2026-01': 143.588, '2026-02': 144.307, '2026-03': 145.544, '2026-04': 145.831,
             '2026-05': 145.527, '2026-06': 145.131, '2026-07': 145.169,
-            // ago-dic 2026: ESTIMADO — arrastra el último real (jul 145.169) hasta que
+            '2026-08': 145.462, '2026-09': 146.075,
+            // oct-dic 2026: ESTIMADO — arrastra el último real (sep 146.075) hasta que
             // INEGI publique (~día 9 de cada mes). Actualizar en el Hito 3 mensual.
-            '2026-08': 145.169, '2026-09': 145.169,
-            '2026-10': 145.169, '2026-11': 145.169, '2026-12': 145.169
+            '2026-10': 146.075, '2026-11': 146.075, '2026-12': 146.075
         };
         
                 // TABLAS ISR POR AÑO (Art. 152 LISR - Anexo 8 RMF)
@@ -1115,9 +1115,9 @@
         // Última verificación contra fuente oficial — ACTUALIZAR en cada Hito 3 (T-61)
         // OJO: es el último mes VERIFICADO contra fuente, NO el último mes de la tabla
         // (que trae meses estimados/placeholder). Ver check de frescura más abajo.
-        // INPC: jul-2026 real (INEGI, 145.169); ago+ ESTIMADO en la tabla (arrastre).
+        // INPC: sep-2026 real (INEGI, 146.075); oct+ ESTIMADO en la tabla (arrastre).
         // UDI: jun-2026 (DOF 10-jun) agregado en T-60; jul+ se resuelven vía /api/udi.
-        const INPC_VERIFICADO_HASTA = '2026-07'; // INEGI
+        const INPC_VERIFICADO_HASTA = '2026-09'; // INEGI
         const UDI_VERIFICADO_HASTA  = '2026-09'; // Banxico SIE
 
         // === VALORES UDI OFICIALES (Banxico SIE CP150) ===
@@ -2337,7 +2337,7 @@
 
         function g(id) {
             const el = document.getElementById(id);
-            return el ? el.textContent.trim() : '—';
+            return el ? el.textContent.trim() : '-';
         }
 
         function isVisible(id) {
@@ -2371,18 +2371,18 @@
         // ── DATOS DE LA OPERACIÓN ─────────────────────────────
         seccion('Datos de la Operación');
 
-        const fechaCompra = document.getElementById('fechaCompra')?.value || '—';
-        const precioCompra = document.getElementById('precioCompra')?.value || '—';
-        const fechaVenta = document.getElementById('fechaVenta')?.value || '—';
-        const precioVenta = document.getElementById('precioVenta')?.value || '—';
+        const fechaCompra = document.getElementById('fechaCompra')?.value || '-';
+        const precioCompra = document.getElementById('precioCompra')?.value || '-';
+        const fechaVenta = document.getElementById('fechaVenta')?.value || '-';
+        const precioVenta = document.getElementById('precioVenta')?.value || '-';
         const numEnajenantes = document.getElementById('numEnajenantes')?.value || '1';
-        const pctTerreno = document.getElementById('pctTerreno')?.value || '—';
-        const pctConstruccion = document.getElementById('pctConstruccion')?.value || '—';
-        const comision = document.getElementById('comision')?.value || '—';
+        const pctTerreno = document.getElementById('pctTerreno')?.value || '-';
+        const pctConstruccion = document.getElementById('pctConstruccion')?.value || '-';
+        const comision = document.getElementById('comision')?.value || '-';
 
         // Formateador ISO → dd/mm/yyyy
         function fmtFecha(iso) {
-            if (!iso || iso === '—') return '—';
+            if (!iso || iso === '-') return '-';
             const [y, m, d] = iso.split('-');
             return d && m && y ? `${d}/${m}/${y}` : iso;
         }
@@ -2410,7 +2410,7 @@
             doc.setFont('helvetica', 'normal');
             txt('Monto en dólares (USD)', '$ ' + usdAmount);
             txt('Tipo de cambio aplicado', '$ ' + tcValue + ' MXN/USD');
-            txt('Equivalente MXN', usdResult || '—');
+            txt('Equivalente MXN', usdResult || '-');
         }
 
         linea();
@@ -2425,8 +2425,8 @@
 
         // ── DEDUCCIONES ───────────────────────────────────────
         seccion('Deducciones Autorizadas');
-        txt('Terreno actualizado', g('resTerrenoAct'));
-        txt('Construcción (depreciada y actualizada)', g('resConstruccionAct'));
+        txt(g('labelTerrenoAct'), g('resTerrenoAct'));
+        txt(g('labelConstruccionAct'), g('resConstruccionAct'));
         txt('Gastos / Mejoras', g('resGastos'));
         txt('Comisión (por enajenante)', g('resComision'));
         txt('TOTAL DEDUCCIONES', g('resTotalDeduc'), true);
@@ -2435,14 +2435,14 @@
         // ── UTILIDAD GRAVABLE ─────────────────────────────────
         seccion('Utilidad Gravable');
         txt('Precio de enajenación', g('resPrecioVenta'));
-        txt('(−) Total deducciones', g('resMenosDeduc'));
+        txt('(-) Total deducciones', g('resMenosDeduc'));
         if (isVisible('rowExencion')) {
-            txt('(−) Exención casa habitación', g('resExencion'));
-            // Constancia de procedencia de la UDI — en vivo vs. fallback local (T-56)
+            txt('(-) Exención casa habitación', g('resExencion'));
+            // Constancia de procedencia de la UDI - en vivo vs. fallback local (T-56)
             const udiVal = udiKeyUltima ? udiCache[udiKeyUltima] : null;
             if (udiVal) {
                 txt('Valor UDI aplicado (' + udiKeyUltima + ', día 10)',
-                    udiVal.toFixed(6) + ' · ' + (udiFuenteUltima || '—'));
+                    udiVal.toFixed(6) + ' · ' + (udiFuenteUltima || '-'));
             }
         }
         if (isVisible('rowPctGravable')) txt('% Gravable (después exención)', g('resPctGravable'));
@@ -2452,13 +2452,13 @@
         // ── ISR ───────────────────────────────────────────────
         const esExtranjero = document.getElementById('esExtranjero')?.checked;
         if (esExtranjero && isVisible('seccionExtranjero')) {
-            seccion('ISR Extranjero — Art. 160 LISR');
+            seccion('ISR Extranjero - Art. 160 LISR');
             txt('Opción 1: 25% s/Ingreso bruto', g('resIsr25'));
             txt('Opción 2: 35% s/Ganancia', g('resIsr35'));
             if (isVisible('rowIsrTablas')) txt('Opción 3: Tablas Art. 152', g('resIsrTablas'));
-            txt('✅ Mejor opción', g('resMejorOpcion'), true);
+            txt('Mejor opción', g('resMejorOpcion'), true);
         } else {
-            seccion('Cálculo ISR — Art. 126/152 LISR');
+            seccion('Cálculo ISR - Art. 126/152 LISR');
             txt('Utilidad anual (utilidad ÷ años)', g('resUtilidadAnual'));
             txt('ISR anual (tablas Art. 152)', g('resIsrAnual'));
             txt('ISR total (ISR anual × años)', g('resIsrTotal'));
