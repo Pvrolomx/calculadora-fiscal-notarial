@@ -788,6 +788,7 @@
         <div id="resultados" class="card hidden">
             <h2>📊 Resultados del Cálculo</h2>
             <div id="avisoFrescura" style="display:none;background:#fef3c7;border-left:3px solid #d97706;color:#92400e;padding:.6rem .9rem;border-radius:4px;font-size:.85rem;margin:.5rem 0;"></div>
+            <div id="avisoInpc" style="display:none;background:#fef3c7;border-left:3px solid #d97706;color:#92400e;padding:.6rem .9rem;border-radius:4px;font-size:.85rem;margin:.5rem 0;"></div>
             
             <div class="result-section">
                 <h3 style="font-size:0.85rem;margin-bottom:1rem;color:var(--primary);">Actualización por Inflación</h3>
@@ -1403,6 +1404,9 @@
         
         // Cache para INPC consultados
         const inpcCache = {};
+        // Meses de INPC solicitados que NO están en la tabla (se usó fallback dic-2025).
+        // Se reinicia en cada corrida de calcularISR; se lee para avisar (T4 Girasol).
+        let inpcMesesNoDisponibles = [];
         
         // getINPC ahora es async y respeta toggle de tabla local
         async function getINPCAsync(fecha, usarMesAnterior = false) {
@@ -1414,6 +1418,10 @@
                 const yr = dt.getFullYear();
                 const mo = dt.getMonth() + 1;
                 const ky = yr + '-' + String(mo).padStart(2, '0');
+                if (INPC[ky] === undefined && !inpcMesesNoDisponibles.includes(ky)) {
+                    inpcMesesNoDisponibles.push(ky);
+                    console.warn('INPC ' + ky + ' no está en la tabla (inicia en 2000) — fallback dic-2025');
+                }
                 return INPC[ky] || INPC['2025-12'];
             }
             const d = new Date(fecha + 'T12:00:00');
@@ -1437,11 +1445,14 @@
             }
             
             // Fallback a tabla local
+            if (INPC[key] === undefined && !inpcMesesNoDisponibles.includes(key)) {
+                inpcMesesNoDisponibles.push(key);
+                console.warn('INPC ' + key + ' no está en la tabla (inicia en 2000) — fallback dic-2025');
+            }
             const fallback = INPC[key] || INPC['2025-12'];
-            inpcCache[key] = fallback;
-            return fallback;
+            return fallback; // no se cachea el fallback: re-evalúa cada corrida (T4)
         }
-        
+
         function calcularISRTablas(utilidadAnual, fechaVentaParam) {
             if (utilidadAnual <= 0) return 0;
             const tablaISR = getTablaISR(fechaVentaParam || fechaVenta);
@@ -1511,6 +1522,7 @@
             const anios    = Math.max(1, Math.min(aniosReales, 20)); // Para dividir utilidad Art.124: mínimo 1
             
             // Obtener INPC
+            inpcMesesNoDisponibles = []; // reset por corrida — T4 (detectar fechas fuera de la tabla)
             const inpcVenta = await getINPCAsync(fechaVenta, true); // Mes ANTERIOR per Art.124 LISR // Mes ANTERIOR per Art.124 LISR
             const inpcCompra = await getINPCAsync(fechaCompra);
             const factorINPC = Math.max(1, inpcVenta / inpcCompra); // Art. 17-A CFF: si el factor resulta < 1, se considera 1
@@ -1693,10 +1705,30 @@
             // Mostrar resultados
             document.getElementById('resultados').classList.remove('hidden');
             
+            // T4: si la fecha de compra cae fuera de la tabla INPC, no mostramos un
+            // INPC/factor inventado — lo decimos explícitamente (pantalla y, vía g(), PDF).
+            const dCompraKey = new Date(fechaCompra + 'T12:00:00');
+            const keyCompra = dCompraKey.getFullYear() + '-' + String(dCompraKey.getMonth() + 1).padStart(2, '0');
+            const compraNoDisp = inpcMesesNoDisponibles.includes(keyCompra);
+
             document.getElementById('resInpcVenta').textContent = inpcVenta.toFixed(4);
-            document.getElementById('resInpcCompra').textContent = inpcCompra.toFixed(4);
-            document.getElementById('resFactor').textContent = factorINPC.toFixed(4);
+            document.getElementById('resInpcCompra').textContent = compraNoDisp ? 'No disponible' : inpcCompra.toFixed(4);
+            document.getElementById('resFactor').textContent = compraNoDisp ? 'No aplicable (ver aviso)' : factorINPC.toFixed(4);
             document.getElementById('resAnios').textContent = anios;
+
+            const avisoInpcEl = document.getElementById('avisoInpc');
+            if (avisoInpcEl) {
+                if (inpcMesesNoDisponibles.length) {
+                    const colofon = usaCostoMinimo
+                        ? ' En esta operación rige el COSTO MÍNIMO del 10% (Art. 121 LISR), así que el ISR es correcto.'
+                        : ' El resultado para ese periodo no es confiable: captura el INPC manualmente o desactiva "usar tabla local" para consultarlo en vivo.';
+                    avisoInpcEl.textContent = '⚠️ INPC no disponible en la tabla (inicia en 2000) para: '
+                        + inpcMesesNoDisponibles.join(', ') + '.' + colofon;
+                    avisoInpcEl.style.display = 'block';
+                } else {
+                    avisoInpcEl.style.display = 'none';
+                }
+            }
             
             if (usaCostoMinimo) {
                 document.getElementById('labelTerrenoAct').textContent = 'Costo mínimo deducible (10% Art.121 LISR)';
@@ -2421,6 +2453,19 @@
         txt('INPC mes de compra', g('resInpcCompra'));
         txt('Factor de actualización', g('resFactor'));
         txt('Años transcurridos', g('resAnios'));
+        // T4: aviso de INPC no disponible (si lo hay en pantalla), sin emoji para WinAnsi
+        const avInpc = document.getElementById('avisoInpc');
+        if (avInpc && avInpc.style.display !== 'none' && avInpc.textContent.trim()) {
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'italic');
+            doc.setTextColor(...GRIS);
+            const avTxt = 'Aviso: ' + avInpc.textContent.replace(/[Ā-￿]/g, '').trim();
+            const wrap = doc.splitTextToSize(avTxt, pageW - margen * 2);
+            doc.text(wrap, margen, y);
+            y += wrap.length * 4 + 1;
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(...NEGRO);
+        }
         linea();
 
         // ── DEDUCCIONES ───────────────────────────────────────
