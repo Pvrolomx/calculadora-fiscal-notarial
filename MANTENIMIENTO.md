@@ -651,6 +651,8 @@ La tabla `INPC` embebida tiene `'2026-04': 145.831` y `'2026-05': 145.831` — v
 | T-63 | Datos: UDI 2026 ene-sep re-verificada contra `/api/udi` (Banxico SP68257, día 10) — los previos eran de agregador (jun mal por 0.0009); + jul/ago/sep agregados; `VALOR_UDI`→8.816055, `UDI_VERIFICADO_HASTA`→2026-09. **Verifica y cierra T-56** (endpoint funciona en prod). | ✅ CERRADO `ec6df93` · 23-ago-2026 · Arquitecto autoriza · golden 3/4 recalculados, suite 7/7; fuente canónica = endpoint en vivo, tabla = fallback |
 | T-64 | Girasol T2+T5: INPC ago/sep 2026 reales INEGI (145.462 / 146.075), `INPC_VERIFICADO_HASTA`→2026-09 · PDF limpia caracteres no-WinAnsi (18: em dash/minus/emoji → ASCII) + etiqueta dinámica de costo mínimo en el PDF (pendiente desde T-49) | ✅ CERRADO `dfc8efc` · 16-oct-2026 · Arquitecto autoriza · golden 7/7 (T2 no mueve casos de venta-ago); motor intacto |
 | T-65 | Girasol T1+T3: crear `/api/inpc` (serie **SP1**, INPC general base 2Q-jul-2018; query mensual) — el INPC nunca se consultaba en vivo (como T-56/udi) · piso **Art. 17-A CFF** (`Math.max(1,…)`) en factorINPC/Comisión/Mejoras | ✅ CERRADO `62cf94e` · 16-oct-2026 · Arquitecto autoriza · **SP1 verificada en prod** (jul/ago/sep = 145.169/145.462/146.075 al centavo); golden 7/7 |
+| T-66 | Girasol T4: INPC de compra fuera de la tabla (pre-2000) ya NO usa fallback silencioso a dic-2025 — avisa. `getINPCAsync` registra meses faltantes; pantalla/PDF muestran "No disponible"/"No aplicable" + banner `#avisoInpc` (dice si rige el costo mínimo 10%). Respeta `/api/inpc` (SP1 desde 1969). **Cierra el cotejo Girasol (5/5)** | ✅ CERRADO `c552c46` · 16-oct-2026 · Arquitecto autoriza · no cambia ningún número; golden 7/7 |
+| T-67 | Datos (Hito 3): INPC oct-2026 al valor real **147.026** (Banxico SP1 vía `/api/inpc`); arrastre nov-dic; `INPC_VERIFICADO_HASTA`→2026-10 | ✅ CERRADO `d234d48` · 11-nov-2026 · Arquitecto autoriza · golden 7/7 (casos venta-ago, sin cambio); motor intacto |
 
 ---
 
@@ -691,14 +693,14 @@ CD07 Senior asume custodia del criterio fiscal acumulado en commits T-24 a T-53 
 | #8 VALOR_UDI desfasado | T-51 | ✅ |
 | #11 meta tags PWA corruptos | T-53 | ✅ |
 | #16/#17 colores residuales CalcPro | T-52 | ✅ |
-| #9 / Ticket 2: INPC 2026 con datos erróneos (ene-mar) + aplanados (abr-dic); UDI stale | T-60 / T-62 / T-63 / T-64 | ✅ INPC ene-**sep** reales INEGI (sep 146.075, T-64); oct-dic estimado-arrastre; **UDI ene-sep re-verificada vs Banxico `/api/udi` (T-63)**; fuente viva = endpoints |
+| #9 / Ticket 2: INPC 2026 con datos erróneos (ene-mar) + aplanados (abr-dic); UDI stale | T-60 / T-62 / T-63 / T-64 / T-67 | ✅ INPC ene-**oct** reales INEGI/SP1 (oct 147.026, T-67); nov-dic estimado-arrastre; **UDI ene-sep re-verificada vs Banxico `/api/udi` (T-63)**; fuente viva = endpoints |
 | manifest.json theme_color azul vs. paleta verde | T-54 | ✅ |
 | Loader JSON ignoraba mejoras/fechaMejoras (ticket Rolo) | T-55 | ✅ |
 | `/api/udi` no existía — UDI nunca en vivo (ticket Rolo) | T-56 / T-63 | ✅ endpoint verificado en prod (23-ago); tabla UDI ene-sep re-verificada vs Banxico |
 | `/api/inpc` no existía — INPC nunca en vivo (Girasol T1) | T-65 | ✅ endpoint serie **SP1** verificado en prod (16-oct); jul/ago/sep cuadran al centavo; fuente viva = endpoint |
 | Factor de actualización podía quedar < 1 (Girasol T3) | T-65 | ✅ piso Art. 17-A CFF en factorINPC/Comisión/Mejoras |
 | PDF: caracteres no-WinAnsi (em dash/minus/emoji) + etiqueta costo mínimo (Girasol T5) | T-64 | ✅ |
-| Compra fuera de la tabla INPC (pre-2000) → fallback silencioso a dic-2025 (Girasol T4) | — | 🟠 Pendiente — decisión de diseño: avisar vs. extender tabla a 1969 |
+| Compra fuera de la tabla INPC (pre-2000) → fallback silencioso a dic-2025 (Girasol T4) | T-66 | ✅ opción (b): avisa ("No disponible" + banner), no fallback silencioso; online lo resuelve `/api/inpc` |
 | Criterio UDI: día 10 vs. fecha de enajenación | T-57 | 🔴 Abierto — decisión de Supervisor |
 | Total en USD bajo el total (pedido Rolo) | T-58 | ✅ |
 | Ticket 1 Veneros: mejoras no se depreciaban (subestimaba ISR) | T-59 | ✅ |
