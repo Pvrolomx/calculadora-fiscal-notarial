@@ -1049,10 +1049,10 @@
             // abr-dic estaban aplanados en 145.831. Valores reales verificados vs INEGI.
             '2026-01': 143.588, '2026-02': 144.307, '2026-03': 145.544, '2026-04': 145.831,
             '2026-05': 145.527, '2026-06': 145.131, '2026-07': 145.169,
-            '2026-08': 145.462, '2026-09': 146.075,
-            // oct-dic 2026: ESTIMADO — arrastra el último real (sep 146.075) hasta que
+            '2026-08': 145.462, '2026-09': 146.075, '2026-10': 147.026,
+            // nov-dic 2026: ESTIMADO — arrastra el último real (oct 147.026) hasta que
             // INEGI publique (~día 9 de cada mes). Actualizar en el Hito 3 mensual.
-            '2026-10': 146.075, '2026-11': 146.075, '2026-12': 146.075
+            '2026-11': 147.026, '2026-12': 147.026
         };
         
                 // TABLAS ISR POR AÑO (Art. 152 LISR - Anexo 8 RMF)
@@ -1116,9 +1116,9 @@
         // Última verificación contra fuente oficial — ACTUALIZAR en cada Hito 3 (T-61)
         // OJO: es el último mes VERIFICADO contra fuente, NO el último mes de la tabla
         // (que trae meses estimados/placeholder). Ver check de frescura más abajo.
-        // INPC: sep-2026 real (INEGI, 146.075); oct+ ESTIMADO en la tabla (arrastre).
+        // INPC: oct-2026 real (INEGI/Banxico SP1, 147.026); nov+ ESTIMADO (arrastre).
         // UDI: jun-2026 (DOF 10-jun) agregado en T-60; jul+ se resuelven vía /api/udi.
-        const INPC_VERIFICADO_HASTA = '2026-09'; // INEGI
+        const INPC_VERIFICADO_HASTA = '2026-10'; // INEGI
         const UDI_VERIFICADO_HASTA  = '2026-09'; // Banxico SIE
 
         // === VALORES UDI OFICIALES (Banxico SIE CP150) ===
